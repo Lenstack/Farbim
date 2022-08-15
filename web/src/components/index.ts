@@ -1,1 +1,1 @@
-export {Wrapper} from "./layout";
+export {Layout} from "./layout";

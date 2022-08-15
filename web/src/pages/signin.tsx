@@ -1,5 +1,11 @@
-import {Wrapper} from "@/components";
+import {Layout} from "@/components";
 
 export const SignIn = () => {
-    return (<Wrapper>SignIn</Wrapper>)
+    return (
+        <Layout>
+            <Layout.Main>
+                <h1>Main SignIn</h1>
+            </Layout.Main>
+        </Layout>
+    )
 };
