@@ -1,3 +1,5 @@
+import {SignIn} from "@/pages";
+
 export const App = () => {
-    return (<div>App</div>)
+    return (<SignIn/>)
 }
