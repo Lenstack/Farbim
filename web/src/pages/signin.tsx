@@ -1,13 +1,11 @@
-import {Card, Layout} from "@/components";
+import {Layout, Main} from "@/components";
 
 export const SignIn = () => {
     return (
         <Layout>
-            <Layout.Main>
-                <Card>
-                    <h1>Main SignIn</h1>
-                </Card>
-            </Layout.Main>
+            <Main>
+                <p>Lorem ipsum dolor.</p>
+            </Main>
         </Layout>
     )
 };

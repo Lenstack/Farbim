@@ -1,2 +1,1 @@
-export {Layout} from "./layout";
-export {Card} from "./card"
+export {Layout, Wrapper, Container, Header, Article, Aside, Main, Footer} from "./layout";

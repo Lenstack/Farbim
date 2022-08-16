@@ -26,7 +26,7 @@ export const GlobalStyle = createGlobalStyle`
 
   body {
     background-color: ${props => props.theme.colors.bg};
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-family: 'Rubik', sans-serif;
   }
 `
