@@ -1,2 +1,2 @@
-export {ROUTES} from "./routes";
+export {ROUTES, ROUTES_PROTECTED} from "./routes";
 

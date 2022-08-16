@@ -1,14 +1,20 @@
-import {createGlobalStyle} from "styled-components";
+import {createGlobalStyle, DefaultTheme} from "styled-components";
 
-export const Theme = {
-    isDark: {
-        bgColor: "#0A0911",
-        primary: "#101012"
-    },
-    isLight: {
-        bgColor: "#FFFCF6",
-        primary: "#FFFFFF"
+export const Light: DefaultTheme = {
+    colors: {
+        bg: "#FFFFFF"
     }
+}
+
+export const Dark: DefaultTheme = {
+    colors: {
+        bg: "#000000"
+    }
+}
+
+export const Themes = {
+    Light,
+    Dark
 }
 
 export const GlobalStyle = createGlobalStyle`
@@ -19,7 +25,7 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   body {
-    background-color: #FFFCF6;
+    background-color: ${props => props.theme.colors.bg};
     font-size: 0.875rem;
     font-family: 'Rubik', sans-serif;
   }

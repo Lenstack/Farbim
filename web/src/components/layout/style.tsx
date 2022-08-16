@@ -4,7 +4,9 @@ export const Wrapper = styled.section`
   min-height: 100vh;
   display: grid;
   grid-template-columns: repeat(11, 1fr);
-  grid-template-rows: repeat(11, 1fr);
+`
+
+export const Container = styled.section`
 `
 
 export const Header = styled.header`

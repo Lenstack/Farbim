@@ -1,11 +1,14 @@
 import React from 'react'
 import {createRoot} from 'react-dom/client'
 import {App} from "./app";
-import {GlobalStyle, Theme} from "@/globalStyle";
+import {GlobalStyle, Themes} from "@/globalStyle";
+import {ThemeProvider} from "styled-components";
 
 createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
-        <GlobalStyle/>
-        <App/>
+        <ThemeProvider theme={Themes['Light']}>
+            <GlobalStyle/>
+            <App/>
+        </ThemeProvider>
     </React.StrictMode>
 )
