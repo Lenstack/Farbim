@@ -1,5 +1,5 @@
 import {Main, Container, Header, Form, Label, Group, Input, Link, Button, Error} from "@/components";
-import {ROUTES} from "@/constants";
+import {PUBLIC_ROUTES} from "@/constants";
 import {SubmitHandler, useForm} from "react-hook-form";
 
 interface IFormSignIn {
@@ -33,8 +33,8 @@ export const SignIn = () => {
                                id={'password'}/>
                         <Error>{errors.password?.message}</Error>
                         <Group>
-                            <Link to={ROUTES.SIGN_UP}>Not have account?</Link>
-                            <Link to={ROUTES.RESET_PASSWORD}>Forgotten Password?.</Link>
+                            <Link to={PUBLIC_ROUTES.SIGN_UP}>Not have account?</Link>
+                            <Link to={PUBLIC_ROUTES.RESET_PASSWORD}>Forgotten Password?.</Link>
                         </Group>
                     </Group>
                     <Button type={"submit"}>Sign In.</Button>

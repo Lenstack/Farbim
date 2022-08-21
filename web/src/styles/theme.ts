@@ -1,6 +1,6 @@
-import {createGlobalStyle, DefaultTheme} from "styled-components";
+import {DefaultTheme} from "styled-components";
 
-export const Light: DefaultTheme = {
+const Light: DefaultTheme = {
     colors: {
         background: {
             primary: "#E8E8E1",
@@ -18,7 +18,7 @@ export const Light: DefaultTheme = {
     }
 }
 
-export const Dark: DefaultTheme = {
+const Dark: DefaultTheme = {
     colors: {
         background: {
             primary: "#191C19",
@@ -39,17 +39,3 @@ export const Themes = {
     Light,
     Dark
 }
-
-export const GlobalStyle = createGlobalStyle`
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
-  body {
-    font-size: ${props => props.theme.fonts.size};
-    font-family: 'Rubik', sans-serif;
-    color: ${props => props.theme.fonts.color};
-  }
-`
