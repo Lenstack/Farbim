@@ -4,7 +4,8 @@ const Light: DefaultTheme = {
     colors: {
         background: {
             primary: "#E8E8E1",
-            secondary: "#F6F6F6"
+            secondary: "#F6F6F6",
+            third: "#fbfbfb"
         },
         info: "#8AD7E3",
         success: "#8AE3B1",
@@ -22,7 +23,8 @@ const Dark: DefaultTheme = {
     colors: {
         background: {
             primary: "#191C19",
-            secondary: "#222823"
+            secondary: "#222823",
+            third: "#2c332e"
         },
         info: "#8AD7E3",
         success: "#8AE3B1",

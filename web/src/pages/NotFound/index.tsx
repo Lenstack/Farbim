@@ -1,3 +1,5 @@
+import {Wrapper} from "@/components";
+
 export const NotFound = () => {
-    return (<div>NotFound</div>)
+    return (<Wrapper>NotFound</Wrapper>)
 }

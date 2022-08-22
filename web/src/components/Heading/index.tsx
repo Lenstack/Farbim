@@ -1,3 +1,5 @@
-export const Heading = () => {
-    return (<div>Heading</div>)
-}
+import styled from "styled-components";
+
+export const Heading = styled.header`
+  margin: 2rem;
+`

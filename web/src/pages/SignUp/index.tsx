@@ -1,3 +1,5 @@
+import {Wrapper} from "@/components";
+
 export const SignUp = () => {
-    return (<div>SignUp</div>)
+    return (<Wrapper>SignUp</Wrapper>)
 }

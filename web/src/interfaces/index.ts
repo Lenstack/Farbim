@@ -1,0 +1,1 @@
+export type {IStyledProps} from "./styledprops"

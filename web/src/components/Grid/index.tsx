@@ -1,60 +1,32 @@
 import styled from "styled-components";
+import {IStyledProps} from "@/interfaces";
 
-interface IProps {
-    Column?: string
-    Row?: string
-    Border?: string
-    Padding?: string
-    Margin?: string
-    Width?: string
-    Height?: string
-}
-
-export const Wrapper = styled.div<IProps>`
-  display: grid;
-  grid-template-columns: repeat(11, 1fr);
-  grid-template-rows: auto;
+export const Wrapper = styled.section`
   min-height: 100vh;
-  min-width: 100%;
+  width: 100%;
   background-color: ${props => props.theme.colors.background.primary};
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: auto;
+  grid-gap: 0.5rem;
 `
 
-export const Container = styled.section<IProps>`
+export const Grid = styled.section<IStyledProps>`
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: auto;
+  grid-gap: 1rem;
+`
+
+export const Column = styled.section<IStyledProps>``
+
+export const Row = styled.section<IStyledProps>``
+
+export const Container = styled.section<IStyledProps>`
   background-color: ${props => props.theme.colors.background.secondary};
-  border-radius: 0.375rem;
-  padding: ${props => props.Padding};
-  grid-column: ${props => props.Column};
-  grid-row: ${props => props.Row};
-  height: ${props => props.Height};
-  width: ${props => props.Width};
-`
-
-export const Header = styled.header<IProps>`
-  grid-column: ${props => props.Column};
-  grid-row: ${props => props.Row};
-`
-
-export const Aside = styled.aside<IProps>`
-  grid-column: ${props => props.Column};
-  grid-row: ${props => props.Row};
-`
-
-export const Main = styled.main<IProps>`
-  grid-column: ${props => props.Column};
-  grid-row: ${props => props.Row};
-`
-
-export const Footer = styled.footer<IProps>`
-  grid-column: ${props => props.Column};
-  grid-row: ${props => props.Row};
-`
-
-export const Section = styled.section<IProps>`
-  grid-column: ${props => props.Column};
-  grid-row: ${props => props.Row};
-`
-
-export const Article = styled.article<IProps>`
-  grid-column: ${props => props.Column};
-  grid-row: ${props => props.Row};
+  padding: ${props => props.padding + 'rem'};
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `

@@ -17,6 +17,4 @@ export const Error = styled.span`
   color: ${props => props.theme.colors.danger};
 `
 
-export const Link = styled(ReachRouterLink)`
-  text-decoration: none;
-`
+export const Link = styled(ReachRouterLink)``
