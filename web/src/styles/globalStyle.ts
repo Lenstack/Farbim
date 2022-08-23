@@ -11,5 +11,5 @@ export const GlobalStyle = createGlobalStyle`
     font-size: ${props => props.theme.fonts.size};
     font-family: 'Rubik', sans-serif;
     color: ${props => props.theme.fonts.color};
-  }  
+  }
 `

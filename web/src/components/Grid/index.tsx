@@ -25,8 +25,5 @@ export const Row = styled.section<IStyledProps>``
 export const Container = styled.section<IStyledProps>`
   background-color: ${props => props.theme.colors.background.secondary};
   padding: ${props => props.padding + 'rem'};
-  border-radius: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  border-radius: 0.5rem;  
 `

@@ -34,10 +34,10 @@ export const SignIn = () => {
                             <Input {...register('password', {required: 'This Field Is Required'})} type={'password'}
                                    id={'password'}/>
                             <Error>{errors.password?.message}</Error>
-                            <Group>
-                                <Link to={PUBLIC_ROUTES.SIGN_UP}>Not have account?</Link>
-                                <Link to={PUBLIC_ROUTES.RESET_PASSWORD}>Forgotten Password?.</Link>
-                            </Group>
+                        </Group>
+                        <Group>
+                            <Link to={PUBLIC_ROUTES.SIGN_UP}>Not have account?</Link>
+                            <Link to={PUBLIC_ROUTES.RESET_PASSWORD}>Forgotten Password?.</Link>
                         </Group>
                         <Button type={"submit"}>Sign In.</Button>
                     </Form>
