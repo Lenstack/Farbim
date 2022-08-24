@@ -1,6 +1,6 @@
 import {SubmitHandler, useForm} from "react-hook-form";
-import {Form, Label, Group, Input, Link, Button, Error, Heading, Wrapper, Container} from "@/components";
-import {Main} from "./style";
+import {Form, Group, Input, Link, Button, Error, Wrapper, Container, GroupLink} from "@/components";
+import {Main, Header, Title} from "./style";
 import {PUBLIC_ROUTES} from "@/constants";
 
 interface IFormSignIn {
@@ -17,29 +17,29 @@ export const SignIn = () => {
 
     return (
         <Wrapper>
-            <Main column={"5/9"}>
-                <Container padding={"3"}>
-                    <Heading>
-                        <h3>Sign In.</h3>
-                    </Heading>
+            <Main>
+                <Container>
+                    <Header>
+                        <Title>Sign In</Title>
+                    </Header>
                     <Form onSubmit={handleSubmit(onSubmit)} method={'POST'}>
                         <Group>
-                            <Label htmlFor={'email'}>Email</Label>
                             <Input {...register('email', {required: 'This Field Is Required'})} type={'email'}
-                                   id={'email'}/>
+                                   id={'email'} placeholder={"Email"}
+                                   autoComplete={"off"}/>
                             <Error>{errors.email?.message}</Error>
                         </Group>
                         <Group>
-                            <Label htmlFor={'password'}>Password</Label>
                             <Input {...register('password', {required: 'This Field Is Required'})} type={'password'}
-                                   id={'password'}/>
+                                   id={'password'} placeholder={"Password"}
+                                   autoComplete={"off"}/>
                             <Error>{errors.password?.message}</Error>
                         </Group>
-                        <Group>
-                            <Link to={PUBLIC_ROUTES.SIGN_UP}>Not have account?</Link>
-                            <Link to={PUBLIC_ROUTES.RESET_PASSWORD}>Forgotten Password?.</Link>
-                        </Group>
                         <Button type={"submit"}>Sign In.</Button>
+                        <GroupLink>
+                            <Link to={PUBLIC_ROUTES.RESET_PASSWORD}>¿Forgot your password?</Link>
+                            <Link to={PUBLIC_ROUTES.SIGN_UP}>¿You not have an account?</Link>
+                        </GroupLink>
                     </Form>
                 </Container>
             </Main>

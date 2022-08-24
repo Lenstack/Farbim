@@ -12,7 +12,9 @@ declare module 'styled-components' {
             success: string,
             warning: string,
             danger: string,
-            white: string
+            white: string,
+            dark: string,
+            gradiant: string
         },
         fonts: {
             size: string

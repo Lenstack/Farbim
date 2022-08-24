@@ -11,19 +11,15 @@ export const Wrapper = styled.section`
   grid-gap: 0.5rem;
 `
 
-export const Grid = styled.section<IStyledProps>`
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  grid-template-rows: auto;
-  grid-gap: 1rem;
-`
+export const Grid = styled.section<IStyledProps>``
 
 export const Column = styled.section<IStyledProps>``
 
 export const Row = styled.section<IStyledProps>``
 
-export const Container = styled.section<IStyledProps>`
-  background-color: ${props => props.theme.colors.background.secondary};
-  padding: ${props => props.padding + 'rem'};
+export const Container = styled.section<IStyledProps>`   
   border-radius: 0.5rem;  
+  display: flex;
+  flex-direction: column;
+  align-content: center;  
 `

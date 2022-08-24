@@ -1,20 +1,26 @@
 import styled from "styled-components";
 import {IStyledProps} from "@/interfaces";
-
-export const Wrapper = styled.section`
-  min-height: 100vh;
-  min-width: 100%;
-  background-color: ${props => props.theme.colors.background.primary};
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  grid-template-rows: auto;
-  grid-gap: 1rem;
-`
+import {Breakpoints} from "@/styles";
 
 export const Main = styled.main<IStyledProps>`
-  grid-row: ${props => props.row};
-  grid-column: ${props => props.column};
   display: flex;
   justify-content: center;
   align-items: center;
+  grid-column: 3/11;
+
+  @media (${Breakpoints.md}) {
+    grid-column: 4/10;
+  }
+`
+
+export const Header = styled.header<IStyledProps>`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+`
+
+export const Title = styled.h3<IStyledProps>`
+  color: ${props => props.theme.fonts.color};
+  font-size: 1.2rem;
+  font-weight: bold;
 `
