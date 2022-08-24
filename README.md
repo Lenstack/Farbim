@@ -1,4 +1,3 @@
 # Farm Management
 Farm Management
-
-![imagen](https://user-images.githubusercontent.com/42081538/186517139-0c9a7a9d-0f1d-4046-998d-b9ca4e30a1ea.png)
+![imagen](https://user-images.githubusercontent.com/42081538/186517238-0a2fe966-6696-4457-b0a7-c79933e18329.png)
