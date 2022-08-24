@@ -1,9 +1,9 @@
 import {Wrapper} from "@/components";
 
-export const NotFound = () => {
+export const Dashboard = () => {
     return (
         <Wrapper>
-            NotFound
+            Dashboard
         </Wrapper>
     )
 }

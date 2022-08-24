@@ -1,8 +1,7 @@
-import {Button, Container, Error, Form, Group, GroupLink, Input, Link, Wrapper} from "@/components";
-
+import {Button, Container, Error, Form, Header, Title, Group, GroupLink, Input, Link, Wrapper} from "@/components";
 import {PUBLIC_ROUTES} from "@/constants";
 import {SubmitHandler, useForm} from "react-hook-form";
-import {Header, Main, Title} from "./style";
+import {Main} from "./style";
 
 interface IFormSignUp {
     name: string
@@ -53,7 +52,7 @@ export const SignUp = () => {
 
                     <Button type={"submit"}>Sign Up.</Button>
                     <GroupLink>
-                        <Link to={PUBLIC_ROUTES.RESET_PASSWORD}>¿Forgot your password?</Link>
+                        <Link to={PUBLIC_ROUTES.RECOVERY_PASSWORD}>¿Forgot your password?</Link>
                         <Link to={PUBLIC_ROUTES.SIGN_IN}>¿Already have an account?</Link>
                     </GroupLink>
                 </Form>

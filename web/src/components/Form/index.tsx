@@ -4,6 +4,26 @@ import {IStyledProps} from "@/interfaces";
 
 export const Form = styled.form``
 
+export const Header = styled.header`
+  display: flex;  
+  justify-content: center;  
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+`
+
+export const Title = styled.h1`
+  color: ${props => props.theme.fonts.color};
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 1.5rem;
+`
+
+export const SubTitle = styled.h2`
+  color: ${props => props.theme.fonts.color};
+  font-size: 0.9rem;
+`
+
 export const Group = styled.section`
   margin-top: 0.8rem;
 `

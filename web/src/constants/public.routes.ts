@@ -3,5 +3,5 @@ export const PUBLIC_ROUTES = {
     HOME: "/",
     SIGN_IN: "/sign_in",
     SIGN_UP: "/sign_up",
-    RESET_PASSWORD: "/reset_password"
+    RECOVERY_PASSWORD: "/recovery_password"
 }

@@ -1,7 +1,8 @@
 import {SubmitHandler, useForm} from "react-hook-form";
-import {Form, Group, Input, Link, Button, Error, Wrapper, Container, GroupLink} from "@/components";
-import {Main, Header, Title} from "./style";
-import {PUBLIC_ROUTES} from "@/constants";
+import {Form, Group, Header, Title, Input, Link, Button, Error, Wrapper, Container, GroupLink} from "@/components";
+import {Main} from "./style";
+import {PROTECTED_ROUTES, PUBLIC_ROUTES} from "@/constants";
+import {useNavigate} from "react-router-dom";
 
 interface IFormSignIn {
     email: string,
@@ -10,9 +11,11 @@ interface IFormSignIn {
 
 export const SignIn = () => {
     const {register, handleSubmit, formState: {errors}} = useForm<IFormSignIn>();
+    const navigate = useNavigate()
 
     const onSubmit: SubmitHandler<IFormSignIn> = ({email, password}) => {
         console.log({email, password})
+        navigate(PROTECTED_ROUTES.DASHBOARD)
     }
 
     return (
@@ -37,7 +40,7 @@ export const SignIn = () => {
                         </Group>
                         <Button type={"submit"}>Sign In.</Button>
                         <GroupLink>
-                            <Link to={PUBLIC_ROUTES.RESET_PASSWORD}>¿Forgot your password?</Link>
+                            <Link to={PUBLIC_ROUTES.RECOVERY_PASSWORD}>¿Forgot your password?</Link>
                             <Link to={PUBLIC_ROUTES.SIGN_UP}>¿You not have an account?</Link>
                         </GroupLink>
                     </Form>
