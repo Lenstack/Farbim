@@ -19,7 +19,4 @@ export const Row = styled.section<IStyledProps>``
 
 export const Container = styled.section<IStyledProps>`   
   border-radius: 0.5rem;  
-  display: flex;
-  flex-direction: column;
-  align-content: center;  
 `

@@ -29,6 +29,10 @@ export const Input = styled.input`
   border-radius: 0.5rem;
   background-color: ${props => props.theme.colors.background.secondary};
   color: ${props => props.theme.fonts.color};
+
+  ::placeholder {
+    color: ${props => props.theme.fonts.color};
+  }
 `
 
 export const Button = styled.button`

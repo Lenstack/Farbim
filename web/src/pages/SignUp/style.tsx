@@ -7,6 +7,7 @@ export const Main = styled.main<IStyledProps>`
   justify-content: center;
   align-items: center;
   grid-column: 3/11;
+
   @media (${Breakpoints.md}) {
     grid-column: 4/10;
   }

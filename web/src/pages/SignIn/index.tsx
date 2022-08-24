@@ -20,18 +20,18 @@ export const SignIn = () => {
             <Main>
                 <Container>
                     <Header>
-                        <Title>Sign In</Title>
+                        <Title>Welcome to management</Title>
                     </Header>
                     <Form onSubmit={handleSubmit(onSubmit)} method={'POST'}>
                         <Group>
                             <Input {...register('email', {required: 'This Field Is Required'})} type={'email'}
-                                   id={'email'} placeholder={"Email"}
-                                   autoComplete={"off"}/>
+                                   id={'email'} placeholder={"Your email."}
+                                   autoComplete={"on"}/>
                             <Error>{errors.email?.message}</Error>
                         </Group>
                         <Group>
                             <Input {...register('password', {required: 'This Field Is Required'})} type={'password'}
-                                   id={'password'} placeholder={"Password"}
+                                   id={'password'} placeholder={"Your password."}
                                    autoComplete={"off"}/>
                             <Error>{errors.password?.message}</Error>
                         </Group>

@@ -7,10 +7,10 @@ const Light: DefaultTheme = {
             secondary: "#FAFAFA",
             third: "#ffffff"
         },
-        info: "#8AD7E3",
-        success: "#8AE3B1",
-        warning: "#E3B58A",
-        danger: "#E38A8A",
+        info: "#43c6da",
+        success: "#4be18d",
+        warning: "#e59347",
+        danger: "#e65454",
         white: "#FFFFFF",
         dark: "#1e1e1e",
         gradiant:"linear-gradient(62deg, #FBAB7E 0%, #F7CE68 100%)"
@@ -37,7 +37,7 @@ const Dark: DefaultTheme = {
         gradiant:"linear-gradient(62deg, #67a1c1 0%, #65c7a4 100%)"
     }, fonts: {
         size: "1rem",
-        color: "#f4f4f4"
+        color: "#dadada"
     }
 }
 
