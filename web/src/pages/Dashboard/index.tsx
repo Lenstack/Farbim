@@ -1,9 +1,16 @@
-import {Wrapper} from "@/components";
+import {Item, Navigation, Wrapper} from "@/components";
+import {PROTECTED_ROUTES} from "@/constants";
 
 export const Dashboard = () => {
     return (
         <Wrapper>
-            Dashboard
+            <Navigation>
+                <Item to={PROTECTED_ROUTES.DASHBOARD}>Lorem ipsum dolor.</Item>
+                <Item to={PROTECTED_ROUTES.DASHBOARD}>Lorem ipsum dolor.</Item>
+                <Item to={PROTECTED_ROUTES.DASHBOARD}>Lorem ipsum dolor.</Item>
+                <Item to={PROTECTED_ROUTES.DASHBOARD}>Lorem ipsum dolor.</Item>
+                <Item to={PROTECTED_ROUTES.DASHBOARD}>Lorem ipsum dolor.</Item>
+            </Navigation>
         </Wrapper>
     )
 }
