@@ -16,4 +16,3 @@ export const Item = styled(ReachRouterLink)<IStyledProps>`
   text-align: center;
   font-size: 0.9rem;
 `
-export const NGroup = styled.section``
