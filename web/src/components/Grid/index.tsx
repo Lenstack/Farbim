@@ -8,7 +8,6 @@ export const Wrapper = styled.section`
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   grid-template-rows: auto;
-  grid-gap: 0.5rem;
 `
 
 export const Grid = styled.section<IStyledProps>``
