@@ -1,4 +1,4 @@
-export const NAVIGATION_ITEMS = [
+export const NAVIGATION_ITEMS_DASHBOARD = [
     {
         name: "Analytics",
         path: "/analytics"
@@ -30,5 +30,20 @@ export const NAVIGATION_ITEMS = [
     {
         name: "Settings",
         path: "/settings"
+    }
+]
+
+export const NAVIGATION_ITEMS_HOME = [
+    {
+        name: "Home",
+        path: "/",
+    },
+    {
+        name: "About",
+        path: "/about",
+    },
+    {
+        name: "Prices",
+        path: "/prices",
     }
 ]

@@ -5,4 +5,5 @@ export interface IStyledProps {
     margin?: string
     height?: string
     width?: string
+    direction?: string
 }

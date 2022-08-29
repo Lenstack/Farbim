@@ -1,7 +1,8 @@
 import {Item, Navigation, Profile, Wrapper} from "@/components";
 import {Aside, Content} from "./style"
-import {PROTECTED_ROUTES, NAVIGATION_ITEMS, PUBLIC_ROUTES} from "@/constants";
+import {PROTECTED_ROUTES, NAVIGATION_ITEMS_DASHBOARD, PUBLIC_ROUTES} from "@/constants";
 import Logo from "@/assets/Logo.svg"
+import {Outlet} from "react-router-dom";
 
 export const Dashboard = () => {
     return (
@@ -10,9 +11,9 @@ export const Dashboard = () => {
                 <Item to={PROTECTED_ROUTES.DASHBOARD}>
                     <Profile src={Logo} alt={"Logo"} width={"40"} height={"40"}/>
                 </Item>
-                <Navigation>
+                <Navigation direction={"column"}>
                     {
-                        NAVIGATION_ITEMS.map((item, index) => (
+                        NAVIGATION_ITEMS_DASHBOARD.map((item, index) => (
                             <Item to={PROTECTED_ROUTES.DASHBOARD + item.path} key={index}>{item.name}</Item>))
                     }
                 </Navigation>
@@ -22,6 +23,7 @@ export const Dashboard = () => {
                 <Item to={PUBLIC_ROUTES.SIGN_IN}>Logout</Item>
             </Aside>
             <Content>
+                <Outlet/>
             </Content>
         </Wrapper>
     )
