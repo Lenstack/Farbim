@@ -1,4 +1,4 @@
-package databases
+package infrastructure
 
 import (
 	"github.com/Lenstack/farm_management/internal/core/entities"
