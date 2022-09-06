@@ -1,11 +1,11 @@
 package services
 
 import (
+	"fmt"
 	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Lenstack/farm_management/internal/core/repositories"
 	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/google/uuid"
-
 	"gorm.io/gorm"
 )
 
@@ -26,8 +26,13 @@ func NewAuthenticationService(database *gorm.DB) *AuthenticationService {
 }
 
 func (as *AuthenticationService) SignIn(user entities.User) (err error) {
-	//TODO implement me
-	panic("implement me")
+	hashedPassword := as.userRepository.ShowPasswordByEmail(user.Email)
+	isValid := utils.CompareHashedPassword(hashedPassword, user.Password)
+	if isValid {
+		fmt.Println("Success")
+	}
+	fmt.Println("Error")
+	return
 }
 
 func (as *AuthenticationService) SignUp(user entities.User) (err error) {

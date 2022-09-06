@@ -5,11 +5,13 @@ import (
 )
 
 type User struct {
-	Id                     string    `json:"Id" gorm:"primaryKey"`
-	Email                  string    `json:"Email"`
-	Password               string    `json:"Password"`
-	Token                  string    `json:"Token"`
-	LastResetSentAt        time.Time `json:"LastResetSentAt"`
-	LastVerificationSentAt time.Time `json:"LastVerificationSentAt"`
-	Verified               bool      `json:"Verified"`
+	Id                     string    `json:"Id,omitempty"`
+	Email                  string    `json:"Email,omitempty" validate:"email,required"`
+	Password               string    `json:"Password,omitempty" validate:"required"`
+	Token                  string    `json:"Token,omitempty"`
+	LastResetSentAt        time.Time `json:"LastResetSentAt,omitempty"`
+	LastVerificationSentAt time.Time `json:"LastVerificationSentAt,omitempty"`
+	Verified               bool      `json:"Verified,omitempty"`
+	CreatedAt              time.Time `json:"CreatedAt,omitempty"`
+	UpdatedAt              time.Time `json:"UpdatedAt,omitempty"`
 }

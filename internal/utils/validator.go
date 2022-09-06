@@ -3,9 +3,9 @@ package utils
 import "github.com/go-playground/validator/v10"
 
 type ValidateError struct {
-	FailedField string `json:"FailedField"`
-	Tag         string `json:"Tag"`
-	Value       string `json:"Value"`
+	FailedField string `json:"FailedField,omitempty"`
+	Tag         string `json:"Tag,omitempty"`
+	Value       string `json:"Value,omitempty"`
 }
 
 func ValidateStruct(i interface{}) (errors []*ValidateError) {

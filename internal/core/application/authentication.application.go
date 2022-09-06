@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Lenstack/farm_management/internal/core/services"
+	"github.com/Lenstack/farm_management/internal/utils"
 	"net/http"
 )
 
@@ -23,6 +24,11 @@ func NewAuthenticationApplication(authenticationService services.AuthenticationS
 
 func (aa *AuthenticationApplication) SignIn(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "application-json")
+
+	writer.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(writer).Encode(
+		utils.ResponseSuccess{Code: http.StatusCreated, Message: utils.SIGNIN},
+	)
 }
 
 func (aa *AuthenticationApplication) SignUp(writer http.ResponseWriter, request *http.Request) {
@@ -30,15 +36,32 @@ func (aa *AuthenticationApplication) SignUp(writer http.ResponseWriter, request 
 	user := entities.User{}
 	_ = json.NewDecoder(request.Body).Decode(&user)
 
+	errValidate := utils.ValidateStruct(&user)
+	if errValidate != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Errors: errValidate})
+		return
+	}
+
 	err := aa.authenticationService.SignUp(user)
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(writer).Encode(&err)
+		_ = json.NewEncoder(writer).Encode(
+			utils.ResponseError{Errors: err},
+		)
 	}
+
 	writer.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(writer).Encode(&user)
+	_ = json.NewEncoder(writer).Encode(
+		utils.ResponseSuccess{Code: http.StatusCreated, Message: utils.SIGNUP},
+	)
 }
 
 func (aa *AuthenticationApplication) Logout(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "application-json")
+
+	writer.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(writer).Encode(
+		utils.ResponseSuccess{Code: http.StatusCreated, Message: utils.LOGOUT},
+	)
 }
