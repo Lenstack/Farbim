@@ -10,7 +10,6 @@ import (
 func main() {
 	infrastructure.Load()
 	sqlite := infrastructure.NewSqlite(os.Getenv("SQLITE_DATASOURCE"))
-	infrastructure.NewMigration(sqlite.Database)
 
 	//Register Services
 	userService := services.NewUserService(sqlite.Database)

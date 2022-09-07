@@ -4,8 +4,8 @@ import (
 	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Lenstack/farm_management/internal/core/repositories"
 	"github.com/Lenstack/farm_management/internal/utils"
+	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type IAuthenticationService interface {
@@ -18,7 +18,7 @@ type AuthenticationService struct {
 	userRepository repositories.UserRepository
 }
 
-func NewAuthenticationService(database *gorm.DB) *AuthenticationService {
+func NewAuthenticationService(database squirrel.StatementBuilderType) *AuthenticationService {
 	return &AuthenticationService{userRepository: repositories.UserRepository{
 		Database: database,
 	}}

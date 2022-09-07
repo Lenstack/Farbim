@@ -1,20 +1,21 @@
 package infrastructure
 
 import (
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	"database/sql"
+	"github.com/Masterminds/squirrel"
+	_ "github.com/mattn/go-sqlite3"
 	"log"
 )
 
 type Sqlite struct {
 	datasource string
-	Database   *gorm.DB
+	Database   squirrel.StatementBuilderType
 }
 
 func NewSqlite(datasource string) *Sqlite {
-	database, err := gorm.Open(sqlite.Open(datasource), &gorm.Config{})
+	database, err := sql.Open("sqlite3", datasource)
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
-	return &Sqlite{Database: database}
+	return &Sqlite{Database: squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).RunWith(database)}
 }

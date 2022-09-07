@@ -4,7 +4,7 @@ import (
 	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Lenstack/farm_management/internal/core/repositories"
 	"github.com/Lenstack/farm_management/internal/utils"
-	"gorm.io/gorm"
+	"github.com/Masterminds/squirrel"
 )
 
 type IUserService interface {
@@ -18,7 +18,7 @@ type UserService struct {
 	userRepository repositories.UserRepository
 }
 
-func NewUserService(database *gorm.DB) *UserService {
+func NewUserService(database squirrel.StatementBuilderType) *UserService {
 	return &UserService{
 		userRepository: repositories.UserRepository{
 			Database: database,

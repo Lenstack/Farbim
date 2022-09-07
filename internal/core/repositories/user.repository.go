@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"github.com/Lenstack/farm_management/internal/core/entities"
-	"gorm.io/gorm"
+	"github.com/Masterminds/squirrel"
 )
 
 type IUserRepository interface {
@@ -16,11 +16,15 @@ type IUserRepository interface {
 }
 
 type UserRepository struct {
-	Database *gorm.DB
+	Database squirrel.StatementBuilderType
 }
 
 func (ur *UserRepository) GetUsers() (users []entities.User, err error) {
-	err = ur.Database.Find(&users).Error
+	//
+	if err != nil {
+		return nil, err
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +32,7 @@ func (ur *UserRepository) GetUsers() (users []entities.User, err error) {
 }
 
 func (ur *UserRepository) GetUserById(userId string) (user entities.User, err error) {
-	err = ur.Database.First(&user, "id", userId).Error
+	//err = ur.Database.First(&user, "id", userId).Error
 	if err != nil {
 		return entities.User{}, err
 	}
@@ -37,7 +41,7 @@ func (ur *UserRepository) GetUserById(userId string) (user entities.User, err er
 
 func (ur *UserRepository) GetUserPasswordByEmail(email string) (password string, err error) {
 	user := entities.User{}
-	err = ur.Database.Where("email", email).First(&user).Error
+	//err = ur.Database.Where("email", email).First(&user).Error
 	if err != nil {
 		return "", err
 	}
@@ -46,7 +50,7 @@ func (ur *UserRepository) GetUserPasswordByEmail(email string) (password string,
 
 func (ur *UserRepository) GetUserIdByEmail(email string) (userId string, err error) {
 	user := entities.User{}
-	err = ur.Database.Where("email", email).First(&user).Error
+	//err = ur.Database.Where("email", email).First(&user).Error
 	if err != nil {
 		return "", err
 	}
@@ -54,7 +58,7 @@ func (ur *UserRepository) GetUserIdByEmail(email string) (userId string, err err
 }
 
 func (ur *UserRepository) CreateUser(user entities.User) (err error) {
-	err = ur.Database.Create(&user).Error
+	//err = ur.Database.Create(&user).Error
 	if err != nil {
 		return err
 	}
@@ -62,7 +66,7 @@ func (ur *UserRepository) CreateUser(user entities.User) (err error) {
 }
 
 func (ur *UserRepository) UpdateUser(userId string, newUser entities.User) (err error) {
-	err = ur.Database.Model(&newUser).Where("id", userId).Updates(newUser).Error
+	//err = ur.Database.Model(&newUser).Where("id", userId).Updates(newUser).Error
 	if err != nil {
 		return err
 	}
@@ -70,7 +74,7 @@ func (ur *UserRepository) UpdateUser(userId string, newUser entities.User) (err 
 }
 
 func (ur *UserRepository) DestroyUser(userId string) (err error) {
-	err = ur.Database.Delete(&entities.User{}, "id", userId).Error
+	//err = ur.Database.Delete(&entities.User{}, "id", userId).Error
 	if err != nil {
 		return err
 	}

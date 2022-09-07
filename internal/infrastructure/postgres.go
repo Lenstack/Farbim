@@ -1,9 +1,9 @@
 package infrastructure
 
 import (
+	"database/sql"
 	"fmt"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/Masterminds/squirrel"
 	"log"
 )
 
@@ -13,15 +13,15 @@ type Postgres struct {
 	databaseName string
 	user         string
 	password     string
-	Database     *gorm.DB
+	Database     squirrel.StatementBuilderType
 }
 
 func NewPostgres(host string, port string, databaseName string, user string, password string) *Postgres {
 	datasource := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=America/Bogota",
 		host, user, password, databaseName, port)
-	database, err := gorm.Open(postgres.Open(datasource), &gorm.Config{})
+	database, err := sql.Open("postgres", datasource)
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
-	return &Postgres{Database: database}
+	return &Postgres{Database: squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).RunWith(database)}
 }
