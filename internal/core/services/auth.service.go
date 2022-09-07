@@ -16,12 +16,15 @@ type IAuthenticationService interface {
 
 type AuthenticationService struct {
 	userRepository repositories.UserRepository
+	tokenManager   utils.JwtManager
 }
 
 func NewAuthenticationService(database squirrel.StatementBuilderType) *AuthenticationService {
-	return &AuthenticationService{userRepository: repositories.UserRepository{
-		Database: database,
-	}}
+	return &AuthenticationService{
+		userRepository: repositories.UserRepository{
+			Database: database,
+		},
+	}
 }
 
 func (as *AuthenticationService) SignIn(user entities.User) (token string, err error) {
@@ -40,18 +43,23 @@ func (as *AuthenticationService) SignIn(user entities.User) (token string, err e
 		return "", err
 	}
 
-	return userId, nil
+	token, err = as.tokenManager.GenerateJwtToken(userId)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }
 
 func (as *AuthenticationService) SignUp(user entities.User) (token string, err error) {
 	user.Id = uuid.New().String()
 	user.Password = utils.HashPassword(user.Password)
 
-	err = as.userRepository.CreateUser(user)
+	userId, err := as.userRepository.CreateUser(user)
 	if err != nil {
 		return "", err
 	}
-	return token, nil
+	return as.tokenManager.GenerateJwtToken(userId)
 }
 
 func (as *AuthenticationService) Logout(user entities.User) (err error) {

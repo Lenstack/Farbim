@@ -10,9 +10,9 @@ type IUserRepository interface {
 	GetUserById(userId string) (user entities.User, err error)
 	GetUserPasswordByEmail(email string) (password string, err error)
 	GetUserIdByEmail(email string) (userId string, err error)
-	CreateUser(user entities.User) (err error)
-	UpdateUser(userId string, newUser entities.User) (err error)
-	DestroyUser(userId string) (err error)
+	CreateUser(user entities.User) (userId string, err error)
+	UpdateUser(userId string, newUser entities.User) (user *entities.User, err error)
+	DestroyUser(userId string) (rowsAffected int64, err error)
 }
 
 type UserRepository struct {
@@ -20,19 +20,39 @@ type UserRepository struct {
 }
 
 func (ur *UserRepository) GetUsers() (users []entities.User, err error) {
-	//
+	user := entities.User{}
+	bq := ur.Database.Select("Id", "Email",
+		"Token", "LastResetSentAt", "LastVerificationSentAt",
+		"Verified", "CreatedAt", "UpdatedAt").From(entities.UserTableName)
+
+	rows, err := bq.Query()
 	if err != nil {
 		return nil, err
 	}
 
-	if err != nil {
-		return nil, err
+	for rows.Next() {
+		err := rows.Scan(&user.Id, &user.Email, &user.Token,
+			&user.LastResetSentAt, &user.LastVerificationSentAt,
+			&user.Verified, &user.CreatedAt, &user.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
 	}
 	return users, nil
 }
 
 func (ur *UserRepository) GetUserById(userId string) (user entities.User, err error) {
-	//err = ur.Database.First(&user, "id", userId).Error
+	bq := ur.Database.Select("Id", "Email",
+		"Token", "LastResetSentAt", "LastVerificationSentAt",
+		"Verified", "CreatedAt", "UpdatedAt").
+		From(entities.UserTableName).
+		Where(squirrel.Eq{"id": userId})
+
+	err = bq.QueryRow().Scan(&user.Id, &user.Email, &user.Token,
+		&user.LastResetSentAt, &user.LastVerificationSentAt,
+		&user.Verified, &user.CreatedAt, &user.UpdatedAt)
+
 	if err != nil {
 		return entities.User{}, err
 	}
@@ -40,43 +60,69 @@ func (ur *UserRepository) GetUserById(userId string) (user entities.User, err er
 }
 
 func (ur *UserRepository) GetUserPasswordByEmail(email string) (password string, err error) {
-	user := entities.User{}
-	//err = ur.Database.Where("email", email).First(&user).Error
+	bq := ur.Database.Select("password").
+		From(entities.UserTableName).
+		Where(squirrel.Eq{"email": email})
+
+	err = bq.QueryRow().Scan(&password)
 	if err != nil {
 		return "", err
 	}
-	return user.Password, nil
+	return password, nil
 }
 
 func (ur *UserRepository) GetUserIdByEmail(email string) (userId string, err error) {
-	user := entities.User{}
-	//err = ur.Database.Where("email", email).First(&user).Error
+	bq := ur.Database.Select("Id").
+		From(entities.UserTableName).
+		Where(squirrel.Eq{"email": email})
+
+	err = bq.QueryRow().Scan(&userId)
 	if err != nil {
 		return "", err
 	}
-	return user.Id, nil
+	return userId, nil
 }
 
-func (ur *UserRepository) CreateUser(user entities.User) (err error) {
-	//err = ur.Database.Create(&user).Error
+func (ur *UserRepository) CreateUser(user entities.User) (userId string, err error) {
+	bq := ur.Database.
+		Insert(entities.UserTableName).
+		Columns("Id", "Email", "Password",
+			"Token", "LastResetSentAt", "LastVerificationSentAt",
+			"Verified", "CreatedAt", "UpdatedAt").
+		Values(user.Id, user.Email, user.Password, user.Token,
+			user.LastResetSentAt, user.LastVerificationSentAt,
+			user.Verified, user.CreatedAt, user.UpdatedAt).
+		Suffix("RETURNING Id")
+
+	err = bq.QueryRow().Scan(&userId)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+
+	return userId, nil
 }
 
-func (ur *UserRepository) UpdateUser(userId string, newUser entities.User) (err error) {
-	//err = ur.Database.Model(&newUser).Where("id", userId).Updates(newUser).Error
+func (ur *UserRepository) UpdateUser(userId string, newUser entities.User) (user entities.User, err error) {
+	userMap := map[string]interface{}{"email": newUser.Email, "password": newUser.Password}
+	bq := ur.Database.
+		Update(entities.UserTableName).
+		SetMap(userMap).
+		Where(squirrel.Eq{"id": userId}).
+		Suffix("RETURNING Id")
+
+	err = bq.QueryRow().Scan(&user.Id)
 	if err != nil {
-		return err
+		return entities.User{}, err
 	}
-	return nil
+
+	return user, nil
 }
 
-func (ur *UserRepository) DestroyUser(userId string) (err error) {
-	//err = ur.Database.Delete(&entities.User{}, "id", userId).Error
+func (ur *UserRepository) DestroyUser(userId string) (rowsAffected int64, err error) {
+	bq := ur.Database.Delete(entities.UserTableName).Where(squirrel.Eq{"id": userId})
+	result, err := bq.Exec()
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return result.RowsAffected()
 }

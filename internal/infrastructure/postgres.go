@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/Masterminds/squirrel"
+	_ "github.com/lib/pq"
 	"log"
 )
 

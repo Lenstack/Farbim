@@ -2,6 +2,7 @@ package application
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Lenstack/farm_management/internal/core/services"
 	"github.com/Lenstack/farm_management/internal/utils"
@@ -39,8 +40,9 @@ func (aa *AuthenticationApplication) SignIn(writer http.ResponseWriter, request 
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(writer).Encode(
-			utils.ResponseError{Errors: err},
+			utils.ResponseError{Errors: err.Error()},
 		)
+		return
 	}
 
 	writer.WriteHeader(http.StatusOK)
@@ -63,13 +65,15 @@ func (aa *AuthenticationApplication) SignUp(writer http.ResponseWriter, request 
 
 	token, err := aa.authenticationService.SignUp(user)
 	if err != nil {
+		fmt.Println(err)
 		writer.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(writer).Encode(
-			utils.ResponseError{Errors: err},
+			utils.ResponseError{Errors: err.Error()},
 		)
+		return
 	}
 
-	writer.WriteHeader(http.StatusCreated)
+	writer.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(writer).Encode(
 		utils.ResponseSuccess{Code: http.StatusCreated, Message: utils.SIGNUP, Token: token},
 	)
