@@ -10,7 +10,7 @@ import (
 
 type Router struct{}
 
-func NewRouter(microservices application.MicroServer) *chi.Mux {
+func NewRouter(microservices application.MicroserviceServer) *chi.Mux {
 	app := chi.NewRouter()
 	app.Use(middleware.Logger)
 	app.Use(middleware.Recoverer)

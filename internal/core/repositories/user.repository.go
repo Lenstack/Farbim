@@ -6,51 +6,73 @@ import (
 )
 
 type IUserRepository interface {
-	Show() (users []entities.User, err error)
-	ShowBy(userId int64) (user entities.User, err error)
-	ShowPasswordByEmail(email string) (password string)
-	Create(user entities.User) (err error)
-	Update(userId int64, newUser entities.User) (err error)
-	Destroy(userId int64) (err error)
+	GetUsers() (users []entities.User, err error)
+	GetUserById(userId string) (user entities.User, err error)
+	GetUserPasswordByEmail(email string) (password string, err error)
+	GetUserIdByEmail(email string) (userId string, err error)
+	CreateUser(user entities.User) (err error)
+	UpdateUser(userId string, newUser entities.User) (err error)
+	DestroyUser(userId string) (err error)
 }
 
 type UserRepository struct {
 	Database *gorm.DB
 }
 
-func (ur *UserRepository) Show() (users []entities.User, err error) {
-	result := ur.Database.Find(&users)
-	if result.Error != nil {
-		return
+func (ur *UserRepository) GetUsers() (users []entities.User, err error) {
+	err = ur.Database.Find(&users).Error
+	if err != nil {
+		return nil, err
 	}
 	return users, nil
 }
 
-func (ur *UserRepository) ShowBy(userId int64) (user entities.User, err error) {
-	//TODO implement me
-	panic("implement me")
+func (ur *UserRepository) GetUserById(userId string) (user entities.User, err error) {
+	err = ur.Database.First(&user, "id", userId).Error
+	if err != nil {
+		return entities.User{}, err
+	}
+	return user, nil
 }
 
-func (ur *UserRepository) Create(user entities.User) (err error) {
-	result := ur.Database.Create(&user)
-	if result.Error != nil {
-		return result.Error
+func (ur *UserRepository) GetUserPasswordByEmail(email string) (password string, err error) {
+	user := entities.User{}
+	err = ur.Database.Where("email", email).First(&user).Error
+	if err != nil {
+		return "", err
+	}
+	return user.Password, nil
+}
+
+func (ur *UserRepository) GetUserIdByEmail(email string) (userId string, err error) {
+	user := entities.User{}
+	err = ur.Database.Where("email", email).First(&user).Error
+	if err != nil {
+		return "", err
+	}
+	return user.Id, nil
+}
+
+func (ur *UserRepository) CreateUser(user entities.User) (err error) {
+	err = ur.Database.Create(&user).Error
+	if err != nil {
+		return err
 	}
 	return nil
 }
 
-func (ur *UserRepository) Update(userId int64, newUser entities.User) (err error) {
-	//TODO implement me
-	panic("implement me")
+func (ur *UserRepository) UpdateUser(userId string, newUser entities.User) (err error) {
+	err = ur.Database.Model(&newUser).Where("id", userId).Updates(newUser).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (ur *UserRepository) Destroy(userId int64) (err error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (ur *UserRepository) ShowPasswordByEmail(email string) (password string) {
-	//result := ur.Database.First()
-	//TODO implement me
-	panic("implement me")
+func (ur *UserRepository) DestroyUser(userId string) (err error) {
+	err = ur.Database.Delete(&entities.User{}, "id", userId).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }

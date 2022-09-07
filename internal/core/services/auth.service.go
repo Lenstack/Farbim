@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Lenstack/farm_management/internal/core/repositories"
 	"github.com/Lenstack/farm_management/internal/utils"
@@ -10,9 +9,9 @@ import (
 )
 
 type IAuthenticationService interface {
-	SignIn(user entities.User) (err error)
-	SignUp(user entities.User) (err error)
-	Logout(user entities.User) (err error)
+	SignIn(user entities.User) (token string, err error)
+	SignUp(user entities.User) (token string, err error)
+	Logout(userId string) (err error)
 }
 
 type AuthenticationService struct {
@@ -25,24 +24,34 @@ func NewAuthenticationService(database *gorm.DB) *AuthenticationService {
 	}}
 }
 
-func (as *AuthenticationService) SignIn(user entities.User) (err error) {
-	hashedPassword := as.userRepository.ShowPasswordByEmail(user.Email)
-	isValid := utils.CompareHashedPassword(hashedPassword, user.Password)
-	if isValid {
-		fmt.Println("Success")
+func (as *AuthenticationService) SignIn(user entities.User) (token string, err error) {
+	hashedPassword, err := as.userRepository.GetUserPasswordByEmail(user.Email)
+	if err != nil {
+		return "", err
 	}
-	fmt.Println("Error")
-	return
+
+	err = utils.CompareHashedPassword(hashedPassword, user.Password)
+	if err != nil {
+		return "", err
+	}
+
+	userId, err := as.userRepository.GetUserIdByEmail(user.Email)
+	if err != nil {
+		return "", err
+	}
+
+	return userId, nil
 }
 
-func (as *AuthenticationService) SignUp(user entities.User) (err error) {
+func (as *AuthenticationService) SignUp(user entities.User) (token string, err error) {
 	user.Id = uuid.New().String()
 	user.Password = utils.HashPassword(user.Password)
-	err = as.userRepository.Create(user)
+
+	err = as.userRepository.CreateUser(user)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return token, nil
 }
 
 func (as *AuthenticationService) Logout(user entities.User) (err error) {

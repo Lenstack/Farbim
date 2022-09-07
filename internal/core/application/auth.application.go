@@ -25,9 +25,27 @@ func NewAuthenticationApplication(authenticationService services.AuthenticationS
 func (aa *AuthenticationApplication) SignIn(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "application-json")
 
-	writer.WriteHeader(http.StatusCreated)
+	user := entities.User{}
+	_ = json.NewDecoder(request.Body).Decode(&user)
+
+	errValidate := utils.ValidateStruct(&user)
+	if errValidate != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Errors: errValidate})
+		return
+	}
+
+	token, err := aa.authenticationService.SignIn(user)
+	if err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(writer).Encode(
+			utils.ResponseError{Errors: err},
+		)
+	}
+
+	writer.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(writer).Encode(
-		utils.ResponseSuccess{Code: http.StatusCreated, Message: utils.SIGNIN},
+		utils.ResponseSuccess{Code: http.StatusOK, Message: utils.SIGNIN, Token: token},
 	)
 }
 
@@ -43,7 +61,7 @@ func (aa *AuthenticationApplication) SignUp(writer http.ResponseWriter, request 
 		return
 	}
 
-	err := aa.authenticationService.SignUp(user)
+	token, err := aa.authenticationService.SignUp(user)
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(writer).Encode(
@@ -53,7 +71,7 @@ func (aa *AuthenticationApplication) SignUp(writer http.ResponseWriter, request 
 
 	writer.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(writer).Encode(
-		utils.ResponseSuccess{Code: http.StatusCreated, Message: utils.SIGNUP},
+		utils.ResponseSuccess{Code: http.StatusCreated, Message: utils.SIGNUP, Token: token},
 	)
 }
 

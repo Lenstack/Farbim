@@ -20,7 +20,7 @@ func main() {
 	authenticationApplication := application.NewAuthenticationApplication(*authenticationService)
 	userApplication := application.NewUserApplication(*userService)
 
-	microservices := application.NewMicroServer(
+	microservices := application.NewMicroserviceServer(
 		*userApplication,
 		*authenticationApplication,
 	)
