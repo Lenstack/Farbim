@@ -16,7 +16,7 @@ const Light: DefaultTheme = {
         gradiant:"linear-gradient(62deg, #FBAB7E 0%, #F7CE68 100%)"
     },
     fonts: {
-        size: "1rem",
+        size: "0.8rem",
         color: "#2c2c2c"
     }
 }
@@ -36,7 +36,7 @@ const Dark: DefaultTheme = {
         dark: "#1e1e1e",
         gradiant:"linear-gradient(62deg, #67a1c1 0%, #65c7a4 100%)"
     }, fonts: {
-        size: "1rem",
+        size: "0.8rem",
         color: "#dadada"
     }
 }

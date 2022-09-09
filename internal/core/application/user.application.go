@@ -2,7 +2,6 @@ package application
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Lenstack/farm_management/internal/core/services"
 	"github.com/Lenstack/farm_management/internal/utils"
@@ -30,14 +29,7 @@ func (ua *UserApplication) Show(writer http.ResponseWriter, request *http.Reques
 	users, err := ua.userService.Show()
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest,
-			Message: utils.Message(err.Error()), Errors: err})
-		return
-	}
-
-	if len(users) == 0 {
-		writer.WriteHeader(http.StatusOK)
-		_ = json.NewEncoder(writer).Encode(utils.ResponseSuccess{Items: utils.NOT_ITEMS})
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()})
 		return
 	}
 
@@ -52,8 +44,7 @@ func (ua *UserApplication) ShowBy(writer http.ResponseWriter, request *http.Requ
 	user, err := ua.userService.ShowBy(userId)
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest,
-			Message: utils.Message(err.Error()), Errors: err})
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()})
 		return
 	}
 
@@ -71,15 +62,14 @@ func (ua *UserApplication) Update(writer http.ResponseWriter, request *http.Requ
 	errValidate := utils.ValidateStruct(newUser)
 	if errValidate != nil {
 		writer.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Errors: errValidate})
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: errValidate})
 		return
 	}
 
 	user, err := ua.userService.Update(userId, newUser)
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest,
-			Message: utils.Message(err.Error()), Errors: err})
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()})
 		return
 	}
 	writer.WriteHeader(http.StatusOK)
@@ -90,21 +80,13 @@ func (ua *UserApplication) Destroy(writer http.ResponseWriter, request *http.Req
 	writer.Header().Add("Content-Type", "application-json")
 	userId := chi.URLParam(request, "id")
 
-	rowsAffected, err := ua.userService.Destroy(userId)
+	_, err := ua.userService.Destroy(userId)
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest,
-			Message: utils.Message(err.Error()), Errors: err})
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()})
 		return
 	}
-
-	if rowsAffected == 0 {
-		fmt.Println(rowsAffected)
-		writer.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Message: utils.NOT_EXIST})
-		return
-	}
-
+	
 	writer.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(writer).Encode(utils.ResponseSuccess{Code: http.StatusOK, Message: utils.DELETED})
 }

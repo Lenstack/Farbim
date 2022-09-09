@@ -35,7 +35,7 @@ func (as *AuthenticationService) SignIn(user entities.User) (token string, err e
 
 	err = utils.CompareHashedPassword(hashedPassword, user.Password)
 	if err != nil {
-		return "", err
+		return "", utils.ErrorManager(err)
 	}
 
 	userId, err := as.userRepository.GetUserIdByEmail(user.Email)

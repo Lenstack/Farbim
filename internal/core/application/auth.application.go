@@ -2,7 +2,6 @@ package application
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Lenstack/farm_management/internal/core/services"
 	"github.com/Lenstack/farm_management/internal/utils"
@@ -32,7 +31,7 @@ func (aa *AuthenticationApplication) SignIn(writer http.ResponseWriter, request 
 	errValidate := utils.ValidateStruct(&user)
 	if errValidate != nil {
 		writer.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Errors: errValidate})
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: errValidate})
 		return
 	}
 
@@ -40,7 +39,7 @@ func (aa *AuthenticationApplication) SignIn(writer http.ResponseWriter, request 
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(writer).Encode(
-			utils.ResponseError{Errors: err.Error()},
+			utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()},
 		)
 		return
 	}
@@ -59,17 +58,14 @@ func (aa *AuthenticationApplication) SignUp(writer http.ResponseWriter, request 
 	errValidate := utils.ValidateStruct(&user)
 	if errValidate != nil {
 		writer.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Errors: errValidate})
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: errValidate})
 		return
 	}
 
 	token, err := aa.authenticationService.SignUp(user)
 	if err != nil {
-		fmt.Println(err)
 		writer.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(writer).Encode(
-			utils.ResponseError{Errors: err.Error()},
-		)
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()})
 		return
 	}
 

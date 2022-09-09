@@ -10,9 +10,6 @@ const (
 	SIGNIN Message = "Your Sign In Has Been Successfully"
 	SIGNUP Message = "Your Sign Up Has Been Successfully"
 	LOGOUT Message = "Your Logout Has Been Successfully"
-
-	NOT_ITEMS Message = "Without Items"
-	NOT_EXIST Message = "Row Not Exist"
 )
 
 type ResponseSuccess struct {

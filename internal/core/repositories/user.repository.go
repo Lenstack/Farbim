@@ -1,7 +1,9 @@
 package repositories
 
 import (
+	"fmt"
 	"github.com/Lenstack/farm_management/internal/core/entities"
+	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/Masterminds/squirrel"
 )
 
@@ -27,7 +29,7 @@ func (ur *UserRepository) GetUsers() (users []entities.User, err error) {
 
 	rows, err := bq.Query()
 	if err != nil {
-		return nil, err
+		return nil, utils.ErrorManager(err)
 	}
 
 	for rows.Next() {
@@ -39,6 +41,11 @@ func (ur *UserRepository) GetUsers() (users []entities.User, err error) {
 		}
 		users = append(users, user)
 	}
+
+	if len(users) == 0 {
+		return nil, utils.ItemWithout
+	}
+
 	return users, nil
 }
 
@@ -54,7 +61,7 @@ func (ur *UserRepository) GetUserById(userId string) (user entities.User, err er
 		&user.Verified, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
-		return entities.User{}, err
+		return entities.User{}, utils.ErrorManager(err)
 	}
 	return user, nil
 }
@@ -66,7 +73,7 @@ func (ur *UserRepository) GetUserPasswordByEmail(email string) (password string,
 
 	err = bq.QueryRow().Scan(&password)
 	if err != nil {
-		return "", err
+		return "", utils.AuthenticationIncorrect
 	}
 	return password, nil
 }
@@ -78,7 +85,7 @@ func (ur *UserRepository) GetUserIdByEmail(email string) (userId string, err err
 
 	err = bq.QueryRow().Scan(&userId)
 	if err != nil {
-		return "", err
+		return "", utils.ErrorManager(err)
 	}
 	return userId, nil
 }
@@ -96,7 +103,7 @@ func (ur *UserRepository) CreateUser(user entities.User) (userId string, err err
 
 	err = bq.QueryRow().Scan(&userId)
 	if err != nil {
-		return "", err
+		return "", utils.ErrorManager(err)
 	}
 
 	return userId, nil
@@ -112,17 +119,25 @@ func (ur *UserRepository) UpdateUser(userId string, newUser entities.User) (user
 
 	err = bq.QueryRow().Scan(&user.Id)
 	if err != nil {
-		return entities.User{}, err
+		return entities.User{}, utils.ErrorManager(err)
 	}
 
 	return user, nil
 }
 
 func (ur *UserRepository) DestroyUser(userId string) (rowsAffected int64, err error) {
+	var userIdFounded string
+	isFounded := ur.Database.Select("id").From(entities.UserTableName).Where(squirrel.Eq{"id": userId})
+	err = isFounded.Scan(&userIdFounded)
+	if err != nil {
+		return 0, utils.ErrorManager(err)
+	}
+	fmt.Println(isFounded)
+
 	bq := ur.Database.Delete(entities.UserTableName).Where(squirrel.Eq{"id": userId})
 	result, err := bq.Exec()
 	if err != nil {
-		return 0, err
+		return 0, utils.ErrorManager(err)
 	}
 	return result.RowsAffected()
 }
