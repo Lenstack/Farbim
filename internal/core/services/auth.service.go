@@ -16,13 +16,15 @@ type IAuthenticationService interface {
 type AuthenticationService struct {
 	userRepository repositories.UserRepository
 	tokenManager   utils.JwtManager
+	bcryptManager  utils.BcryptManager
 }
 
-func NewAuthenticationService(database squirrel.StatementBuilderType) *AuthenticationService {
+func NewAuthenticationService(database squirrel.StatementBuilderType, tokenManager utils.JwtManager) *AuthenticationService {
 	return &AuthenticationService{
 		userRepository: repositories.UserRepository{
 			Database: database,
 		},
+		tokenManager: tokenManager,
 	}
 }
 
@@ -32,7 +34,7 @@ func (as *AuthenticationService) SignIn(user entities.User) (token string, err e
 		return "", err
 	}
 
-	err = utils.CompareHashedPassword(hashedPassword, user.Password)
+	err = as.bcryptManager.CompareHashedPassword(hashedPassword, user.Password)
 	if err != nil {
 		return "", utils.ErrorManager(err)
 	}

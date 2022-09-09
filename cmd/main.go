@@ -15,11 +15,11 @@ func main() {
 		os.Getenv("POSTGRES_DATABASE_NAME"), os.Getenv("POSTGRES_DATABASE_USER"),
 		os.Getenv("POSTGRES_DATABASE_PASSWORD"))
 
-	utils.NewJwtManager(os.Getenv("JWT_EXPIRATION"), os.Getenv("JWT_SECRET"))
+	tokenManager := utils.NewJwtManager(os.Getenv("JWT_EXPIRATION"), os.Getenv("JWT_SECRET"))
 
 	//Register Services
 	userService := services.NewUserService(postgres.Database)
-	authenticationService := services.NewAuthenticationService(postgres.Database)
+	authenticationService := services.NewAuthenticationService(postgres.Database, *tokenManager)
 
 	//Register Http Handlers
 	authenticationApplication := application.NewAuthenticationApplication(*authenticationService)

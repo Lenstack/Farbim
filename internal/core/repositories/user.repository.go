@@ -18,7 +18,8 @@ type IUserRepository interface {
 }
 
 type UserRepository struct {
-	Database squirrel.StatementBuilderType
+	Database      squirrel.StatementBuilderType
+	BcryptManager utils.BcryptManager
 }
 
 func (ur *UserRepository) GetUsers() (users []entities.User, err error) {
@@ -92,7 +93,7 @@ func (ur *UserRepository) GetUserIdByEmail(email string) (userId string, err err
 
 func (ur *UserRepository) CreateUser(user entities.User) (userId string, err error) {
 	user.Id = uuid.New().String()
-	user.Password = utils.HashPassword(user.Password)
+	user.Password = ur.BcryptManager.HashPassword(user.Password)
 
 	bq := ur.Database.
 		Insert(entities.UserTableName).
@@ -118,7 +119,7 @@ func (ur *UserRepository) UpdateUser(userId string, newUser entities.User) (user
 		return entities.User{}, err
 	}
 
-	userMap := map[string]interface{}{"email": newUser.Email, "password": utils.HashPassword(newUser.Password)}
+	userMap := map[string]interface{}{"email": newUser.Email, "password": ur.BcryptManager.HashPassword(newUser.Password)}
 	bq := ur.Database.
 		Update(entities.UserTableName).
 		SetMap(userMap).
