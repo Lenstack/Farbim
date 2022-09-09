@@ -1,5 +1,5 @@
 import {GroupItem, Item, Navigation, Profile, Wrapper} from "@/components";
-import {Header, Content} from "./styles";
+import {Header, Content} from "./style";
 import {HOME_ROUTES, NAVIGATION_ITEMS_HOME, PUBLIC_ROUTES} from "@/constants";
 import Logo from "@/assets/Logo.svg";
 import {Outlet} from "react-router-dom";

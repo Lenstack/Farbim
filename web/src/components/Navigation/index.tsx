@@ -5,6 +5,7 @@ import {IStyledProps} from "@/interfaces";
 export const Navigation = styled.nav<IStyledProps>`
   display: flex;
   flex-direction: ${props => props.direction};
+  align-items: center;
 `
 
 export const Item = styled(ReachRouterLink)<IStyledProps>`

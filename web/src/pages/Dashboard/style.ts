@@ -5,8 +5,8 @@ export const Aside = styled.aside`
   grid-column: 1/1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 1.5rem 0 1.5rem 0;
+  justify-content: space-around;
+  align-items: center; 
 `
 
 export const Content = styled.section`
