@@ -52,6 +52,11 @@ func (as *AuthenticationService) SignIn(user entities.User) (token string, err e
 }
 
 func (as *AuthenticationService) SignUp(user entities.User) (token string, err error) {
+	idUserExist, err := as.userRepository.GetUserIdByEmail(user.Email)
+	if idUserExist != "" {
+		return "", utils.ItemAlreadyExist
+	}
+
 	user.Id = uuid.New().String()
 	user.Password = utils.HashPassword(user.Password)
 
