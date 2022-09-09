@@ -1,10 +1,10 @@
 package repositories
 
 import (
-	"fmt"
 	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
 )
 
 type IUserRepository interface {
@@ -91,6 +91,9 @@ func (ur *UserRepository) GetUserIdByEmail(email string) (userId string, err err
 }
 
 func (ur *UserRepository) CreateUser(user entities.User) (userId string, err error) {
+	user.Id = uuid.New().String()
+	user.Password = utils.HashPassword(user.Password)
+
 	bq := ur.Database.
 		Insert(entities.UserTableName).
 		Columns("Id", "Email", "Password",
@@ -110,7 +113,12 @@ func (ur *UserRepository) CreateUser(user entities.User) (userId string, err err
 }
 
 func (ur *UserRepository) UpdateUser(userId string, newUser entities.User) (user entities.User, err error) {
-	userMap := map[string]interface{}{"email": newUser.Email, "password": newUser.Password}
+	_, err = ur.GetUserById(userId)
+	if err != nil {
+		return entities.User{}, err
+	}
+
+	userMap := map[string]interface{}{"email": newUser.Email, "password": utils.HashPassword(newUser.Password)}
 	bq := ur.Database.
 		Update(entities.UserTableName).
 		SetMap(userMap).
@@ -132,7 +140,6 @@ func (ur *UserRepository) DestroyUser(userId string) (rowsAffected int64, err er
 	if err != nil {
 		return 0, utils.ErrorManager(err)
 	}
-	fmt.Println(isFounded)
 
 	bq := ur.Database.Delete(entities.UserTableName).Where(squirrel.Eq{"id": userId})
 	result, err := bq.Exec()

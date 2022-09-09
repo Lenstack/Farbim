@@ -3,7 +3,6 @@ package services
 import (
 	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Lenstack/farm_management/internal/core/repositories"
-	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/Masterminds/squirrel"
 )
 
@@ -35,7 +34,6 @@ func (us *UserService) ShowBy(userId string) (user entities.User, err error) {
 }
 
 func (us *UserService) Update(userId string, newUser entities.User) (user entities.User, err error) {
-	newUser.Password = utils.HashPassword(newUser.Password)
 	return us.userRepository.UpdateUser(userId, newUser)
 }
 

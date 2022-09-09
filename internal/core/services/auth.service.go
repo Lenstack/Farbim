@@ -5,7 +5,6 @@ import (
 	"github.com/Lenstack/farm_management/internal/core/repositories"
 	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 )
 
 type IAuthenticationService interface {
@@ -56,9 +55,6 @@ func (as *AuthenticationService) SignUp(user entities.User) (token string, err e
 	if idUserExist != "" {
 		return "", utils.ItemAlreadyExist
 	}
-
-	user.Id = uuid.New().String()
-	user.Password = utils.HashPassword(user.Password)
 
 	userId, err := as.userRepository.CreateUser(user)
 	if err != nil {

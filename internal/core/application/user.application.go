@@ -54,7 +54,6 @@ func (ua *UserApplication) ShowBy(writer http.ResponseWriter, request *http.Requ
 
 func (ua *UserApplication) Update(writer http.ResponseWriter, request *http.Request) {
 	newUser := entities.User{}
-
 	writer.Header().Add("Content-Type", "application-json")
 	userId := chi.URLParam(request, "id")
 	_ = json.NewDecoder(request.Body).Decode(&newUser)
@@ -86,7 +85,7 @@ func (ua *UserApplication) Destroy(writer http.ResponseWriter, request *http.Req
 		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()})
 		return
 	}
-	
+
 	writer.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(writer).Encode(utils.ResponseSuccess{Code: http.StatusOK, Message: utils.DELETED})
 }

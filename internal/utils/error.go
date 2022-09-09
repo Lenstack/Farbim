@@ -2,7 +2,6 @@ package utils
 
 import (
 	"errors"
-	"fmt"
 )
 
 var (
@@ -17,8 +16,6 @@ var (
 )
 
 func ErrorManager(err error) error {
-	fmt.Println("error manager:", err)
-
 	switch err.Error() {
 	case "sql: no rows in result set":
 		return ItemNotExist

@@ -1,4 +1,4 @@
-CREATE TABLE users
+CREATE TABLE IF NOT EXISTS users
 (
     Id                     TEXT PRIMARY KEY,
     Email                  TEXT UNIQUE NOT NULL,
@@ -10,3 +10,14 @@ CREATE TABLE users
     CreatedAt              TEXT,
     UpdatedAt              TEXT
 );
+
+CREATE TABLE IF NOT EXISTS profiles
+(
+    Id        TEXT PRIMARY KEY,
+    Name      TEXT,
+    Avatar    TEXT,
+    UserId    TEXT UNIQUE NOT NULL,
+    CreatedAt TEXT,
+    UpdatedAt TEXT,
+    CONSTRAINT fk_profiles_users FOREIGN KEY (UserId) REFERENCES users (Id)
+)
