@@ -34,6 +34,10 @@ func (us *UserService) ShowBy(userId string) (user entities.User, err error) {
 }
 
 func (us *UserService) Update(userId string, newUser entities.User) (user entities.User, err error) {
+	_, err = us.userRepository.GetUserById(userId)
+	if err != nil {
+		return entities.User{}, err
+	}
 	return us.userRepository.UpdateUser(userId, newUser)
 }
 

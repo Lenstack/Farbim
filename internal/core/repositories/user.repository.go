@@ -114,10 +114,6 @@ func (ur *UserRepository) CreateUser(user entities.User) (userId string, err err
 }
 
 func (ur *UserRepository) UpdateUser(userId string, newUser entities.User) (user entities.User, err error) {
-	_, err = ur.GetUserById(userId)
-	if err != nil {
-		return entities.User{}, err
-	}
 
 	userMap := map[string]interface{}{"email": newUser.Email, "password": ur.BcryptManager.HashPassword(newUser.Password)}
 	bq := ur.Database.
