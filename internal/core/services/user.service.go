@@ -42,5 +42,9 @@ func (us *UserService) Update(userId string, newUser entities.User) (user entiti
 }
 
 func (us *UserService) Destroy(userId string) (rowsAffected int64, err error) {
+	_, err = us.userRepository.GetUserById(userId)
+	if err != nil {
+		return 0, err
+	}
 	return us.userRepository.DestroyUser(userId)
 }

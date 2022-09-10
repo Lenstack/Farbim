@@ -114,7 +114,6 @@ func (ur *UserRepository) CreateUser(user entities.User) (userId string, err err
 }
 
 func (ur *UserRepository) UpdateUser(userId string, newUser entities.User) (user entities.User, err error) {
-
 	userMap := map[string]interface{}{"email": newUser.Email, "password": ur.BcryptManager.HashPassword(newUser.Password)}
 	bq := ur.Database.
 		Update(entities.UserTableName).
@@ -131,13 +130,6 @@ func (ur *UserRepository) UpdateUser(userId string, newUser entities.User) (user
 }
 
 func (ur *UserRepository) DestroyUser(userId string) (rowsAffected int64, err error) {
-	var userIdFounded string
-	isFounded := ur.Database.Select("id").From(entities.UserTableName).Where(squirrel.Eq{"id": userId})
-	err = isFounded.Scan(&userIdFounded)
-	if err != nil {
-		return 0, utils.ErrorManager(err)
-	}
-
 	bq := ur.Database.Delete(entities.UserTableName).Where(squirrel.Eq{"id": userId})
 	result, err := bq.Exec()
 	if err != nil {
