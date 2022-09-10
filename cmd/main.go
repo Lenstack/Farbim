@@ -30,5 +30,5 @@ func main() {
 		*authenticationApplication,
 	)
 	router := infrastructure.NewRouter(*microservices, os.Getenv("API_VERSION"))
-	infrastructure.NewHttpServer(os.Getenv("API_PORT"), router)
+	infrastructure.NewHttpServer(os.Getenv("API_PORT"), router.App)
 }

@@ -1,15 +1,23 @@
 package infrastructure
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/Lenstack/farm_management/internal/core/application"
+	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"net/http"
+	"strings"
 )
 
-type Router struct{}
+type Router struct {
+	App *chi.Mux
+}
 
-func NewRouter(microservices application.MicroserviceServer, apiVersion string) *chi.Mux {
+var jwtManager utils.JwtManager
+
+func NewRouter(microservices application.MicroserviceServer, apiVersion string) *Router {
 	app := chi.NewRouter()
 	app.Use(middleware.Logger)
 	app.Use(middleware.Recoverer)
@@ -19,6 +27,7 @@ func NewRouter(microservices application.MicroserviceServer, apiVersion string) 
 	version := fmt.Sprintf("/%s", apiVersion)
 
 	app.Route(version+"/user", func(userRouter chi.Router) {
+		userRouter.Use(ProtectedRoutes)
 		userRouter.Get("/", microservices.UserApplication.Show)
 		userRouter.Get("/{id}", microservices.UserApplication.ShowBy)
 		userRouter.Put("/{id}", microservices.UserApplication.Update)
@@ -32,5 +41,27 @@ func NewRouter(microservices application.MicroserviceServer, apiVersion string) 
 		authenticationRouter.Post("/refresh_token", microservices.AuthenticationApplication.RefreshToken)
 	})
 
-	return app
+	return &Router{App: app}
+}
+
+func ProtectedRoutes(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		requestToken := request.Header.Get("Authorization")
+		clearedToken := strings.TrimPrefix(requestToken, "Bearer ")
+
+		if requestToken == "" || requestToken == clearedToken {
+			writer.Header().Add("Content-Type", "application-json")
+			writer.WriteHeader(http.StatusUnauthorized)
+			_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: utils.TokenWithout.Error()})
+			return
+		}
+		_, err := jwtManager.VerifyJwtToken(clearedToken)
+		if err != nil {
+			writer.Header().Add("Content-Type", "application-json")
+			writer.WriteHeader(http.StatusUnauthorized)
+			_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
+			return
+		}
+		next.ServeHTTP(writer, request)
+	})
 }
