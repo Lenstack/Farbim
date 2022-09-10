@@ -10,6 +10,7 @@ var (
 	ItemWithout             = errors.New("without items")
 	ItemAlreadyExist        = errors.New("the item already exist")
 	AuthenticationIncorrect = errors.New("email or password are incorrect")
+	TokenExpired            = errors.New("the token has been expired")
 	TokenIncorrect          = errors.New("the token is incorrect")
 	TokenInvalid            = errors.New("the token is invalid or malformed")
 	TokenWithout            = errors.New("authentication header no contains bearer token")
@@ -25,6 +26,14 @@ func ErrorManager(err error) error {
 		return ItemAlreadyExist
 	case "crypto/bcrypt: hashedPassword is not the hash of the given password":
 		return AuthenticationIncorrect
+	case "Token is expired":
+		return TokenExpired
+	case "illegal base64 data at input byte 36":
+		return TokenIncorrect
+	case "signature is invalid":
+		return TokenSignature
+	case "token contains an invalid number of segments":
+		return TokenInvalid
 	default:
 		return err
 	}

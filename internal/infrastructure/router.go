@@ -8,16 +8,18 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"net/http"
-	"strings"
 )
 
 type Router struct {
-	App *chi.Mux
+	App        *chi.Mux
+	JwtManager utils.JwtManager
 }
 
-var jwtManager utils.JwtManager
+var jwtUtil utils.JwtManager
 
-func NewRouter(microservices application.MicroserviceServer, apiVersion string) *Router {
+func NewRouter(microservices application.MicroserviceServer, apiVersion string, jwtManager utils.JwtManager) *Router {
+	jwtUtil = jwtManager
+
 	app := chi.NewRouter()
 	app.Use(middleware.Logger)
 	app.Use(middleware.Recoverer)
@@ -27,7 +29,7 @@ func NewRouter(microservices application.MicroserviceServer, apiVersion string) 
 	version := fmt.Sprintf("/%s", apiVersion)
 
 	app.Route(version+"/user", func(userRouter chi.Router) {
-		userRouter.Use(ProtectedRoutes)
+		userRouter.Use(ProtectedRoutesMiddleware)
 		userRouter.Get("/", microservices.UserApplication.Show)
 		userRouter.Get("/{id}", microservices.UserApplication.ShowBy)
 		userRouter.Put("/{id}", microservices.UserApplication.Update)
@@ -44,24 +46,23 @@ func NewRouter(microservices application.MicroserviceServer, apiVersion string) 
 	return &Router{App: app}
 }
 
-func ProtectedRoutes(next http.Handler) http.Handler {
+func ProtectedRoutesMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		requestToken := request.Header.Get("Authorization")
-		clearedToken := strings.TrimPrefix(requestToken, "Bearer ")
-
-		if requestToken == "" || requestToken == clearedToken {
-			writer.Header().Add("Content-Type", "application-json")
-			writer.WriteHeader(http.StatusUnauthorized)
-			_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: utils.TokenWithout.Error()})
-			return
-		}
-		_, err := jwtManager.VerifyJwtToken(clearedToken)
+		extractToken, err := jwtUtil.ExtractJwtToken(request)
 		if err != nil {
 			writer.Header().Add("Content-Type", "application-json")
 			writer.WriteHeader(http.StatusUnauthorized)
 			_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
 			return
 		}
+		claims, err := jwtUtil.VerifyJwtToken(extractToken)
+		if err != nil {
+			writer.Header().Add("Content-Type", "application-json")
+			writer.WriteHeader(http.StatusUnauthorized)
+			_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
+			return
+		}
+		fmt.Println(claims["exp"])
 		next.ServeHTTP(writer, request)
 	})
 }

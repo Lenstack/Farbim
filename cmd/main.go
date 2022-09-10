@@ -5,17 +5,28 @@ import (
 	"github.com/Lenstack/farm_management/internal/core/services"
 	"github.com/Lenstack/farm_management/internal/infrastructure"
 	"github.com/Lenstack/farm_management/internal/utils"
-	"os"
+	"github.com/spf13/viper"
 )
 
 func main() {
 	infrastructure.Load()
-	postgres := infrastructure.NewPostgres(
-		os.Getenv("POSTGRES_HOST"), os.Getenv("POSTGRES_PORT"),
-		os.Getenv("POSTGRES_DATABASE_NAME"), os.Getenv("POSTGRES_DATABASE_USER"),
-		os.Getenv("POSTGRES_DATABASE_PASSWORD"))
 
-	tokenManager := utils.NewJwtManager(os.Getenv("JWT_EXPIRATION"), os.Getenv("JWT_SECRET"))
+	var (
+		PostgresHost             = viper.Get("POSTGRES_HOST").(string)
+		PostgresPort             = viper.Get("POSTGRES_PORT").(string)
+		PostgresDatabaseName     = viper.Get("POSTGRES_DATABASE_NAME").(string)
+		PostgresDatabaseUser     = viper.Get("POSTGRES_DATABASE_USER").(string)
+		PostgresDatabasePassword = viper.Get("POSTGRES_DATABASE_PASSWORD").(string)
+		JwtExpiration            = viper.Get("JWT_EXPIRATION").(string)
+		JwtSecret                = viper.Get("JWT_SECRET").(string)
+		ApiVersion               = viper.Get("API_VERSION").(string)
+		ApiPort                  = viper.Get("API_PORT").(string)
+	)
+
+	postgres := infrastructure.NewPostgres(PostgresHost, PostgresPort,
+		PostgresDatabaseName, PostgresDatabaseUser, PostgresDatabasePassword)
+
+	tokenManager := utils.NewJwtManager(JwtExpiration, JwtSecret)
 
 	//Register Services
 	userService := services.NewUserService(postgres.Database)
@@ -29,6 +40,6 @@ func main() {
 		*userApplication,
 		*authenticationApplication,
 	)
-	router := infrastructure.NewRouter(*microservices, os.Getenv("API_VERSION"))
-	infrastructure.NewHttpServer(os.Getenv("API_PORT"), router.App)
+	router := infrastructure.NewRouter(*microservices, ApiVersion, *tokenManager)
+	infrastructure.NewHttpServer(ApiPort, router.App)
 }
