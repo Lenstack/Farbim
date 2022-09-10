@@ -12,10 +12,12 @@ type IAuthenticationApplication interface {
 	SignIn(writer http.ResponseWriter, request *http.Request)
 	SignUp(writer http.ResponseWriter, request *http.Request)
 	Logout(writer http.ResponseWriter, request *http.Request)
+	RefreshToken(writer http.ResponseWriter, request *http.Request)
 }
 
 type AuthenticationApplication struct {
 	authenticationService services.AuthenticationService
+	jwtManager            utils.JwtManager
 }
 
 func NewAuthenticationApplication(authenticationService services.AuthenticationService) *AuthenticationApplication {
@@ -79,6 +81,14 @@ func (aa *AuthenticationApplication) Logout(writer http.ResponseWriter, request 
 	writer.Header().Set("Content-Type", "application-json")
 
 	writer.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(writer).Encode(
+		utils.ResponseSuccess{Code: http.StatusCreated, Message: utils.LOGOUT},
+	)
+}
+
+func (aa *AuthenticationApplication) RefreshToken(writer http.ResponseWriter, request *http.Request) {
+	writer.Header().Set("Content-Type", "application-json")
+
 	_ = json.NewEncoder(writer).Encode(
 		utils.ResponseSuccess{Code: http.StatusCreated, Message: utils.LOGOUT},
 	)

@@ -29,6 +29,7 @@ func NewRouter(microservices application.MicroserviceServer, apiVersion string) 
 		authenticationRouter.Post("/sign_in", microservices.AuthenticationApplication.SignIn)
 		authenticationRouter.Post("/sign_up", microservices.AuthenticationApplication.SignUp)
 		authenticationRouter.Post("/logout", microservices.AuthenticationApplication.Logout)
+		authenticationRouter.Post("/refresh_token", microservices.AuthenticationApplication.RefreshToken)
 	})
 
 	return app

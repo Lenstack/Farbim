@@ -1,15 +1,15 @@
 package utils
 
 import (
-	"errors"
 	"github.com/golang-jwt/jwt/v4"
 	"strconv"
 	"time"
 )
 
 type IJwtManager interface {
-	GenerateJwtToken(payload interface{}) (string, error)
-	ValidateJwtToken(accessToken string) (interface{}, error)
+	GenerateJwtToken(payload interface{}) (token string, err error)
+	VerifyJwtToken(accessToken string) (claims jwt.MapClaims, err error)
+	RefreshJwtToken()
 }
 
 type JwtManager struct {
@@ -21,30 +21,24 @@ func NewJwtManager(expirationTime string, secretKey string) *JwtManager {
 	return &JwtManager{expirationTime: expirationTime, secretKey: secretKey}
 }
 
-func (jm *JwtManager) GenerateJwtToken(payload interface{}) (string, error) {
+func (jm *JwtManager) GenerateJwtToken(payload interface{}) (token string, err error) {
 	expiration, _ := strconv.Atoi(jm.expirationTime)
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"ExpiresAt": time.Now().Add(time.Minute * time.Duration(expiration)).Unix(),
 		"Subject":   payload,
-	})
-	return token.SignedString([]byte(jm.secretKey))
+	}).SignedString([]byte(jm.secretKey))
 }
 
-func (jm *JwtManager) ValidateJwtToken(accessToken string) (interface{}, error) {
-	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("Unexpected Signing Method ")
-		}
-		return []byte(jm.secretKey), nil
-	})
+func (jm *JwtManager) VerifyJwtToken(accessToken string) (claims jwt.MapClaims, err error) {
+	parsedToken, err := jwt.NewParser(jwt.WithValidMethods([]string{"HS256"})).
+		Parse(accessToken, func(t *jwt.Token) (any, error) {
+			return []byte(jm.secretKey), nil
+		})
 	if err != nil {
-		return nil, err
+		return nil, TokenSignature
 	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return nil, errors.New("Cannot Get Claims From Token ")
+	if claims, ok := parsedToken.Claims.(jwt.MapClaims); ok && parsedToken.Valid {
+		return claims, nil
 	}
-	return claims["Subject"], nil
+	return nil, TokenClaims
 }

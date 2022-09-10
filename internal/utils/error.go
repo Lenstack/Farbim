@@ -13,6 +13,8 @@ var (
 	TokenIncorrect          = errors.New("the token is incorrect")
 	TokenInvalid            = errors.New("the token is invalid")
 	TokenWithout            = errors.New("without token")
+	TokenSignature          = errors.New("the token signature is invalid")
+	TokenClaims             = errors.New("cannot get claims from token")
 )
 
 func ErrorManager(err error) error {
