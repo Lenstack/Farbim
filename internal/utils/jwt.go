@@ -2,6 +2,7 @@ package utils
 
 import (
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 	"net/http"
 	"strconv"
 	"strings"
@@ -11,24 +12,26 @@ import (
 type IJwtManager interface {
 	GenerateJwtToken(payload interface{}) (token string, err error)
 	VerifyJwtToken(accessToken string) (claims jwt.MapClaims, err error)
-	RefreshJwtToken()
+	RefreshJwtToken(payload interface{}) (token string, err error)
 	ExtractJwtToken(request *http.Request) (err error)
 }
 
 type JwtManager struct {
-	expirationTime string
-	secretKey      string
+	expirationToken   string
+	expirationRefresh string
+	secretKey         string
 }
 
-func NewJwtManager(expirationTime string, secretKey string) *JwtManager {
-	return &JwtManager{expirationTime: expirationTime, secretKey: secretKey}
+func NewJwtManager(expirationToken string, expirationRefresh string, secretKey string) *JwtManager {
+	return &JwtManager{expirationToken: expirationToken, expirationRefresh: expirationRefresh, secretKey: secretKey}
 }
 
 func (jm *JwtManager) GenerateJwtToken(payload interface{}) (token string, err error) {
-	expiration, _ := strconv.Atoi(jm.expirationTime)
+	expiration, _ := strconv.Atoi(jm.expirationToken)
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"exp": time.Now().Add(time.Minute * time.Duration(expiration)).Unix(),
-		"sub": payload,
+		"uuid": uuid.New().String(),
+		"exp":  time.Now().Add(time.Minute * time.Duration(expiration)).Unix(),
+		"sub":  payload,
 	}).SignedString([]byte(jm.secretKey))
 }
 
@@ -43,7 +46,6 @@ func (jm *JwtManager) VerifyJwtToken(accessToken string) (claims jwt.MapClaims, 
 	if claims, ok := parsedToken.Claims.(jwt.MapClaims); ok && parsedToken.Valid {
 		return claims, nil
 	}
-
 	return nil, TokenClaims
 }
 
@@ -60,4 +62,13 @@ func (jm *JwtManager) ExtractJwtToken(request *http.Request) (clearedToken strin
 		return "", TokenWithout
 	}
 	return spaceToken, nil
+}
+
+func (jm *JwtManager) RefreshJwtToken(payload interface{}) (token string, err error) {
+	expiration, _ := strconv.Atoi(jm.expirationRefresh)
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"uuid": uuid.New().String(),
+		"exp":  time.Now().Add(time.Hour * 24 * time.Duration(expiration)).Unix(),
+		"sub":  payload,
+	}).SignedString([]byte(jm.secretKey))
 }

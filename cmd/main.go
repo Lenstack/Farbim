@@ -17,16 +17,19 @@ func main() {
 		PostgresDatabaseName     = viper.Get("POSTGRES_DATABASE_NAME").(string)
 		PostgresDatabaseUser     = viper.Get("POSTGRES_DATABASE_USER").(string)
 		PostgresDatabasePassword = viper.Get("POSTGRES_DATABASE_PASSWORD").(string)
-		JwtExpiration            = viper.Get("JWT_EXPIRATION").(string)
+		JwtExpirationToken       = viper.Get("JWT_EXPIRATION_TOKEN").(string)
+		JwtExpirationRefresh     = viper.Get("JWT_EXPIRATION_REFRESH").(string)
 		JwtSecret                = viper.Get("JWT_SECRET").(string)
 		ApiVersion               = viper.Get("API_VERSION").(string)
 		ApiPort                  = viper.Get("API_PORT").(string)
 	)
 
-	postgres := infrastructure.NewPostgres(PostgresHost, PostgresPort,
-		PostgresDatabaseName, PostgresDatabaseUser, PostgresDatabasePassword)
+	postgres := infrastructure.NewPostgres(
+		PostgresHost, PostgresPort, PostgresDatabaseName,
+		PostgresDatabaseUser, PostgresDatabasePassword,
+	)
 
-	tokenManager := utils.NewJwtManager(JwtExpiration, JwtSecret)
+	tokenManager := utils.NewJwtManager(JwtExpirationToken, JwtExpirationRefresh, JwtSecret)
 
 	//Register Services
 	userService := services.NewUserService(postgres.Database)
