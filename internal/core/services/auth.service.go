@@ -44,12 +44,12 @@ func (as *AuthenticationService) SignIn(user entities.User) (accessToken string,
 		return "", "", err
 	}
 
-	accessToken, err = as.tokenManager.GenerateJwtToken(userId)
+	accessToken, err = as.tokenManager.GenerateJwtAccessToken(userId)
 	if err != nil {
 		return "", "", err
 	}
 
-	refreshToken, err = as.tokenManager.RefreshJwtToken(userId)
+	refreshToken, err = as.tokenManager.GenerateJwtAccessToken(userId)
 	if err != nil {
 		return "", "", err
 	}
@@ -72,6 +72,7 @@ func (as *AuthenticationService) SignUp(user entities.User) (err error) {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

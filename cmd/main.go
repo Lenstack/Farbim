@@ -36,13 +36,15 @@ func main() {
 	authenticationService := services.NewAuthenticationService(postgres.Database, *tokenManager)
 
 	//Register Http Handlers
+	middlewareApplication := application.NewMiddlewareApplication(*userService, *tokenManager)
 	authenticationApplication := application.NewAuthenticationApplication(*authenticationService)
 	userApplication := application.NewUserApplication(*userService)
 
 	microservices := application.NewMicroserviceServer(
+		*middlewareApplication,
 		*userApplication,
 		*authenticationApplication,
 	)
-	router := infrastructure.NewRouter(*microservices, ApiVersion, *tokenManager)
+	router := infrastructure.NewRouter(*microservices, ApiVersion)
 	infrastructure.NewHttpServer(ApiPort, router.App)
 }
