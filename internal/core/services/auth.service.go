@@ -8,8 +8,8 @@ import (
 )
 
 type IAuthenticationService interface {
-	SignIn(user entities.User) (token string, err error)
-	SignUp(user entities.User) (token string, err error)
+	SignIn(user entities.User) (accessToken string, refreshToken string, err error)
+	SignUp(user entities.User) (err error)
 	Logout(userId string) (err error)
 }
 
@@ -28,44 +28,54 @@ func NewAuthenticationService(database squirrel.StatementBuilderType, tokenManag
 	}
 }
 
-func (as *AuthenticationService) SignIn(user entities.User) (token string, err error) {
+func (as *AuthenticationService) SignIn(user entities.User) (accessToken string, refreshToken string, err error) {
 	hashedPassword, err := as.userRepository.GetUserPasswordByEmail(user.Email)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	err = as.bcryptManager.CompareHashedPassword(hashedPassword, user.Password)
 	if err != nil {
-		return "", utils.ErrorManager(err)
+		return "", "", utils.ErrorManager(err)
 	}
 
 	userId, err := as.userRepository.GetUserIdByEmail(user.Email)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	token, err = as.tokenManager.GenerateJwtToken(userId)
+	accessToken, err = as.tokenManager.GenerateJwtToken(userId)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return token, nil
+	refreshToken, err = as.tokenManager.RefreshJwtToken(userId)
+	if err != nil {
+		return "", "", err
+	}
+
+	_, err = as.userRepository.UpdateUserTokens(userId, accessToken, refreshToken)
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
 }
 
-func (as *AuthenticationService) SignUp(user entities.User) (token string, err error) {
+func (as *AuthenticationService) SignUp(user entities.User) (err error) {
 	idUserExist, err := as.userRepository.GetUserIdByEmail(user.Email)
 	if idUserExist != "" {
-		return "", utils.ItemAlreadyExist
+		return utils.ItemAlreadyExist
 	}
 
-	userId, err := as.userRepository.CreateUser(user)
+	_, err = as.userRepository.CreateUser(user)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return as.tokenManager.GenerateJwtToken(userId)
+	return nil
 }
 
-func (as *AuthenticationService) Logout(user entities.User) (err error) {
+func (as *AuthenticationService) Logout(userId string) (err error) {
 	//TODO implement me
 	panic("implement me")
 }

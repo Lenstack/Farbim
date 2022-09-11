@@ -13,13 +13,14 @@ const (
 )
 
 type ResponseSuccess struct {
-	Code       int64       `json:"Code,omitempty"`
-	Message    Message     `json:"Message,omitempty"`
-	Token      string      `json:"Token,omitempty"`
-	Page       int64       `json:"Page,omitempty"`
-	PerPage    int64       `json:"PerPage,omitempty"`
-	TotalItems int64       `json:"TotalItems,omitempty"`
-	Items      interface{} `json:"Items,omitempty"`
+	Code         int64       `json:"Code,omitempty"`
+	Message      Message     `json:"Message,omitempty"`
+	TokenAccess  string      `json:"TokenAccess,omitempty"`
+	TokenRefresh string      `json:"TokenRefresh,omitempty"`
+	Page         int64       `json:"Page,omitempty"`
+	PerPage      int64       `json:"PerPage,omitempty"`
+	TotalItems   int64       `json:"TotalItems,omitempty"`
+	Items        interface{} `json:"Items,omitempty"`
 }
 
 type ResponseError struct {

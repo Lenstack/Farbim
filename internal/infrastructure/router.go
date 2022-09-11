@@ -54,14 +54,13 @@ func ProtectedRoutesMiddleware(next http.Handler) http.Handler {
 			_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
 			return
 		}
-		claims, err := jwtUtil.VerifyJwtToken(extractToken)
+		_, err = jwtUtil.VerifyJwtToken(extractToken)
 		if err != nil {
 			writer.Header().Add("Content-Type", "application-json")
 			writer.WriteHeader(http.StatusUnauthorized)
 			_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
 			return
 		}
-		fmt.Println(claims["exp"])
 		next.ServeHTTP(writer, request)
 	})
 }

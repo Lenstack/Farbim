@@ -3,12 +3,13 @@ CREATE TABLE IF NOT EXISTS users
     Id                     TEXT PRIMARY KEY,
     Email                  TEXT UNIQUE NOT NULL,
     Password               TEXT        NOT NULL,
-    Token                  TEXT,
+    AccessToken            TEXT,
+    RefreshToken           TEXT,
+    Verified               BOOLEAN   DEFAULT FALSE,
     LastResetSentAt        TEXT,
     LastVerificationSentAt TEXT,
-    Verified               BOOLEAN DEFAULT FALSE,
-    CreatedAt              TEXT,
-    UpdatedAt              TEXT
+    CreatedAt              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt              TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS profiles
@@ -17,7 +18,7 @@ CREATE TABLE IF NOT EXISTS profiles
     Name      TEXT,
     Avatar    TEXT,
     UserId    TEXT UNIQUE NOT NULL,
-    CreatedAt TEXT,
-    UpdatedAt TEXT,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_profiles_users FOREIGN KEY (UserId) REFERENCES users (Id)
 )

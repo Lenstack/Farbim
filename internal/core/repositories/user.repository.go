@@ -13,7 +13,8 @@ type IUserRepository interface {
 	GetUserPasswordByEmail(email string) (password string, err error)
 	GetUserIdByEmail(email string) (userId string, err error)
 	CreateUser(user entities.User) (userId string, err error)
-	UpdateUser(userId string, newUser entities.User) (user *entities.User, err error)
+	UpdateUser(userId string, newUser entities.User) (user entities.User, err error)
+	UpdateUserTokens(userId string, accessToken string, refreshToken string) (user entities.User, err error)
 	DestroyUser(userId string) (rowsAffected int64, err error)
 }
 
@@ -25,7 +26,7 @@ type UserRepository struct {
 func (ur *UserRepository) GetUsers() (users []entities.User, err error) {
 	user := entities.User{}
 	bq := ur.Database.Select("Id", "Email",
-		"Token", "LastResetSentAt", "LastVerificationSentAt",
+		"AccessToken", "RefreshToken", "LastResetSentAt", "LastVerificationSentAt",
 		"Verified", "CreatedAt", "UpdatedAt").From(entities.UserTableName)
 
 	rows, err := bq.Query()
@@ -34,7 +35,8 @@ func (ur *UserRepository) GetUsers() (users []entities.User, err error) {
 	}
 
 	for rows.Next() {
-		err := rows.Scan(&user.Id, &user.Email, &user.Token,
+		err := rows.Scan(&user.Id, &user.Email,
+			&user.AccessToken, &user.RefreshToken,
 			&user.LastResetSentAt, &user.LastVerificationSentAt,
 			&user.Verified, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
@@ -52,12 +54,13 @@ func (ur *UserRepository) GetUsers() (users []entities.User, err error) {
 
 func (ur *UserRepository) GetUserById(userId string) (user entities.User, err error) {
 	bq := ur.Database.Select("Id", "Email",
-		"Token", "LastResetSentAt", "LastVerificationSentAt",
+		"AccessToken", "RefreshToken", "LastResetSentAt", "LastVerificationSentAt",
 		"Verified", "CreatedAt", "UpdatedAt").
 		From(entities.UserTableName).
 		Where(squirrel.Eq{"id": userId})
 
-	err = bq.QueryRow().Scan(&user.Id, &user.Email, &user.Token,
+	err = bq.QueryRow().Scan(&user.Id, &user.Email,
+		&user.AccessToken, &user.RefreshToken,
 		&user.LastResetSentAt, &user.LastVerificationSentAt,
 		&user.Verified, &user.CreatedAt, &user.UpdatedAt)
 
@@ -98,11 +101,13 @@ func (ur *UserRepository) CreateUser(user entities.User) (userId string, err err
 	bq := ur.Database.
 		Insert(entities.UserTableName).
 		Columns("Id", "Email", "Password",
-			"Token", "LastResetSentAt", "LastVerificationSentAt",
-			"Verified", "CreatedAt", "UpdatedAt").
-		Values(user.Id, user.Email, user.Password, user.Token,
+			"AccessToken", "RefreshToken",
+			"LastResetSentAt", "LastVerificationSentAt",
+			"Verified").
+		Values(user.Id, user.Email, user.Password,
+			user.AccessToken, user.RefreshToken,
 			user.LastResetSentAt, user.LastVerificationSentAt,
-			user.Verified, user.CreatedAt, user.UpdatedAt).
+			user.Verified).
 		Suffix("RETURNING Id")
 
 	err = bq.QueryRow().Scan(&userId)
@@ -126,6 +131,21 @@ func (ur *UserRepository) UpdateUser(userId string, newUser entities.User) (user
 		return entities.User{}, utils.ErrorManager(err)
 	}
 
+	return user, nil
+}
+
+func (ur *UserRepository) UpdateUserTokens(userId string, accessToken string, refreshToken string) (user entities.User, err error) {
+	userMap := map[string]interface{}{"accessToken": accessToken, "refreshToken": refreshToken}
+	bq := ur.Database.
+		Update(entities.UserTableName).
+		SetMap(userMap).
+		Where(squirrel.Eq{"id": userId}).
+		Suffix("RETURNING Id")
+
+	err = bq.QueryRow().Scan(&user.Id)
+	if err != nil {
+		return entities.User{}, utils.ErrorManager(err)
+	}
 	return user, nil
 }
 
