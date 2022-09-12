@@ -20,19 +20,25 @@ func NewRouter(microservices application.MicroserviceServer, apiVersion string) 
 
 	version := fmt.Sprintf("/%s", apiVersion)
 
-	app.Route(version+"/user", func(userRouter chi.Router) {
-		userRouter.Use(microservices.MiddlewareApplication.ProtectedRoutes)
-		userRouter.Get("/", microservices.UserApplication.Show)
-		userRouter.Get("/{id}", microservices.UserApplication.ShowBy)
-		userRouter.Put("/{id}", microservices.UserApplication.Update)
-		userRouter.Delete("/{id}", microservices.UserApplication.Destroy)
+	//Protected Routes
+	app.Group(func(appRouter chi.Router) {
+		appRouter.Use(microservices.MiddlewareApplication.ProtectedRoutes)
+		appRouter.Route(version+"/user", func(userRouter chi.Router) {
+			userRouter.Get("/", microservices.UserApplication.Show)
+			userRouter.Get("/{id}", microservices.UserApplication.ShowBy)
+			userRouter.Put("/{id}", microservices.UserApplication.Update)
+			userRouter.Delete("/{id}", microservices.UserApplication.Destroy)
+		})
+
+		appRouter.Route(version+"/authorization", func(authorizationRouter chi.Router) {
+			authorizationRouter.Post("/refresh_token", microservices.MiddlewareApplication.RefreshToken)
+		})
 	})
 
 	app.Route(version+"/authentication", func(authenticationRouter chi.Router) {
 		authenticationRouter.Post("/sign_in", microservices.AuthenticationApplication.SignIn)
 		authenticationRouter.Post("/sign_up", microservices.AuthenticationApplication.SignUp)
 		authenticationRouter.Post("/logout", microservices.AuthenticationApplication.Logout)
-		authenticationRouter.Post("/refresh_token", microservices.MiddlewareApplication.RefreshToken)
 	})
 
 	return &Router{App: app}

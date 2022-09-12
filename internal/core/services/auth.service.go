@@ -5,24 +5,30 @@ import (
 	"github.com/Lenstack/farm_management/internal/core/repositories"
 	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/Masterminds/squirrel"
+	"github.com/go-redis/redis/v9"
 )
 
 type IAuthenticationService interface {
 	SignIn(user entities.User) (accessToken string, err error)
 	SignUp(user entities.User) (err error)
-	Logout(userId string) (err error)
+	Logout(userId string, token string) (err error)
 }
 
 type AuthenticationService struct {
-	userRepository repositories.UserRepository
-	tokenManager   utils.JwtManager
-	bcryptManager  utils.BcryptManager
+	userRepository  repositories.UserRepository
+	redisRepository repositories.RedisRepository
+	tokenManager    utils.JwtManager
+	bcryptManager   utils.BcryptManager
+	redisManager    *redis.Client
 }
 
-func NewAuthenticationService(database squirrel.StatementBuilderType, tokenManager utils.JwtManager) *AuthenticationService {
+func NewAuthenticationService(database squirrel.StatementBuilderType, tokenManager utils.JwtManager, redisManager *redis.Client) *AuthenticationService {
 	return &AuthenticationService{
 		userRepository: repositories.UserRepository{
 			Database: database,
+		},
+		redisRepository: repositories.RedisRepository{
+			RedisManager: redisManager,
 		},
 		tokenManager: tokenManager,
 	}
@@ -80,7 +86,11 @@ func (as *AuthenticationService) SignUp(user entities.User) (err error) {
 	return nil
 }
 
-func (as *AuthenticationService) Logout(userId string) (err error) {
+func (as *AuthenticationService) Logout(userId string, token string) (err error) {
+	err = as.redisRepository.AddTokenToBlacklist(token)
+	if err != nil {
+		return err
+	}
 	_, err = as.userRepository.UpdateUserAccessToken(userId, "")
 	if err != nil {
 		return err

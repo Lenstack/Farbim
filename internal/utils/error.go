@@ -17,6 +17,7 @@ var (
 	TokenWithout            = errors.New("authentication header no contains bearer token")
 	TokenSignature          = errors.New("the token signature is invalid")
 	TokenClaims             = errors.New("cannot get claims from token")
+	TokenInBlackList        = errors.New("the token has been blacklisted")
 )
 
 func ErrorManager(err error) error {

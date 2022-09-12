@@ -32,17 +32,18 @@ func main() {
 		PostgresDatabaseUser, PostgresDatabasePassword,
 	)
 
-	redis := infrastructure.NewRedis(RedisHost, RedisPort, RedisPassword)
+	redisManager := infrastructure.NewRedisManager(RedisHost, RedisPort, RedisPassword)
 
-	tokenManager := utils.NewJwtManager(JwtExpirationToken, JwtExpirationRefresh, JwtSecret, redis.Rdb)
+	tokenManager := utils.NewJwtManager(JwtExpirationToken, JwtExpirationRefresh, JwtSecret)
 
 	//Register Services
+	redisService := services.NewRedisService(redisManager.Client)
 	userService := services.NewUserService(postgres.Database)
-	authenticationService := services.NewAuthenticationService(postgres.Database, *tokenManager)
+	authenticationService := services.NewAuthenticationService(postgres.Database, *tokenManager, redisManager.Client)
 
 	//Register Http Handlers
-	middlewareApplication := application.NewMiddlewareApplication(*userService, *tokenManager)
-	authenticationApplication := application.NewAuthenticationApplication(*authenticationService, *tokenManager, redis.Rdb)
+	middlewareApplication := application.NewMiddlewareApplication(*userService, *redisService, *tokenManager)
+	authenticationApplication := application.NewAuthenticationApplication(*authenticationService, *tokenManager)
 	userApplication := application.NewUserApplication(*userService)
 
 	microservices := application.NewMicroserviceServer(

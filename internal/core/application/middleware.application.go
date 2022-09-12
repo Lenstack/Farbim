@@ -2,7 +2,6 @@ package application
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/Lenstack/farm_management/internal/core/services"
 	"github.com/Lenstack/farm_management/internal/utils"
 	"net/http"
@@ -14,12 +13,13 @@ type IMiddlewareApplication interface {
 }
 
 type MiddlewareApplication struct {
-	UserService services.UserService
-	jwtManager  utils.JwtManager
+	UserService  services.UserService
+	RedisService services.RedisService
+	jwtManager   utils.JwtManager
 }
 
-func NewMiddlewareApplication(userService services.UserService, jwtManager utils.JwtManager) *MiddlewareApplication {
-	return &MiddlewareApplication{UserService: userService, jwtManager: jwtManager}
+func NewMiddlewareApplication(userService services.UserService, redisService services.RedisService, jwtManager utils.JwtManager) *MiddlewareApplication {
+	return &MiddlewareApplication{UserService: userService, RedisService: redisService, jwtManager: jwtManager}
 }
 
 func (m *MiddlewareApplication) RefreshToken(writer http.ResponseWriter, request *http.Request) {
@@ -78,13 +78,21 @@ func (m *MiddlewareApplication) ProtectedRoutes(next http.Handler) http.Handler 
 			_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
 			return
 		}
-		userId, err := m.jwtManager.VerifyJwtToken(extractToken)
+
+		err = m.RedisService.IsTokenBlacklisted(extractToken)
 		if err != nil {
 			writer.WriteHeader(http.StatusUnauthorized)
 			_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
 			return
 		}
-		fmt.Println("Token UserId: ", userId)
+
+		_, err = m.jwtManager.VerifyJwtToken(extractToken)
+		if err != nil {
+			writer.WriteHeader(http.StatusUnauthorized)
+			_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
+			return
+		}
+
 		next.ServeHTTP(writer, request)
 	})
 }

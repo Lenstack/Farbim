@@ -5,7 +5,6 @@ import (
 	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Lenstack/farm_management/internal/core/services"
 	"github.com/Lenstack/farm_management/internal/utils"
-	"github.com/go-redis/redis/v9"
 	"net/http"
 )
 
@@ -18,18 +17,15 @@ type IAuthenticationApplication interface {
 type AuthenticationApplication struct {
 	authenticationService services.AuthenticationService
 	jwtManager            utils.JwtManager
-	rdb                   *redis.Client
 }
 
 func NewAuthenticationApplication(
 	authenticationService services.AuthenticationService,
 	jwtManager utils.JwtManager,
-	rdb *redis.Client,
 ) *AuthenticationApplication {
 	return &AuthenticationApplication{
 		authenticationService: authenticationService,
 		jwtManager:            jwtManager,
-		rdb:                   rdb,
 	}
 }
 
@@ -96,6 +92,7 @@ func (aa *AuthenticationApplication) Logout(writer http.ResponseWriter, request 
 		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()})
 		return
 	}
+
 	userId, err := aa.jwtManager.VerifyJwtToken(extractToken)
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
@@ -103,7 +100,13 @@ func (aa *AuthenticationApplication) Logout(writer http.ResponseWriter, request 
 		return
 	}
 
-	err = aa.authenticationService.Logout(userId)
+	if userId == "" {
+		writer.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()})
+		return
+	}
+
+	err = aa.authenticationService.Logout(userId, extractToken)
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()})
