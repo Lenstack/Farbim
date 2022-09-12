@@ -6,11 +6,9 @@ import (
 	"github.com/Lenstack/farm_management/internal/core/services"
 	"github.com/Lenstack/farm_management/internal/utils"
 	"net/http"
-	"strings"
 )
 
 type IMiddlewareApplication interface {
-	ExtractToken(request *http.Request) (clearedToken string, err error)
 	RefreshToken(writer http.ResponseWriter, request *http.Request)
 	ProtectedRoutes(next http.Handler) http.Handler
 }
@@ -26,7 +24,9 @@ func NewMiddlewareApplication(userService services.UserService, jwtManager utils
 
 func (m *MiddlewareApplication) RefreshToken(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Add("Content-Type", "application-json")
-	extractToken, err := m.ExtractToken(request)
+	headerToken := request.Header.Get("Authorization")
+
+	extractToken, err := m.jwtManager.ExtractJwtToken(headerToken)
 	if err != nil {
 		writer.WriteHeader(http.StatusUnauthorized)
 		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
@@ -67,25 +67,12 @@ func (m *MiddlewareApplication) RefreshToken(writer http.ResponseWriter, request
 	)
 }
 
-func (m *MiddlewareApplication) ExtractToken(request *http.Request) (clearedToken string, err error) {
-	headerToken := request.Header.Get("Authorization")
-	splitToken := strings.Split(headerToken, "Bearer")
-
-	if len(splitToken) != 2 {
-		return "", utils.TokenWithout
-	}
-
-	spaceToken := strings.TrimSpace(splitToken[1])
-	if len(spaceToken) < 1 {
-		return "", utils.TokenWithout
-	}
-	return spaceToken, nil
-}
-
 func (m *MiddlewareApplication) ProtectedRoutes(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		writer.Header().Add("Content-Type", "application-json")
-		extractToken, err := m.ExtractToken(request)
+		headerToken := request.Header.Get("Authorization")
+
+		extractToken, err := m.jwtManager.ExtractJwtToken(headerToken)
 		if err != nil {
 			writer.WriteHeader(http.StatusUnauthorized)
 			_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})

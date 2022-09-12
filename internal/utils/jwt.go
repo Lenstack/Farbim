@@ -4,6 +4,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -11,6 +12,7 @@ type IJwtManager interface {
 	GenerateJwtAccessToken(payload interface{}) (token string, err error)
 	GenerateJwtRefreshToken(payload interface{}) (token string, err error)
 	VerifyJwtToken(accessToken string) (claims jwt.MapClaims, err error)
+	ExtractJwtToken(headerToken string) (clearedToken string, err error)
 }
 
 type JwtManager struct {
@@ -53,4 +55,17 @@ func (jm *JwtManager) VerifyJwtToken(accessToken string) (userId string, err err
 		return claims["sub"].(string), nil
 	}
 	return "", TokenClaims
+}
+
+func (jm *JwtManager) ExtractJwtToken(headerToken string) (clearedToken string, err error) {
+	splitToken := strings.Split(headerToken, "Bearer")
+	if len(splitToken) != 2 {
+		return "", TokenWithout
+	}
+
+	spaceToken := strings.TrimSpace(splitToken[1])
+	if len(spaceToken) < 1 {
+		return "", TokenWithout
+	}
+	return spaceToken, nil
 }

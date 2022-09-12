@@ -37,7 +37,7 @@ func main() {
 
 	//Register Http Handlers
 	middlewareApplication := application.NewMiddlewareApplication(*userService, *tokenManager)
-	authenticationApplication := application.NewAuthenticationApplication(*authenticationService)
+	authenticationApplication := application.NewAuthenticationApplication(*authenticationService, *tokenManager)
 	userApplication := application.NewUserApplication(*userService)
 
 	microservices := application.NewMicroserviceServer(

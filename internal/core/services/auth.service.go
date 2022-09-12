@@ -81,6 +81,13 @@ func (as *AuthenticationService) SignUp(user entities.User) (err error) {
 }
 
 func (as *AuthenticationService) Logout(userId string) (err error) {
-	//TODO implement me
-	panic("implement me")
+	_, err = as.userRepository.UpdateUserAccessToken(userId, "")
+	if err != nil {
+		return err
+	}
+	_, err = as.userRepository.UpdateUserRefreshToken(userId, "")
+	if err != nil {
+		return err
+	}
+	return nil
 }

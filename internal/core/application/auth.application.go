@@ -19,8 +19,8 @@ type AuthenticationApplication struct {
 	jwtManager            utils.JwtManager
 }
 
-func NewAuthenticationApplication(authenticationService services.AuthenticationService) *AuthenticationApplication {
-	return &AuthenticationApplication{authenticationService: authenticationService}
+func NewAuthenticationApplication(authenticationService services.AuthenticationService, jwtManager utils.JwtManager) *AuthenticationApplication {
+	return &AuthenticationApplication{authenticationService: authenticationService, jwtManager: jwtManager}
 }
 
 func (aa *AuthenticationApplication) SignIn(writer http.ResponseWriter, request *http.Request) {
@@ -78,7 +78,27 @@ func (aa *AuthenticationApplication) SignUp(writer http.ResponseWriter, request 
 
 func (aa *AuthenticationApplication) Logout(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "application-json")
+	headerToken := request.Header.Get("Authorization")
 
+	extractToken, err := aa.jwtManager.ExtractJwtToken(headerToken)
+	if err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()})
+		return
+	}
+	userId, err := aa.jwtManager.VerifyJwtToken(extractToken)
+	if err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()})
+		return
+	}
+
+	err = aa.authenticationService.Logout(userId)
+	if err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()})
+		return
+	}
 	writer.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(writer).Encode(
 		utils.ResponseSuccess{Code: http.StatusCreated, Message: utils.LOGOUT},
