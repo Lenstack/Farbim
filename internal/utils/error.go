@@ -6,6 +6,7 @@ import (
 
 var (
 	AccessNotAuthorizated   = errors.New("access not authorized")
+	EmailIsNotVerified      = errors.New("email is not verified")
 	ItemNotExist            = errors.New("item not exist")
 	ItemWithout             = errors.New("without items")
 	ItemAlreadyExist        = errors.New("the item already exist")

@@ -36,7 +36,7 @@ func (aa *AuthenticationApplication) SignIn(writer http.ResponseWriter, request 
 		return
 	}
 
-	tokenAccess, tokenRefresh, err := aa.authenticationService.SignIn(user)
+	tokenAccess, err := aa.authenticationService.SignIn(user)
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(writer).Encode(
@@ -47,7 +47,7 @@ func (aa *AuthenticationApplication) SignIn(writer http.ResponseWriter, request 
 
 	writer.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(writer).Encode(
-		utils.ResponseSuccess{Code: http.StatusOK, Message: utils.SIGNIN, TokenAccess: tokenAccess, TokenRefresh: tokenRefresh},
+		utils.ResponseSuccess{Code: http.StatusOK, TokenAccess: tokenAccess},
 	)
 }
 

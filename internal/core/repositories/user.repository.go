@@ -12,9 +12,11 @@ type IUserRepository interface {
 	GetUserById(userId string) (user entities.User, err error)
 	GetUserPasswordByEmail(email string) (password string, err error)
 	GetUserIdByEmail(email string) (userId string, err error)
+	GetUserVerifiedByEmail(email string) (verified bool, err error)
 	CreateUser(user entities.User) (userId string, err error)
 	UpdateUser(userId string, newUser entities.User) (user entities.User, err error)
-	UpdateUserTokens(userId string, accessToken string, refreshToken string) (user entities.User, err error)
+	UpdateUserAccessToken(userId string, accessToken string) (user entities.User, err error)
+	UpdateUserRefreshToken(userId string, refreshToken string) (user entities.User, err error)
 	DestroyUser(userId string) (rowsAffected int64, err error)
 }
 
@@ -94,6 +96,18 @@ func (ur *UserRepository) GetUserIdByEmail(email string) (userId string, err err
 	return userId, nil
 }
 
+func (ur *UserRepository) GetUserVerifiedByEmail(email string) (verified bool, err error) {
+	bq := ur.Database.Select("Verified").
+		From(entities.UserTableName).
+		Where(squirrel.Eq{"email": email})
+
+	err = bq.QueryRow().Scan(&verified)
+	if err != nil {
+		return false, utils.ErrorManager(err)
+	}
+	return verified, nil
+}
+
 func (ur *UserRepository) CreateUser(user entities.User) (userId string, err error) {
 	user.Id = uuid.New().String()
 	user.Password = ur.BcryptManager.HashPassword(user.Password)
@@ -134,8 +148,23 @@ func (ur *UserRepository) UpdateUser(userId string, newUser entities.User) (user
 	return user, nil
 }
 
-func (ur *UserRepository) UpdateUserTokens(userId string, accessToken string, refreshToken string) (user entities.User, err error) {
-	userMap := map[string]interface{}{"accessToken": accessToken, "refreshToken": refreshToken}
+func (ur *UserRepository) UpdateUserAccessToken(userId string, accessToken string) (user entities.User, err error) {
+	userMap := map[string]interface{}{"accessToken": accessToken}
+	bq := ur.Database.
+		Update(entities.UserTableName).
+		SetMap(userMap).
+		Where(squirrel.Eq{"id": userId}).
+		Suffix("RETURNING Id")
+
+	err = bq.QueryRow().Scan(&user.Id)
+	if err != nil {
+		return entities.User{}, utils.ErrorManager(err)
+	}
+	return user, nil
+}
+
+func (ur *UserRepository) UpdateUserRefreshToken(userId string, refreshToken string) (user entities.User, err error) {
+	userMap := map[string]interface{}{"refreshToken": refreshToken}
 	bq := ur.Database.
 		Update(entities.UserTableName).
 		SetMap(userMap).

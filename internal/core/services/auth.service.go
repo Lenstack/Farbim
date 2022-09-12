@@ -8,7 +8,7 @@ import (
 )
 
 type IAuthenticationService interface {
-	SignIn(user entities.User) (accessToken string, refreshToken string, err error)
+	SignIn(user entities.User) (accessToken string, err error)
 	SignUp(user entities.User) (err error)
 	Logout(userId string) (err error)
 }
@@ -28,38 +28,42 @@ func NewAuthenticationService(database squirrel.StatementBuilderType, tokenManag
 	}
 }
 
-func (as *AuthenticationService) SignIn(user entities.User) (accessToken string, refreshToken string, err error) {
+func (as *AuthenticationService) SignIn(user entities.User) (accessToken string, err error) {
+	verified, err := as.userRepository.GetUserVerifiedByEmail(user.Email)
+	if err != nil {
+		return "", err
+	}
+
+	if !verified {
+		return "", utils.EmailIsNotVerified
+	}
+
 	hashedPassword, err := as.userRepository.GetUserPasswordByEmail(user.Email)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 
 	err = as.bcryptManager.CompareHashedPassword(hashedPassword, user.Password)
 	if err != nil {
-		return "", "", utils.ErrorManager(err)
+		return "", utils.ErrorManager(err)
 	}
 
 	userId, err := as.userRepository.GetUserIdByEmail(user.Email)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 
 	accessToken, err = as.tokenManager.GenerateJwtAccessToken(userId)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 
-	refreshToken, err = as.tokenManager.GenerateJwtAccessToken(userId)
+	_, err = as.userRepository.UpdateUserAccessToken(userId, accessToken)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 
-	_, err = as.userRepository.UpdateUserTokens(userId, accessToken, refreshToken)
-	if err != nil {
-		return "", "", err
-	}
-
-	return accessToken, refreshToken, nil
+	return accessToken, nil
 }
 
 func (as *AuthenticationService) SignUp(user entities.User) (err error) {

@@ -25,31 +25,46 @@ func NewMiddlewareApplication(userService services.UserService, jwtManager utils
 }
 
 func (m *MiddlewareApplication) RefreshToken(writer http.ResponseWriter, request *http.Request) {
+	writer.Header().Add("Content-Type", "application-json")
 	extractToken, err := m.ExtractToken(request)
 	if err != nil {
-		writer.Header().Add("Content-Type", "application-json")
-		writer.WriteHeader(http.StatusUnauthorized)
-		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
-		return
-	}
-	claims, err := m.jwtManager.VerifyJwtToken(extractToken)
-	if err != nil {
-		writer.Header().Add("Content-Type", "application-json")
 		writer.WriteHeader(http.StatusUnauthorized)
 		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
 		return
 	}
 
-	userId := claims["sub"].(string)
-	fmt.Println(userId)
+	userId, err := m.jwtManager.VerifyJwtToken(extractToken)
+	if err != nil {
+		writer.WriteHeader(http.StatusUnauthorized)
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
+		return
+	}
 
 	user, err := m.UserService.ShowBy(userId)
 	if err != nil {
-		fmt.Println(err)
+		writer.WriteHeader(http.StatusUnauthorized)
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
 		return
 	}
-	fmt.Println(user)
 
+	refreshToken, err := m.jwtManager.GenerateJwtRefreshToken(user.Id)
+	if err != nil {
+		writer.WriteHeader(http.StatusUnauthorized)
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
+		return
+	}
+
+	_, err = m.UserService.UpdateUserRefreshToken(user.Id, refreshToken)
+	if err != nil {
+		writer.WriteHeader(http.StatusUnauthorized)
+		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
+		return
+	}
+
+	writer.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(writer).Encode(
+		utils.ResponseSuccess{Code: http.StatusOK, TokenRefresh: refreshToken},
+	)
 }
 
 func (m *MiddlewareApplication) ExtractToken(request *http.Request) (clearedToken string, err error) {
@@ -69,21 +84,20 @@ func (m *MiddlewareApplication) ExtractToken(request *http.Request) (clearedToke
 
 func (m *MiddlewareApplication) ProtectedRoutes(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Add("Content-Type", "application-json")
 		extractToken, err := m.ExtractToken(request)
 		if err != nil {
-			writer.Header().Add("Content-Type", "application-json")
 			writer.WriteHeader(http.StatusUnauthorized)
 			_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
 			return
 		}
-		claims, err := m.jwtManager.VerifyJwtToken(extractToken)
+		userId, err := m.jwtManager.VerifyJwtToken(extractToken)
 		if err != nil {
-			writer.Header().Add("Content-Type", "application-json")
 			writer.WriteHeader(http.StatusUnauthorized)
 			_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusUnauthorized, Errors: err.Error()})
 			return
 		}
-		fmt.Println("Token Subject: ", claims["sub"])
+		fmt.Println("Token UserId: ", userId)
 		next.ServeHTTP(writer, request)
 	})
 }

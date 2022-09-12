@@ -10,6 +10,7 @@ type IUserService interface {
 	Show() (users []entities.User, err error)
 	ShowBy(userId string) (user entities.User, err error)
 	Update(userId string, newUser entities.User) (user entities.User, err error)
+	UpdateUserRefreshToken(userId string, refreshToken string) (user entities.User, err error)
 	Destroy(userId string) (rowsAffected int64, err error)
 }
 
@@ -39,6 +40,10 @@ func (us *UserService) Update(userId string, newUser entities.User) (user entiti
 		return entities.User{}, err
 	}
 	return us.userRepository.UpdateUser(userId, newUser)
+}
+
+func (us *UserService) UpdateUserRefreshToken(userId string, refreshToken string) (user entities.User, err error) {
+	return us.userRepository.UpdateUserRefreshToken(userId, refreshToken)
 }
 
 func (us *UserService) Destroy(userId string) (rowsAffected int64, err error) {
