@@ -22,6 +22,9 @@ func main() {
 		JwtSecret                = viper.Get("JWT_SECRET").(string)
 		ApiVersion               = viper.Get("API_VERSION").(string)
 		ApiPort                  = viper.Get("API_PORT").(string)
+		RedisHost                = viper.Get("REDIS_HOST").(string)
+		RedisPort                = viper.Get("REDIS_PORT").(string)
+		RedisPassword            = viper.Get("REDIS_PASSWORD").(string)
 	)
 
 	postgres := infrastructure.NewPostgres(
@@ -29,7 +32,9 @@ func main() {
 		PostgresDatabaseUser, PostgresDatabasePassword,
 	)
 
-	tokenManager := utils.NewJwtManager(JwtExpirationToken, JwtExpirationRefresh, JwtSecret)
+	redis := infrastructure.NewRedis(RedisHost, RedisPort, RedisPassword)
+
+	tokenManager := utils.NewJwtManager(JwtExpirationToken, JwtExpirationRefresh, JwtSecret, redis.Rdb)
 
 	//Register Services
 	userService := services.NewUserService(postgres.Database)
@@ -37,7 +42,7 @@ func main() {
 
 	//Register Http Handlers
 	middlewareApplication := application.NewMiddlewareApplication(*userService, *tokenManager)
-	authenticationApplication := application.NewAuthenticationApplication(*authenticationService, *tokenManager)
+	authenticationApplication := application.NewAuthenticationApplication(*authenticationService, *tokenManager, redis.Rdb)
 	userApplication := application.NewUserApplication(*userService)
 
 	microservices := application.NewMicroserviceServer(

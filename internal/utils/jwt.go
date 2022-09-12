@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"github.com/go-redis/redis/v9"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"strconv"
@@ -19,10 +20,11 @@ type JwtManager struct {
 	expirationToken   string
 	expirationRefresh string
 	secretKey         string
+	rdb               *redis.Client
 }
 
-func NewJwtManager(expirationToken string, expirationRefresh string, secretKey string) *JwtManager {
-	return &JwtManager{expirationToken: expirationToken, expirationRefresh: expirationRefresh, secretKey: secretKey}
+func NewJwtManager(expirationToken string, expirationRefresh string, secretKey string, rdb *redis.Client) *JwtManager {
+	return &JwtManager{expirationToken: expirationToken, expirationRefresh: expirationRefresh, secretKey: secretKey, rdb: rdb}
 }
 
 func (jm *JwtManager) GenerateJwtAccessToken(userId string) (accessToken string, err error) {
