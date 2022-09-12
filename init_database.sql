@@ -12,6 +12,15 @@ CREATE TABLE IF NOT EXISTS users
     UpdatedAt              TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS blacklist
+(
+    Id           TEXT PRIMARY KEY,
+    Type         TEXT,
+    Token        TEXT,
+    ExpirationAt TEXT,
+    CreatedAt    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS profiles
 (
     Id        TEXT PRIMARY KEY,

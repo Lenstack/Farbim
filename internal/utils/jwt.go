@@ -29,6 +29,7 @@ func (jm *JwtManager) GenerateJwtAccessToken(userId string) (accessToken string,
 	expirationAccessToken, _ := strconv.Atoi(jm.expirationToken)
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"uuid": uuid.New().String(),
+		"type": "access",
 		"exp":  time.Now().Add(time.Minute * time.Duration(expirationAccessToken)).Unix(),
 		"sub":  userId,
 	}).SignedString([]byte(jm.secretKey))
@@ -38,6 +39,7 @@ func (jm *JwtManager) GenerateJwtRefreshToken(userId string) (refreshToken strin
 	expirationRefreshToken, _ := strconv.Atoi(jm.expirationRefresh)
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"uuid": uuid.New().String(),
+		"type": "refresh",
 		"exp":  time.Now().Add(time.Hour * 24 * time.Duration(expirationRefreshToken)).Unix(),
 		"sub":  userId,
 	}).SignedString([]byte(jm.secretKey))

@@ -99,8 +99,8 @@ func (aa *AuthenticationApplication) Logout(writer http.ResponseWriter, request 
 		_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()})
 		return
 	}
-	writer.WriteHeader(http.StatusCreated)
+	writer.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(writer).Encode(
-		utils.ResponseSuccess{Code: http.StatusCreated, Message: utils.LOGOUT},
+		utils.ResponseSuccess{Code: http.StatusOK, Message: utils.LOGOUT},
 	)
 }
