@@ -9,9 +9,9 @@ import (
 )
 
 type IJwtManager interface {
-	GenerateJwtAccessToken(payload interface{}) (token string, err error)
-	GenerateJwtRefreshToken(payload interface{}) (token string, err error)
-	VerifyJwtToken(accessToken string) (claims jwt.MapClaims, err error)
+	GenerateJwtAccessToken(userId string) (accessToken string, err error)
+	GenerateJwtRefreshToken(userId string) (refreshToken string, err error)
+	VerifyJwtToken(accessToken string) (userId string, err error)
 	ExtractJwtToken(headerToken string) (clearedToken string, err error)
 }
 
