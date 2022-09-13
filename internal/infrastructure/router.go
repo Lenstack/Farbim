@@ -5,6 +5,7 @@ import (
 	"github.com/Lenstack/farm_management/internal/core/application"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 )
 
 type Router struct {
@@ -17,6 +18,7 @@ func NewRouter(microservices application.MicroserviceServer, apiVersion string) 
 	app.Use(middleware.Recoverer)
 	app.Use(middleware.AllowContentType("application/json"))
 	app.Use(middleware.CleanPath)
+	app.Use(cors.Handler(cors.Options{AllowedOrigins: []string{"https://*", "http://*"}}))
 
 	version := fmt.Sprintf("/%s", apiVersion)
 
