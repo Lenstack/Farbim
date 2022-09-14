@@ -1,4 +1,4 @@
-import {Item, Navigation, Profile, Wrapper} from "@/components";
+import {Form, Item, Navigation, Profile, Wrapper} from "@/components";
 import {Aside, Content} from "./style"
 import {PROTECTED_ROUTES, NAVIGATION_ITEMS_DASHBOARD, PUBLIC_ROUTES} from "@/constants";
 import Logo from "@/assets/Logo.svg"
@@ -20,7 +20,9 @@ export const Dashboard = () => {
                 <Item to={PROTECTED_ROUTES.DASHBOARD + PROTECTED_ROUTES.PROFILE}>
                     <Profile src={Logo} alt={"Profile"}/>
                 </Item>
-                <Item to={PUBLIC_ROUTES.SIGN_IN}>Logout</Item>
+                <Form>
+                    <Item to={PUBLIC_ROUTES.SIGN_IN}>Logout</Item>
+                </Form>
             </Aside>
             <Content>
                 <Outlet/>

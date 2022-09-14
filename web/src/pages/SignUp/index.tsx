@@ -1,7 +1,9 @@
 import {Button, Container, Error, Form, Header, Title, Group, GroupLink, Input, Link, Wrapper} from "@/components";
-import {PUBLIC_ROUTES} from "@/constants";
+import {PROTECTED_ROUTES, PUBLIC_ROUTES} from "@/constants";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {Main} from "./style";
+import {FetchingApi} from "@/services/base";
+import {useNavigate} from "react-router-dom";
 
 interface IFormSignUp {
     name: string
@@ -11,11 +13,27 @@ interface IFormSignUp {
 }
 
 export const SignUp = () => {
-
     const {register, handleSubmit, formState: {errors}} = useForm<IFormSignUp>();
+    const navigate = useNavigate()
 
-    const onSubmit: SubmitHandler<IFormSignUp> = ({name, email, password, confirm_password}) => {
-        console.log({name, email, password, confirm_password})
+    const signUpApi = async (email: string, password: string) => {
+        const optionsSignUp = {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email: email, password: password})
+        }
+        return await FetchingApi("authentication/sign_up", optionsSignUp)
+    }
+
+    const onSubmit: SubmitHandler<IFormSignUp> = async ({email, password, confirm_password}) => {
+        if (password != confirm_password) {
+            return console.log("password not equals")
+        }
+        const response = await signUpApi(email, password).then(res => {
+            return res
+        })
+        console.log(response)
+        navigate(PROTECTED_ROUTES.DASHBOARD)
     }
 
     return (<Wrapper>
@@ -25,12 +43,6 @@ export const SignUp = () => {
                     <Title>Create an account</Title>
                 </Header>
                 <Form onSubmit={handleSubmit(onSubmit)} method={'POST'}>
-                    <Group>
-                        <Input {...register('name', {required: 'This Field Is Required'})} type={'text'}
-                               id={'name'} placeholder={"Your full name."}
-                               autoComplete={"on"}/>
-                        <Error>{errors.name?.message}</Error>
-                    </Group>
                     <Group>
                         <Input {...register('email', {required: 'This Field Is Required'})} type={'email'}
                                id={'email'} placeholder={"Your email."}
@@ -49,7 +61,6 @@ export const SignUp = () => {
                                autoComplete={"off"}/>
                         <Error>{errors.confirm_password?.message}</Error>
                     </Group>
-
                     <Button type={"submit"}>Sign Up.</Button>
                     <GroupLink>
                         <Link to={PUBLIC_ROUTES.RECOVERY_PASSWORD}>¿Forgot your password?</Link>
