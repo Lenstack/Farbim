@@ -18,7 +18,7 @@ func NewRouter(microservices application.MicroserviceServer, apiVersion string) 
 	app.Use(middleware.Recoverer)
 	app.Use(middleware.AllowContentType("application/json"))
 	app.Use(middleware.CleanPath)
-	app.Use(cors.Handler(cors.Options{AllowedOrigins: []string{"https://*", "http://*"}}))
+	app.Use(cors.Handler(cors.Options{AllowedHeaders: []string{"X-PINGOTHER", "Accept", "Authorization", "Content-Type", "X-CSRF-Token"}}))
 
 	version := fmt.Sprintf("/%s", apiVersion)
 
@@ -31,7 +31,7 @@ func NewRouter(microservices application.MicroserviceServer, apiVersion string) 
 			userRouter.Put("/{id}", microservices.UserApplication.Update)
 			userRouter.Delete("/{id}", microservices.UserApplication.Destroy)
 		})
-
+		
 		appRouter.Route(version+"/authorization", func(authorizationRouter chi.Router) {
 			authorizationRouter.Post("/refresh_token", microservices.MiddlewareApplication.RefreshToken)
 		})
