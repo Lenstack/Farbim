@@ -17,7 +17,7 @@ type RedisRepository struct {
 
 var (
 	ctx          = context.Background()
-	blackListKey = "Jwt_BlackList"
+	blackListKey = "BlackList"
 )
 
 func (rr *RedisRepository) IsTokenBlacklisted(token string) (err error) {
