@@ -1,0 +1,26 @@
+[
+  {
+    "to": "/",
+    "label": "Home"
+  },
+  {
+    "to": "/",
+    "label": "How Its Works"
+  },
+  {
+    "to": "/",
+    "label": "Pricing"
+  },
+  {
+    "to": "/",
+    "label": "FAQ"
+  },
+  {
+    "to": "/sign_in",
+    "label": "Sign In"
+  },
+  {
+    "to": "/sign_up",
+    "label": "Sign Up"
+  }
+]

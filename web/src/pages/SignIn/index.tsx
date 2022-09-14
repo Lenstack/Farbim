@@ -1,7 +1,7 @@
 import {SubmitHandler, useForm} from "react-hook-form";
-import {Form, Group, Header, Title, Input, Link, Button, Error, Wrapper, Container, GroupLink} from "@/components";
+import {Form, Group, Header, Title, Input, Link, Button, Error, GroupLink} from "@/components";
 import {Main} from "./style";
-import {PROTECTED_ROUTES, PUBLIC_ROUTES} from "@/constants";
+import {ROUTES_PUBLIC, ROUTES_DASHBOARD} from "@/constants";
 import {FetchingApi} from "@/services/base";
 import {useNavigate} from "react-router-dom";
 
@@ -46,37 +46,35 @@ export const SignIn = () => {
         }).catch(err => console.log(err))
 
         window.localStorage.setItem("RefreshToken", refreshToken)
-        navigate(PROTECTED_ROUTES.DASHBOARD)
+        navigate(ROUTES_DASHBOARD.MAIN)
     }
 
     return (
-        <Wrapper>
+        <>
             <Main>
-                <Container>
-                    <Header>
-                        <Title>Welcome to management</Title>
-                    </Header>
-                    <Form onSubmit={handleSubmit(onSubmit)} method={'POST'}>
-                        <Group>
-                            <Input {...register('email', {required: 'This Field Is Required'})} type={'email'}
-                                   id={'email'} placeholder={"Your email."}
-                                   autoComplete={"on"}/>
-                            <Error>{errors.email?.message}</Error>
-                        </Group>
-                        <Group>
-                            <Input {...register('password', {required: 'This Field Is Required'})} type={'password'}
-                                   id={'password'} placeholder={"Your password."}
-                                   autoComplete={"off"}/>
-                            <Error>{errors.password?.message}</Error>
-                        </Group>
-                        <Button type={"submit"}>Sign In.</Button>
-                        <GroupLink>
-                            <Link to={PUBLIC_ROUTES.RECOVERY_PASSWORD}>¿Forgot your password?</Link>
-                            <Link to={PUBLIC_ROUTES.SIGN_UP}>¿You not have an account?</Link>
-                        </GroupLink>
-                    </Form>
-                </Container>
+                <Header>
+                    <Title>Welcome to management</Title>
+                </Header>
+                <Form onSubmit={handleSubmit(onSubmit)} method={'POST'}>
+                    <Group>
+                        <Input {...register('email', {required: 'This Field Is Required'})} type={'email'}
+                               id={'email'} placeholder={"Your email."}
+                               autoComplete={"on"}/>
+                        <Error>{errors.email?.message}</Error>
+                    </Group>
+                    <Group>
+                        <Input {...register('password', {required: 'This Field Is Required'})} type={'password'}
+                               id={'password'} placeholder={"Your password."}
+                               autoComplete={"off"}/>
+                        <Error>{errors.password?.message}</Error>
+                    </Group>
+                    <Button type={"submit"}>Sign In.</Button>
+                    <GroupLink>
+                        <Link to={ROUTES_PUBLIC.RECOVERY_PASSWORD}>¿Forgot your password?</Link>
+                        <Link to={ROUTES_PUBLIC.SIGN_UP}>¿You not have an account?</Link>
+                    </GroupLink>
+                </Form>
             </Main>
-        </Wrapper>
+        </>
     )
 };

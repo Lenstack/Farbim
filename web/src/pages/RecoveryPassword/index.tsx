@@ -1,6 +1,5 @@
 import {
     Button,
-    Container,
     Error,
     Form,
     Group,
@@ -10,9 +9,9 @@ import {
     SubTitle,
     Input,
     Link,
-    Wrapper
+
 } from "@/components";
-import {PUBLIC_ROUTES} from "@/constants";
+import {ROUTES_PUBLIC} from "@/constants";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {Main} from "./style";
 
@@ -28,7 +27,7 @@ export const RecoveryPassword = () => {
     }
 
     return (
-        <Wrapper>
+        <>
             <Main>
                 <Form onSubmit={handleSubmit(onSubmit)} method={'POST'}>
                     <Header>
@@ -44,10 +43,10 @@ export const RecoveryPassword = () => {
                     </Group>
                     <Button type={"submit"}>Send recovery link.</Button>
                     <GroupLink>
-                        <Link to={PUBLIC_ROUTES.SIGN_IN}>Return to sign in</Link>
+                        <Link to={ROUTES_PUBLIC.SIGN_IN}>Return to sign in</Link>
                     </GroupLink>
                 </Form>
             </Main>
-        </Wrapper>
+        </>
     )
 }

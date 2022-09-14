@@ -1,5 +1,5 @@
-import {Button, Container, Error, Form, Header, Title, Group, GroupLink, Input, Link, Wrapper} from "@/components";
-import {PROTECTED_ROUTES, PUBLIC_ROUTES} from "@/constants";
+import {Button, Error, Form, Header, Title, Group, GroupLink, Input, Link} from "@/components";
+import {ROUTES_PUBLIC, ROUTES_DASHBOARD} from "@/constants";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {Main} from "./style";
 import {FetchingApi} from "@/services/base";
@@ -33,12 +33,13 @@ export const SignUp = () => {
             return res
         })
         console.log(response)
-        navigate(PROTECTED_ROUTES.DASHBOARD)
+        navigate(ROUTES_DASHBOARD.MAIN)
     }
 
-    return (<Wrapper>
-        <Main>
-            <Container>
+    return (
+        <>
+            <Main>
+
                 <Header>
                     <Title>Create an account</Title>
                 </Header>
@@ -63,11 +64,12 @@ export const SignUp = () => {
                     </Group>
                     <Button type={"submit"}>Sign Up.</Button>
                     <GroupLink>
-                        <Link to={PUBLIC_ROUTES.RECOVERY_PASSWORD}>¿Forgot your password?</Link>
-                        <Link to={PUBLIC_ROUTES.SIGN_IN}>¿Already have an account?</Link>
+                        <Link to={ROUTES_PUBLIC.RECOVERY_PASSWORD}>¿Forgot your password?</Link>
+                        <Link to={ROUTES_PUBLIC.SIGN_IN}>¿Already have an account?</Link>
                     </GroupLink>
                 </Form>
-            </Container>
-        </Main>
-    </Wrapper>)
+
+            </Main>
+        </>
+    )
 }

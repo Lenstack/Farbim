@@ -1,18 +1,13 @@
-import styled from "styled-components";
-import {Link as ReachRouterLink} from "react-router-dom"
-import {IStyledProps} from "@/interfaces";
+import {Nav, Item} from "./style"
 
-export const Navigation = styled.nav<IStyledProps>`
-  display: flex;
-  flex-direction: ${props => props.direction};
-  align-items: center;
-`
+interface INavProps {
+    links: { to: string, label?: string, photo?: string }[]
+}
 
-export const Item = styled(ReachRouterLink)<IStyledProps>`
-  text-decoration: none;
-  color: ${props => props.theme.fonts.color};
-  padding: 1rem;
-  margin-right: 0.5rem;
-  font-size: ${props => props.theme.fonts.size};
-`
-export const GroupItem = styled.div``
+export const Navigation = ({links, ...restProps}: INavProps) => {
+    return (
+        <Nav {...restProps}>
+            {links.map((item, key) => (<Item to={item.to} key={key}>{item.label}</Item>))}
+        </Nav>
+    )
+}

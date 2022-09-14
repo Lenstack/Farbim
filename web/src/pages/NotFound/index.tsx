@@ -1,9 +1,7 @@
-import {Wrapper} from "@/components";
-
 export const NotFound = () => {
     return (
-        <Wrapper>
+        <div>
             NotFound
-        </Wrapper>
+        </div>
     )
 }
