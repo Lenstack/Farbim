@@ -1,7 +1,8 @@
 import {Navigation} from "@/components";
-import {Wrapper, Header, Content, Footer} from "./style";
-import HomeNavigation from "@/fixtures/home.navigation.json"
+import {Wrapper, Header, Content, Footer, LinkVersion} from "./style";
 import {Outlet} from "react-router-dom";
+import HomeNavigation from "@/fixtures/home.navigation.json"
+import {ROUTES_PUBLIC} from "@/constants";
 
 export const Home = () => {
     return (
@@ -13,7 +14,7 @@ export const Home = () => {
                 <Outlet/>
             </Content>
             <Footer>
-               Lorem ipsum dolor sit amet, consectetur adipisicing elit. Libero, sit.
+                <LinkVersion to={ROUTES_PUBLIC.GITHUB}>Farm Management v0.0.1</LinkVersion>
             </Footer>
         </Wrapper>
     )

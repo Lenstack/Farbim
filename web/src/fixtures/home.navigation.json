@@ -1,18 +1,18 @@
 [
   {
     "to": "/",
-    "label": "Home"
+    "photo": "https://cdn.dribbble.com/users/1489066/screenshots/15327436/media/9cd814d797a7dcd1342945a0d7a75caf.jpg"
   },
   {
-    "to": "/",
+    "to": "/how_works",
     "label": "How Its Works"
   },
   {
-    "to": "/",
+    "to": "/pricing",
     "label": "Pricing"
   },
   {
-    "to": "/",
+    "to": "/faq",
     "label": "FAQ"
   },
   {

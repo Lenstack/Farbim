@@ -17,3 +17,9 @@ export const Item = styled(ReachRouterLink)`
   padding: 1rem;
   color: ${props => props.theme.fonts.color};
 `
+
+export const Photo = styled.img`
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+`

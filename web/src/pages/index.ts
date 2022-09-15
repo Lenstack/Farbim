@@ -1,6 +1,11 @@
 export {NotFound} from "./NotFound"
-export {Home} from "./Home";
-export {Dashboard} from "./Dashboard"
 export {SignIn} from "./SignIn";
 export {SignUp} from "./SignUp";
 export {RecoveryPassword} from "./RecoveryPassword"
+
+export {Home} from "./Home";
+export {Faq} from "./Home/Faq"
+export {Pricing} from "./Home/Pricing"
+export {HowWorks} from "./Home/HowWorks"
+
+export {Dashboard} from "./Dashboard"

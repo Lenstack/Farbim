@@ -2,7 +2,7 @@ import {Button, Error, Form, Header, Title, Group, GroupLink, Input, Link} from 
 import {ROUTES_PUBLIC, ROUTES_DASHBOARD} from "@/constants";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {Main} from "./style";
-import {FetchingApi} from "@/services/base";
+import {useFetch} from "@/hooks";
 import {useNavigate} from "react-router-dom";
 
 interface IFormSignUp {
@@ -16,23 +16,8 @@ export const SignUp = () => {
     const {register, handleSubmit, formState: {errors}} = useForm<IFormSignUp>();
     const navigate = useNavigate()
 
-    const signUpApi = async (email: string, password: string) => {
-        const optionsSignUp = {
-            method: "POST",
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({email: email, password: password})
-        }
-        return await FetchingApi("authentication/sign_up", optionsSignUp)
-    }
-
     const onSubmit: SubmitHandler<IFormSignUp> = async ({email, password, confirm_password}) => {
-        if (password != confirm_password) {
-            return console.log("password not equals")
-        }
-        const response = await signUpApi(email, password).then(res => {
-            return res
-        })
-        console.log(response)
+
         navigate(ROUTES_DASHBOARD.MAIN)
     }
 

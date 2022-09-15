@@ -1,1 +1,1 @@
-export {ROUTES_PUBLIC, ROUTES_DASHBOARD} from "./routes"
+export {ROUTES_PUBLIC, ROUTES_HOME, ROUTES_DASHBOARD} from "./routes"

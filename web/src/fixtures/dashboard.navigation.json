@@ -2,5 +2,37 @@
   {
     "to": "/dashboard",
     "label": "Dashboard"
+  },
+  {
+    "to": "/farms",
+    "label": "Farms"
+  },
+  {
+    "to": "/purchases",
+    "label": "Purchases"
+  },
+  {
+    "to": "/sales",
+    "label": "Sales"
+  },
+  {
+    "to": "/suppliers",
+    "label": "Suppliers"
+  },
+  {
+    "to": "/orders",
+    "label": "Orders"
+  },
+  {
+    "to": "/clients",
+    "label": "Clients"
+  },
+  {
+    "to": "/workers",
+    "label": "Workers"
+  },
+  {
+    "to": "/settings",
+    "label": "Settings"
   }
 ]
