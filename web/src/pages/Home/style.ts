@@ -12,10 +12,15 @@ export const Header = styled.header`
   grid-column: 2/12;
   display: flex;
   flex-direction: column;
+  align-items: center;
   padding: 0 2rem 0 2rem;
 
   nav {
     padding-top: 2rem;
+
+    a {
+      margin: 0 0.5rem 0 0.5rem;
+    }
 
     a:last-child {
       background-color: ${props => props.theme.colors.dark};
