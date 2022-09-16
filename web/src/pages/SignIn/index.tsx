@@ -2,7 +2,9 @@ import {SubmitHandler, useForm} from "react-hook-form";
 import {Form, Group, Header, Title, Input, Link, Button, Error, GroupLink} from "@/components";
 import {Main} from "./style";
 import {ROUTES_PUBLIC, ROUTES_DASHBOARD} from "@/constants";
-import {useFetch} from "@/hooks";
+import {useNavigate} from "react-router-dom";
+import {setLocalStorage} from "@/utils";
+import {RefreshTokenService, SignInService} from "@/services";
 
 interface IFormSignIn {
     email: string,
@@ -11,11 +13,22 @@ interface IFormSignIn {
 
 export const SignIn = () => {
     const {register, handleSubmit, formState: {errors}} = useForm<IFormSignIn>();
-    const {data} = useFetch("/authentication/sign_in", {})
+    const navigate = useNavigate()
 
+    const onSubmit: SubmitHandler<IFormSignIn> = async ({email, password}) => {
+        const responseSignInService = await SignInService({email, password})
+        const {TokenAccess} = responseSignInService
+        if (responseSignInService.Errors) {
+            return
+        }
 
-    const onSubmit: SubmitHandler<IFormSignIn> = ({email, password}) => {
-        console.log(data)
+        const responseRefreshToken = await RefreshTokenService(TokenAccess)
+        const {TokenRefresh} = responseRefreshToken
+        if (responseRefreshToken.Errors) {
+            return
+        }
+        setLocalStorage('token', TokenRefresh)
+        navigate(ROUTES_DASHBOARD.MAIN)
     }
 
     return (

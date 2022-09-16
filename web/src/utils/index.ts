@@ -1,0 +1,1 @@
+export {setLocalStorage, getLocalStorage, clearItemLocalStorage, clearLocalStorage} from "./localstorage"

@@ -14,7 +14,7 @@ export const Home = () => {
                 <Outlet/>
             </Content>
             <Footer>
-                <LinkVersion to={ROUTES_PUBLIC.GITHUB}>Farm Management v0.0.1</LinkVersion>
+                <LinkVersion href={ROUTES_PUBLIC.GITHUB} target={"_blank"}>Farm Management v0.0.1</LinkVersion>
             </Footer>
         </Wrapper>
     )

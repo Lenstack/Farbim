@@ -2,8 +2,8 @@ import {Button, Error, Form, Header, Title, Group, GroupLink, Input, Link} from 
 import {ROUTES_PUBLIC, ROUTES_DASHBOARD} from "@/constants";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {Main} from "./style";
-import {useFetch} from "@/hooks";
 import {useNavigate} from "react-router-dom";
+import {SignUpService} from "@/services";
 
 interface IFormSignUp {
     name: string
@@ -17,7 +17,12 @@ export const SignUp = () => {
     const navigate = useNavigate()
 
     const onSubmit: SubmitHandler<IFormSignUp> = async ({email, password, confirm_password}) => {
+        if (password != confirm_password) return
 
+        const responseSignInService = await SignUpService({email, password})
+        const {Code, Message} = responseSignInService
+
+        if (responseSignInService.Errors) return
         navigate(ROUTES_DASHBOARD.MAIN)
     }
 

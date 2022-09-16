@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import {Link as ReachRouterLink} from "react-router-dom"
 
 export const Wrapper = styled.section`
   min-height: 100vh;
@@ -42,7 +41,7 @@ export const Footer = styled.footer`
   padding: 0 2rem 0 2rem;
 `
 
-export const LinkVersion = styled(ReachRouterLink)`
+export const LinkVersion = styled.a`
   text-decoration: none;
   font-weight: lighter;
   font-size: 12px;
