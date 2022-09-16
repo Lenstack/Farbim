@@ -11,18 +11,16 @@ export const Wrapper = styled.section`
 export const Header = styled.header`
   grid-column: 2/12;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 2rem 0 2rem;
+  flex-direction: column;  
 
   nav {
-    padding-top: 2rem;
+    padding-top: 3rem;
 
     a {
       margin: 0 0.5rem 0 0.5rem;
     }
 
-    a:last-child {
+    div a:last-child {
       background-color: ${props => props.theme.colors.dark};
       border-radius: 0.3rem;
       width: 100px;

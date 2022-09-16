@@ -1,9 +1,5 @@
 [
   {
-    "to": "/",
-    "photo": "https://cdn.dribbble.com/users/1489066/screenshots/15327436/media/9cd814d797a7dcd1342945a0d7a75caf.jpg"
-  },
-  {
     "to": "/how_works",
     "label": "How Its Works"
   },
@@ -14,13 +10,5 @@
   {
     "to": "/faq",
     "label": "FAQ"
-  },
-  {
-    "to": "/sign_in",
-    "label": "Sign In"
-  },
-  {
-    "to": "/sign_up",
-    "label": "Sign Up"
   }
 ]

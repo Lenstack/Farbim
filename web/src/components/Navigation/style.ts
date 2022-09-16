@@ -19,7 +19,9 @@ export const Item = styled(ReachRouterLink)`
 `
 
 export const Photo = styled.img`
-  width: 45px;
-  height: 45px;
+  width: 35px;
+  height: 35px;
   object-fit: cover;
 `
+
+export const Group = styled.div``
