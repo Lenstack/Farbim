@@ -14,6 +14,7 @@ func main() {
 	var (
 		PostgresHost             = viper.Get("POSTGRES_HOST").(string)
 		PostgresPort             = viper.Get("POSTGRES_PORT").(string)
+		GrpcPort                 = viper.Get("GRPC_PORT").(string)
 		PostgresDatabaseName     = viper.Get("POSTGRES_DATABASE_NAME").(string)
 		PostgresDatabaseUser     = viper.Get("POSTGRES_DATABASE_USER").(string)
 		PostgresDatabasePassword = viper.Get("POSTGRES_DATABASE_PASSWORD").(string)
@@ -51,6 +52,11 @@ func main() {
 		*userApplication,
 		*authenticationApplication,
 	)
+
+	go func() {
+		infrastructure.NewGrpcServer(GrpcPort)
+	}()
+
 	router := infrastructure.NewRouter(*microservices, ApiVersion)
 	infrastructure.NewHttpServer(ApiPort, router.App)
 }

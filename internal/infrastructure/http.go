@@ -13,7 +13,7 @@ type HttpServer struct {
 }
 
 func NewHttpServer(port string, handlers *chi.Mux) {
-	fmt.Printf("Server Is Running In Port: %s\n", port)
+	fmt.Printf("Http Server Is Running In Port: %s\n", port)
 	if err := http.ListenAndServe(":"+port, handlers); err != nil {
 		log.Fatalf("%s", err)
 	}

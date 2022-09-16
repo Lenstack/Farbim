@@ -1,0 +1,17 @@
+syntax = "proto3";
+package grpc;
+option go_package = "/pkg";
+
+service Microservice{
+  rpc SignIn(SignInRequest) returns (SignInResponse);
+}
+
+message SignInRequest{
+  string email = 1;
+  string password = 2;
+}
+
+message SignInResponse{
+  string code = 1;
+  string message = 2;
+}
