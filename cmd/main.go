@@ -51,10 +51,11 @@ func main() {
 		*middlewareApplication,
 		*userApplication,
 		*authenticationApplication,
+		*authenticationService,
 	)
 
 	go func() {
-		infrastructure.NewGrpcServer(GrpcPort)
+		infrastructure.NewGrpcServer(GrpcPort, *microservices)
 	}()
 
 	router := infrastructure.NewRouter(*microservices, ApiVersion)
