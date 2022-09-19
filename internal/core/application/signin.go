@@ -6,11 +6,11 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (ms *MicroserviceServer) SignIn(ctx context.Context, req *pkg.SignInRequest) (*pkg.SignInResponse, error) {
+func (ms *MicroserviceServer) SignIn(_ context.Context, req *pkg.SignInRequest) (*pkg.SignInResponse, error) {
 	user := entities.User{Email: req.Email, Password: req.Password}
-	tokenAccess, err := ms.AuthenticationService.SignIn(user)
+	token, err := ms.AuthenticationService.SignIn(user)
 	if err != nil {
 		return nil, err
 	}
-	return &pkg.SignInResponse{Code: "200", TokenAccess: tokenAccess}, nil
+	return &pkg.SignInResponse{Token: token}, nil
 }

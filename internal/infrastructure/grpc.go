@@ -3,8 +3,9 @@ package infrastructure
 import (
 	"fmt"
 	"github.com/Lenstack/farm_management/internal/core/application"
-	"github.com/Lenstack/farm_management/pkg"
+	desc "github.com/Lenstack/farm_management/pkg"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
 )
@@ -22,8 +23,8 @@ func NewGrpcServer(port string, microservices application.MicroserviceServer) *G
 
 	grpcServer := grpc.NewServer()
 
-	pkg.RegisterMicroserviceServer(grpcServer, &microservices)
-
+	desc.RegisterMicroserviceServer(grpcServer, &microservices)
+	reflection.Register(grpcServer)
 	err = grpcServer.Serve(listenServer)
 	if err != nil {
 		log.Fatalf("%s", err)

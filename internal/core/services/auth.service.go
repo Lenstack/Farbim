@@ -17,7 +17,7 @@ type IAuthenticationService interface {
 type AuthenticationService struct {
 	userRepository  repositories.UserRepository
 	redisRepository repositories.RedisRepository
-	tokenManager    utils.JwtManager
+	TokenManager    utils.JwtManager
 	bcryptManager   utils.BcryptManager
 	redisManager    *redis.Client
 }
@@ -30,7 +30,7 @@ func NewAuthenticationService(database squirrel.StatementBuilderType, tokenManag
 		redisRepository: repositories.RedisRepository{
 			RedisManager: redisManager,
 		},
-		tokenManager: tokenManager,
+		TokenManager: tokenManager,
 	}
 }
 
@@ -59,7 +59,7 @@ func (as *AuthenticationService) SignIn(user entities.User) (accessToken string,
 		return "", err
 	}
 
-	accessToken, err = as.tokenManager.GenerateJwtAccessToken(userId)
+	accessToken, err = as.TokenManager.GenerateJwtAccessToken(userId)
 	if err != nil {
 		return "", err
 	}
@@ -87,6 +87,10 @@ func (as *AuthenticationService) SignUp(user entities.User) (err error) {
 }
 
 func (as *AuthenticationService) Logout(userId string, token string) (err error) {
+	err = as.redisRepository.IsTokenBlacklisted(token)
+	if err != nil {
+		return err
+	}
 	err = as.redisRepository.AddTokenToBlacklist(token)
 	if err != nil {
 		return err
