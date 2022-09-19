@@ -3,11 +3,13 @@ package microservice;
 option go_package = "/pkg";
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 service Microservice{
   rpc SignIn(SignInRequest) returns (SignInResponse);
   rpc SignUp(SignUpRequest) returns (SignUpResponse);
   rpc Logout(google.protobuf.Empty) returns (LogoutResponse);
+  rpc GetUsers(google.protobuf.Empty)returns(GetUsersResponse);
 }
 
 message SignInRequest{
@@ -31,3 +33,24 @@ message SignUpResponse{
 message LogoutResponse{
   string Message = 1;
 }
+
+message GetUsersResponse{
+  int32 Page = 1;
+  int32 PerPage = 2;
+  int32 Total = 3;
+  repeated GetUserResponse Users = 4;
+}
+
+message GetUserResponse{
+  string Id = 1;
+  string Email = 2;
+  string Password = 3;
+  string AccessToken = 4;
+  string RefreshToken = 5;
+  string LastResetSentAt = 6;
+  string LastVerificationSentAt = 7;
+  bool   Verified = 8;
+  google.protobuf.Timestamp CreatedAt = 9;
+  google.protobuf.Timestamp UpdatedAt = 10;
+}
+

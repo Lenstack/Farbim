@@ -11,6 +11,7 @@ type MicroserviceServer struct {
 	AuthenticationApplication AuthenticationApplication
 	desc.UnimplementedMicroserviceServer
 	AuthenticationService services.AuthenticationService
+	UserService           services.UserService
 }
 
 func NewMicroserviceServer(
@@ -18,6 +19,7 @@ func NewMicroserviceServer(
 	userApplication UserApplication,
 	authenticationApplication AuthenticationApplication,
 	AuthenticationService services.AuthenticationService,
+	UserService services.UserService,
 
 ) *MicroserviceServer {
 	return &MicroserviceServer{
@@ -25,5 +27,6 @@ func NewMicroserviceServer(
 		UserApplication:           userApplication,
 		AuthenticationApplication: authenticationApplication,
 		AuthenticationService:     AuthenticationService,
+		UserService:               UserService,
 	}
 }

@@ -52,6 +52,7 @@ func main() {
 		*userApplication,
 		*authenticationApplication,
 		*authenticationService,
+		*userService,
 	)
 
 	go func() {

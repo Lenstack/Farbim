@@ -26,6 +26,7 @@ type MicroserviceClient interface {
 	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error)
 	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*SignUpResponse, error)
 	Logout(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LogoutResponse, error)
+	GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUsersResponse, error)
 }
 
 type microserviceClient struct {
@@ -63,6 +64,15 @@ func (c *microserviceClient) Logout(ctx context.Context, in *emptypb.Empty, opts
 	return out, nil
 }
 
+func (c *microserviceClient) GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUsersResponse, error) {
+	out := new(GetUsersResponse)
+	err := c.cc.Invoke(ctx, "/microservice.Microservice/GetUsers", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MicroserviceServer is the server API for Microservice service.
 // All implementations must embed UnimplementedMicroserviceServer
 // for forward compatibility
@@ -70,6 +80,7 @@ type MicroserviceServer interface {
 	SignIn(context.Context, *SignInRequest) (*SignInResponse, error)
 	SignUp(context.Context, *SignUpRequest) (*SignUpResponse, error)
 	Logout(context.Context, *emptypb.Empty) (*LogoutResponse, error)
+	GetUsers(context.Context, *emptypb.Empty) (*GetUsersResponse, error)
 	mustEmbedUnimplementedMicroserviceServer()
 }
 
@@ -85,6 +96,9 @@ func (UnimplementedMicroserviceServer) SignUp(context.Context, *SignUpRequest) (
 }
 func (UnimplementedMicroserviceServer) Logout(context.Context, *emptypb.Empty) (*LogoutResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
+}
+func (UnimplementedMicroserviceServer) GetUsers(context.Context, *emptypb.Empty) (*GetUsersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
 }
 func (UnimplementedMicroserviceServer) mustEmbedUnimplementedMicroserviceServer() {}
 
@@ -153,6 +167,24 @@ func _Microservice_Logout_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Microservice_GetUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MicroserviceServer).GetUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/microservice.Microservice/GetUsers",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MicroserviceServer).GetUsers(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Microservice_ServiceDesc is the grpc.ServiceDesc for Microservice service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -171,6 +203,10 @@ var Microservice_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Logout",
 			Handler:    _Microservice_Logout_Handler,
+		},
+		{
+			MethodName: "GetUsers",
+			Handler:    _Microservice_GetUsers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -6,7 +6,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (ms *MicroserviceServer) SignUp(ctx context.Context, request *pkg.SignUpRequest) (*pkg.SignUpResponse, error) {
+func (ms *MicroserviceServer) SignUp(_ context.Context, request *pkg.SignUpRequest) (*pkg.SignUpResponse, error) {
 	user := entities.User{Email: request.Email, Password: request.Password}
 	err := ms.AuthenticationService.SignUp(user)
 	if err != nil {
