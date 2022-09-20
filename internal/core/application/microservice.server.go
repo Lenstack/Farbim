@@ -10,23 +10,29 @@ type MicroserviceServer struct {
 	UserApplication           UserApplication
 	AuthenticationApplication AuthenticationApplication
 	desc.UnimplementedMicroserviceServer
+	//Grpc Services
 	AuthenticationService services.AuthenticationService
 	UserService           services.UserService
+	ProfileService        services.ProfileService
 }
 
 func NewMicroserviceServer(
 	middlewareApplication MiddlewareApplication,
 	userApplication UserApplication,
 	authenticationApplication AuthenticationApplication,
+	//Grpc Services
 	AuthenticationService services.AuthenticationService,
 	UserService services.UserService,
+	ProfileService services.ProfileService,
 
 ) *MicroserviceServer {
 	return &MicroserviceServer{
 		MiddlewareApplication:     middlewareApplication,
 		UserApplication:           userApplication,
 		AuthenticationApplication: authenticationApplication,
-		AuthenticationService:     AuthenticationService,
-		UserService:               UserService,
+		//Grpc Services
+		AuthenticationService: AuthenticationService,
+		UserService:           UserService,
+		ProfileService:        ProfileService,
 	}
 }

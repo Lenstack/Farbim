@@ -12,6 +12,8 @@ type IAuthenticationService interface {
 	SignIn(user entities.User) (accessToken string, err error)
 	SignUp(user entities.User) (err error)
 	Logout(userId string, token string) (err error)
+	VerifyAccount(userId string) (err error)
+	DisableAccount(userId string) (err error)
 }
 
 type AuthenticationService struct {
@@ -78,11 +80,15 @@ func (as *AuthenticationService) SignUp(user entities.User) (err error) {
 		return utils.ItemAlreadyExist
 	}
 
-	_, err = as.userRepository.CreateUser(user)
+	userId, err := as.userRepository.CreateUser(user)
 	if err != nil {
 		return err
 	}
 
+	_, err = as.userRepository.CreateProfile(entities.Profile{UserId: userId})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -100,6 +106,22 @@ func (as *AuthenticationService) Logout(userId string, token string) (err error)
 		return err
 	}
 	_, err = as.userRepository.UpdateUserRefreshToken(userId, "")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (as *AuthenticationService) VerifyAccount(userId string) (err error) {
+	_, err = as.userRepository.UpdateUserVerifiedAccountById(userId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (as *AuthenticationService) DisableAccount(userId string) (err error) {
+	_, err = as.userRepository.UpdateUserDisableAccountById(userId)
 	if err != nil {
 		return err
 	}

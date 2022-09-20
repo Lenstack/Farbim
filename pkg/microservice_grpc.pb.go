@@ -23,10 +23,19 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MicroserviceClient interface {
+	// Authentication rpc endpoints
 	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error)
 	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*SignUpResponse, error)
 	Logout(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LogoutResponse, error)
+	VerifyAccount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*VerifyAccountResponse, error)
+	DisableAccount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DisableAccountResponse, error)
+	// User rpc endpoints
 	GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUsersResponse, error)
+	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
+	UpdateUserPassword(ctx context.Context, in *UpdateUserPasswordRequest, opts ...grpc.CallOption) (*UpdateUserPasswordResponse, error)
+	DeleteUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DeleteUserResponse, error)
+	// Profile rpc endpoints
+	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error)
 }
 
 type microserviceClient struct {
@@ -64,9 +73,63 @@ func (c *microserviceClient) Logout(ctx context.Context, in *emptypb.Empty, opts
 	return out, nil
 }
 
+func (c *microserviceClient) VerifyAccount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*VerifyAccountResponse, error) {
+	out := new(VerifyAccountResponse)
+	err := c.cc.Invoke(ctx, "/microservice.Microservice/VerifyAccount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *microserviceClient) DisableAccount(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DisableAccountResponse, error) {
+	out := new(DisableAccountResponse)
+	err := c.cc.Invoke(ctx, "/microservice.Microservice/DisableAccount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *microserviceClient) GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUsersResponse, error) {
 	out := new(GetUsersResponse)
 	err := c.cc.Invoke(ctx, "/microservice.Microservice/GetUsers", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *microserviceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
+	out := new(GetUserResponse)
+	err := c.cc.Invoke(ctx, "/microservice.Microservice/GetUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *microserviceClient) UpdateUserPassword(ctx context.Context, in *UpdateUserPasswordRequest, opts ...grpc.CallOption) (*UpdateUserPasswordResponse, error) {
+	out := new(UpdateUserPasswordResponse)
+	err := c.cc.Invoke(ctx, "/microservice.Microservice/UpdateUserPassword", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *microserviceClient) DeleteUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DeleteUserResponse, error) {
+	out := new(DeleteUserResponse)
+	err := c.cc.Invoke(ctx, "/microservice.Microservice/DeleteUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *microserviceClient) UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error) {
+	out := new(UpdateProfileResponse)
+	err := c.cc.Invoke(ctx, "/microservice.Microservice/UpdateProfile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,10 +140,19 @@ func (c *microserviceClient) GetUsers(ctx context.Context, in *emptypb.Empty, op
 // All implementations must embed UnimplementedMicroserviceServer
 // for forward compatibility
 type MicroserviceServer interface {
+	// Authentication rpc endpoints
 	SignIn(context.Context, *SignInRequest) (*SignInResponse, error)
 	SignUp(context.Context, *SignUpRequest) (*SignUpResponse, error)
 	Logout(context.Context, *emptypb.Empty) (*LogoutResponse, error)
+	VerifyAccount(context.Context, *emptypb.Empty) (*VerifyAccountResponse, error)
+	DisableAccount(context.Context, *emptypb.Empty) (*DisableAccountResponse, error)
+	// User rpc endpoints
 	GetUsers(context.Context, *emptypb.Empty) (*GetUsersResponse, error)
+	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
+	UpdateUserPassword(context.Context, *UpdateUserPasswordRequest) (*UpdateUserPasswordResponse, error)
+	DeleteUser(context.Context, *emptypb.Empty) (*DeleteUserResponse, error)
+	// Profile rpc endpoints
+	UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error)
 	mustEmbedUnimplementedMicroserviceServer()
 }
 
@@ -97,8 +169,26 @@ func (UnimplementedMicroserviceServer) SignUp(context.Context, *SignUpRequest) (
 func (UnimplementedMicroserviceServer) Logout(context.Context, *emptypb.Empty) (*LogoutResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
 }
+func (UnimplementedMicroserviceServer) VerifyAccount(context.Context, *emptypb.Empty) (*VerifyAccountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyAccount not implemented")
+}
+func (UnimplementedMicroserviceServer) DisableAccount(context.Context, *emptypb.Empty) (*DisableAccountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DisableAccount not implemented")
+}
 func (UnimplementedMicroserviceServer) GetUsers(context.Context, *emptypb.Empty) (*GetUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
+}
+func (UnimplementedMicroserviceServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
+}
+func (UnimplementedMicroserviceServer) UpdateUserPassword(context.Context, *UpdateUserPasswordRequest) (*UpdateUserPasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserPassword not implemented")
+}
+func (UnimplementedMicroserviceServer) DeleteUser(context.Context, *emptypb.Empty) (*DeleteUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
+}
+func (UnimplementedMicroserviceServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateProfile not implemented")
 }
 func (UnimplementedMicroserviceServer) mustEmbedUnimplementedMicroserviceServer() {}
 
@@ -167,6 +257,42 @@ func _Microservice_Logout_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Microservice_VerifyAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MicroserviceServer).VerifyAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/microservice.Microservice/VerifyAccount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MicroserviceServer).VerifyAccount(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Microservice_DisableAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MicroserviceServer).DisableAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/microservice.Microservice/DisableAccount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MicroserviceServer).DisableAccount(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Microservice_GetUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -181,6 +307,78 @@ func _Microservice_GetUsers_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MicroserviceServer).GetUsers(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Microservice_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MicroserviceServer).GetUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/microservice.Microservice/GetUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MicroserviceServer).GetUser(ctx, req.(*GetUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Microservice_UpdateUserPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserPasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MicroserviceServer).UpdateUserPassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/microservice.Microservice/UpdateUserPassword",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MicroserviceServer).UpdateUserPassword(ctx, req.(*UpdateUserPasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Microservice_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MicroserviceServer).DeleteUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/microservice.Microservice/DeleteUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MicroserviceServer).DeleteUser(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Microservice_UpdateProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MicroserviceServer).UpdateProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/microservice.Microservice/UpdateProfile",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MicroserviceServer).UpdateProfile(ctx, req.(*UpdateProfileRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -205,8 +403,32 @@ var Microservice_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Microservice_Logout_Handler,
 		},
 		{
+			MethodName: "VerifyAccount",
+			Handler:    _Microservice_VerifyAccount_Handler,
+		},
+		{
+			MethodName: "DisableAccount",
+			Handler:    _Microservice_DisableAccount_Handler,
+		},
+		{
 			MethodName: "GetUsers",
 			Handler:    _Microservice_GetUsers_Handler,
+		},
+		{
+			MethodName: "GetUser",
+			Handler:    _Microservice_GetUser_Handler,
+		},
+		{
+			MethodName: "UpdateUserPassword",
+			Handler:    _Microservice_UpdateUserPassword_Handler,
+		},
+		{
+			MethodName: "DeleteUser",
+			Handler:    _Microservice_DeleteUser_Handler,
+		},
+		{
+			MethodName: "UpdateProfile",
+			Handler:    _Microservice_UpdateProfile_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

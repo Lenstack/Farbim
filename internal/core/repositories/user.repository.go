@@ -11,12 +11,17 @@ type IUserRepository interface {
 	GetUsers() (users []entities.User, err error)
 	GetUserById(userId string) (user entities.User, err error)
 	GetUserPasswordByEmail(email string) (password string, err error)
+	GetUserPasswordById(userId string) (password string, err error)
 	GetUserIdByEmail(email string) (userId string, err error)
 	GetUserVerifiedByEmail(email string) (verified bool, err error)
 	CreateUser(user entities.User) (userId string, err error)
+	CreateProfile(userProfile entities.Profile) (err error)
 	UpdateUser(userId string, newUser entities.User) (user entities.User, err error)
 	UpdateUserAccessToken(userId string, accessToken string) (user entities.User, err error)
 	UpdateUserRefreshToken(userId string, refreshToken string) (user entities.User, err error)
+	UpdateUserPassword(userId string, newPassword string) (err error)
+	UpdateUserVerifiedAccountById(userId string) (affected string, err error)
+	UpdateUserDisableAccountById(userId string) (affected string, err error)
 	DestroyUser(userId string) (rowsAffected int64, err error)
 }
 
@@ -84,6 +89,18 @@ func (ur *UserRepository) GetUserPasswordByEmail(email string) (password string,
 	return password, nil
 }
 
+func (ur *UserRepository) GetUserPasswordById(userId string) (password string, err error) {
+	bq := ur.Database.Select("password").
+		From(entities.UserTableName).
+		Where(squirrel.Eq{"id": userId})
+
+	err = bq.QueryRow().Scan(&password)
+	if err != nil {
+		return "", utils.AuthenticationIncorrect
+	}
+	return password, nil
+}
+
 func (ur *UserRepository) GetUserIdByEmail(email string) (userId string, err error) {
 	bq := ur.Database.Select("Id").
 		From(entities.UserTableName).
@@ -122,6 +139,22 @@ func (ur *UserRepository) CreateUser(user entities.User) (userId string, err err
 			user.AccessToken, user.RefreshToken,
 			user.LastResetSentAt, user.LastVerificationSentAt,
 			user.Verified).
+		Suffix("RETURNING Id")
+
+	err = bq.QueryRow().Scan(&userId)
+	if err != nil {
+		return "", utils.ErrorManager(err)
+	}
+
+	return userId, nil
+}
+
+func (ur *UserRepository) CreateProfile(userProfile entities.Profile) (userId string, err error) {
+	userProfile.Id = uuid.New().String()
+	bq := ur.Database.
+		Insert(entities.ProfileTableName).
+		Columns("Id", "Name", "Avatar", "UserId").
+		Values(userProfile.Id, userProfile.Name, userProfile.Avatar, userProfile.UserId).
 		Suffix("RETURNING Id")
 
 	err = bq.QueryRow().Scan(&userId)
@@ -176,6 +209,51 @@ func (ur *UserRepository) UpdateUserRefreshToken(userId string, refreshToken str
 		return entities.User{}, utils.ErrorManager(err)
 	}
 	return user, nil
+}
+
+func (ur *UserRepository) UpdateUserPassword(userId string, newPassword string) (userIdAffected string, err error) {
+	userMap := map[string]interface{}{"password": newPassword}
+	bq := ur.Database.
+		Update(entities.UserTableName).
+		SetMap(userMap).
+		Where(squirrel.Eq{"id": userId}).
+		Suffix("RETURNING Id")
+
+	err = bq.QueryRow().Scan(&userIdAffected)
+	if err != nil {
+		return "", err
+	}
+	return userIdAffected, nil
+}
+
+func (ur *UserRepository) UpdateUserVerifiedAccountById(userId string) (affected string, err error) {
+	userMap := map[string]interface{}{"verified": true}
+	bq := ur.Database.
+		Update(entities.UserTableName).
+		SetMap(userMap).
+		Where(squirrel.Eq{"id": userId}).
+		Suffix("RETURNING Id")
+
+	err = bq.QueryRow().Scan(&affected)
+	if err != nil {
+		return "", err
+	}
+	return affected, nil
+}
+
+func (ur *UserRepository) UpdateUserDisableAccountById(userId string) (affected string, err error) {
+	userMap := map[string]interface{}{"verified": false}
+	bq := ur.Database.
+		Update(entities.UserTableName).
+		SetMap(userMap).
+		Where(squirrel.Eq{"id": userId}).
+		Suffix("RETURNING Id")
+
+	err = bq.QueryRow().Scan(&affected)
+	if err != nil {
+		return "", err
+	}
+	return affected, nil
 }
 
 func (ur *UserRepository) DestroyUser(userId string) (rowsAffected int64, err error) {

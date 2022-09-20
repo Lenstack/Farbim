@@ -6,10 +6,19 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 service Microservice{
+  //Authentication rpc endpoints
   rpc SignIn(SignInRequest) returns (SignInResponse);
   rpc SignUp(SignUpRequest) returns (SignUpResponse);
   rpc Logout(google.protobuf.Empty) returns (LogoutResponse);
-  rpc GetUsers(google.protobuf.Empty)returns(GetUsersResponse);
+  rpc VerifyAccount(google.protobuf.Empty) returns(VerifyAccountResponse);
+  rpc DisableAccount(google.protobuf.Empty) returns (DisableAccountResponse);
+  //User rpc endpoints
+  rpc GetUsers(google.protobuf.Empty) returns(GetUsersResponse);
+  rpc GetUser(GetUserRequest) returns(GetUserResponse);
+  rpc UpdateUserPassword(UpdateUserPasswordRequest) returns(UpdateUserPasswordResponse);
+  rpc DeleteUser(google.protobuf.Empty) returns (DeleteUserResponse);
+  //Profile rpc endpoints
+  rpc UpdateProfile(UpdateProfileRequest)returns(UpdateProfileResponse);
 }
 
 message SignInRequest{
@@ -41,6 +50,10 @@ message GetUsersResponse{
   repeated GetUserResponse Users = 4;
 }
 
+message GetUserRequest{
+  string Id = 1;
+}
+
 message GetUserResponse{
   string Id = 1;
   string Email = 2;
@@ -53,4 +66,36 @@ message GetUserResponse{
   google.protobuf.Timestamp CreatedAt = 9;
   google.protobuf.Timestamp UpdatedAt = 10;
 }
+
+message VerifyAccountResponse{
+  string Message = 1;
+}
+
+message DisableAccountResponse{
+  string Message = 1;
+}
+
+message UpdateUserPasswordRequest{
+  string OldPassword = 1;
+  string NewPassword = 2;
+}
+
+message UpdateUserPasswordResponse{
+  string Message = 1;
+}
+
+message DeleteUserResponse{
+  string Message = 1;
+}
+
+message UpdateProfileRequest{
+  string UserId = 1;
+  string Name = 2;
+  string Avatar = 3;
+}
+
+message UpdateProfileResponse{
+  string Message = 1;
+}
+
 

@@ -25,6 +25,7 @@ func NewGrpcServer(port string, microservices application.MicroserviceServer) *G
 
 	desc.RegisterMicroserviceServer(grpcServer, &microservices)
 	reflection.Register(grpcServer)
+
 	err = grpcServer.Serve(listenServer)
 	if err != nil {
 		log.Fatalf("%s", err)
