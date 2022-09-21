@@ -42,6 +42,8 @@ func main() {
 	userService := services.NewUserService(postgres.Database)
 	authenticationService := services.NewAuthenticationService(postgres.Database, *tokenManager, redisManager.Client)
 	profileService := services.NewProfileService(postgres.Database)
+	farmService := services.NewFarmService(postgres.Database)
+	categoryService := services.NewCategoryService(postgres.Database)
 
 	//Register Http Handlers
 	middlewareApplication := application.NewMiddlewareApplication(*userService, *redisService, *tokenManager)
@@ -55,6 +57,8 @@ func main() {
 		*authenticationService,
 		*userService,
 		*profileService,
+		*farmService,
+		*categoryService,
 	)
 
 	go func() {

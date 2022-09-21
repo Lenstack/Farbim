@@ -18,7 +18,14 @@ service Microservice{
   rpc UpdateUserPassword(UpdateUserPasswordRequest) returns(UpdateUserPasswordResponse);
   rpc DeleteUser(google.protobuf.Empty) returns (DeleteUserResponse);
   //Profile rpc endpoints
-  rpc UpdateProfile(UpdateProfileRequest)returns(UpdateProfileResponse);
+  rpc UpdateProfile(UpdateProfileRequest) returns(UpdateProfileResponse);
+
+  //Farm rpc endpoints
+  rpc CreateFarm(CreateFarmRequest) returns(CreateFarmResponse);
+
+  //Category rpc endpoints
+  rpc CreateCategory(CreateCategoryRequest) returns(CreateCategoryResponse);
+  rpc GetCategories(google.protobuf.Empty) returns(GetCategoriesResponse);
 }
 
 message SignInRequest{
@@ -98,4 +105,36 @@ message UpdateProfileResponse{
   string Message = 1;
 }
 
+message CreateFarmRequest{
+  string Id = 1;
+  string Name = 2;
+  string CategoryId = 3;
+  string UserId = 4;
+}
+
+message CreateFarmResponse{
+  string Message = 1;
+}
+
+message CreateCategoryRequest{
+  string Name = 1;
+}
+
+message CreateCategoryResponse{
+  string Message = 1;
+}
+
+message GetCategoryResponse{
+  string Id = 1;
+  string Name = 2;
+  google.protobuf.Timestamp CreatedAt = 3;
+  google.protobuf.Timestamp UpdatedAt = 4;
+}
+
+message GetCategoriesResponse{
+  int32 Page = 1;
+  int32 PerPage = 2;
+  int32 Total = 3;
+  repeated GetCategoryResponse Categories = 4;
+}
 

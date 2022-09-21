@@ -36,6 +36,11 @@ type MicroserviceClient interface {
 	DeleteUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 	// Profile rpc endpoints
 	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error)
+	// Farm rpc endpoints
+	CreateFarm(ctx context.Context, in *CreateFarmRequest, opts ...grpc.CallOption) (*CreateFarmResponse, error)
+	// Category rpc endpoints
+	CreateCategory(ctx context.Context, in *CreateCategoryRequest, opts ...grpc.CallOption) (*CreateCategoryResponse, error)
+	GetCategories(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCategoriesResponse, error)
 }
 
 type microserviceClient struct {
@@ -136,6 +141,33 @@ func (c *microserviceClient) UpdateProfile(ctx context.Context, in *UpdateProfil
 	return out, nil
 }
 
+func (c *microserviceClient) CreateFarm(ctx context.Context, in *CreateFarmRequest, opts ...grpc.CallOption) (*CreateFarmResponse, error) {
+	out := new(CreateFarmResponse)
+	err := c.cc.Invoke(ctx, "/microservice.Microservice/CreateFarm", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *microserviceClient) CreateCategory(ctx context.Context, in *CreateCategoryRequest, opts ...grpc.CallOption) (*CreateCategoryResponse, error) {
+	out := new(CreateCategoryResponse)
+	err := c.cc.Invoke(ctx, "/microservice.Microservice/CreateCategory", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *microserviceClient) GetCategories(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCategoriesResponse, error) {
+	out := new(GetCategoriesResponse)
+	err := c.cc.Invoke(ctx, "/microservice.Microservice/GetCategories", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MicroserviceServer is the server API for Microservice service.
 // All implementations must embed UnimplementedMicroserviceServer
 // for forward compatibility
@@ -153,6 +185,11 @@ type MicroserviceServer interface {
 	DeleteUser(context.Context, *emptypb.Empty) (*DeleteUserResponse, error)
 	// Profile rpc endpoints
 	UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error)
+	// Farm rpc endpoints
+	CreateFarm(context.Context, *CreateFarmRequest) (*CreateFarmResponse, error)
+	// Category rpc endpoints
+	CreateCategory(context.Context, *CreateCategoryRequest) (*CreateCategoryResponse, error)
+	GetCategories(context.Context, *emptypb.Empty) (*GetCategoriesResponse, error)
 	mustEmbedUnimplementedMicroserviceServer()
 }
 
@@ -189,6 +226,15 @@ func (UnimplementedMicroserviceServer) DeleteUser(context.Context, *emptypb.Empt
 }
 func (UnimplementedMicroserviceServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateProfile not implemented")
+}
+func (UnimplementedMicroserviceServer) CreateFarm(context.Context, *CreateFarmRequest) (*CreateFarmResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateFarm not implemented")
+}
+func (UnimplementedMicroserviceServer) CreateCategory(context.Context, *CreateCategoryRequest) (*CreateCategoryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCategory not implemented")
+}
+func (UnimplementedMicroserviceServer) GetCategories(context.Context, *emptypb.Empty) (*GetCategoriesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCategories not implemented")
 }
 func (UnimplementedMicroserviceServer) mustEmbedUnimplementedMicroserviceServer() {}
 
@@ -383,6 +429,60 @@ func _Microservice_UpdateProfile_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Microservice_CreateFarm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateFarmRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MicroserviceServer).CreateFarm(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/microservice.Microservice/CreateFarm",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MicroserviceServer).CreateFarm(ctx, req.(*CreateFarmRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Microservice_CreateCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCategoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MicroserviceServer).CreateCategory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/microservice.Microservice/CreateCategory",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MicroserviceServer).CreateCategory(ctx, req.(*CreateCategoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Microservice_GetCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MicroserviceServer).GetCategories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/microservice.Microservice/GetCategories",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MicroserviceServer).GetCategories(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Microservice_ServiceDesc is the grpc.ServiceDesc for Microservice service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -429,6 +529,18 @@ var Microservice_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateProfile",
 			Handler:    _Microservice_UpdateProfile_Handler,
+		},
+		{
+			MethodName: "CreateFarm",
+			Handler:    _Microservice_CreateFarm_Handler,
+		},
+		{
+			MethodName: "CreateCategory",
+			Handler:    _Microservice_CreateCategory_Handler,
+		},
+		{
+			MethodName: "GetCategories",
+			Handler:    _Microservice_GetCategories_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
