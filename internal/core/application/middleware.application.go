@@ -4,12 +4,17 @@ import (
 	"encoding/json"
 	"github.com/Lenstack/farm_management/internal/core/services"
 	"github.com/Lenstack/farm_management/internal/utils"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 	"net/http"
 )
 
 type IMiddlewareApplication interface {
 	RefreshToken(writer http.ResponseWriter, request *http.Request)
 	ProtectedRoutes(next http.Handler) http.Handler
+	GrpcUnaryInterceptor() grpc.ServerOption
+	GrpcStreamInterceptor() grpc.ServerOption
+	IsAuthorized(ctx context.Context, method string) error
 }
 
 type MiddlewareApplication struct {
@@ -95,4 +100,20 @@ func (m *MiddlewareApplication) ProtectedRoutes(next http.Handler) http.Handler 
 
 		next.ServeHTTP(writer, request)
 	})
+}
+
+func (m *MiddlewareApplication) GrpcUnaryInterceptor() grpc.ServerOption {
+	grpcServerOptions := grpc.UnaryInterceptor(func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+		resp, err = handler(ctx, req)
+		return handler(ctx, req)
+	})
+	return grpcServerOptions
+}
+
+func (m *MiddlewareApplication) GrpcStreamInterceptor() grpc.ServerOption {
+	grpcServerOptions := grpc.UnaryInterceptor(func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+		resp, err = handler(ctx, req)
+		return handler(ctx, req)
+	})
+	return grpcServerOptions
 }
