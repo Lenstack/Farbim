@@ -9,9 +9,9 @@ import (
 )
 
 type IJwtManager interface {
-	GenerateJwtAccessToken(userId string) (accessToken string, err error)
-	GenerateJwtRefreshToken(userId string) (refreshToken string, err error)
-	VerifyJwtToken(accessToken string) (userId string, err error)
+	GenerateJwtAccessToken(payload interface{}) (accessToken string, err error)
+	GenerateJwtRefreshToken(payload interface{}) (refreshToken string, err error)
+	VerifyJwtToken(accessToken string) (claims string, err error)
 	ExtractJwtToken(headerToken string) (clearedToken string, err error)
 }
 
@@ -21,42 +21,47 @@ type JwtManager struct {
 	secretKey         string
 }
 
+type PayloadClaims struct {
+	UserId string
+	Roles  string
+}
+
 func NewJwtManager(expirationToken string, expirationRefresh string, secretKey string) *JwtManager {
 	return &JwtManager{expirationToken: expirationToken, expirationRefresh: expirationRefresh, secretKey: secretKey}
 }
 
-func (jm *JwtManager) GenerateJwtAccessToken(userId string) (accessToken string, err error) {
+func (jm *JwtManager) GenerateJwtAccessToken(payload PayloadClaims) (accessToken string, err error) {
 	expirationAccessToken, _ := strconv.Atoi(jm.expirationToken)
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"uuid": uuid.New().String(),
 		"type": "access",
 		"exp":  time.Now().Add(time.Minute * time.Duration(expirationAccessToken)).Unix(),
-		"sub":  userId,
+		"sub":  payload,
 	}).SignedString([]byte(jm.secretKey))
 }
 
-func (jm *JwtManager) GenerateJwtRefreshToken(userId string) (refreshToken string, err error) {
+func (jm *JwtManager) GenerateJwtRefreshToken(payload PayloadClaims) (refreshToken string, err error) {
 	expirationRefreshToken, _ := strconv.Atoi(jm.expirationRefresh)
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"uuid": uuid.New().String(),
 		"type": "refresh",
 		"exp":  time.Now().Add(time.Hour * 24 * time.Duration(expirationRefreshToken)).Unix(),
-		"sub":  userId,
+		"sub":  payload,
 	}).SignedString([]byte(jm.secretKey))
 }
 
-func (jm *JwtManager) VerifyJwtToken(accessToken string) (userId string, err error) {
+func (jm *JwtManager) VerifyJwtToken(accessToken string) (claims jwt.Claims, err error) {
 	parsedToken, err := jwt.NewParser(jwt.WithValidMethods([]string{"HS256"})).
-		Parse(accessToken, func(t *jwt.Token) (interface{}, error) {
+		Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
 			return []byte(jm.secretKey), nil
 		})
 	if err != nil {
-		return "", ErrorManager(err)
+		return nil, ErrorManager(err)
 	}
 	if claims, ok := parsedToken.Claims.(jwt.MapClaims); ok && parsedToken.Valid {
-		return claims["sub"].(string), nil
+		return claims, nil
 	}
-	return "", TokenClaims
+	return nil, TokenClaims
 }
 
 func (jm *JwtManager) ExtractJwtToken(headerToken string) (clearedToken string, err error) {

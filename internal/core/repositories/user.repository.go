@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/Masterminds/squirrel"
@@ -128,17 +129,19 @@ func (ur *UserRepository) GetUserVerifiedByEmail(email string) (verified bool, e
 func (ur *UserRepository) CreateUser(user entities.User) (userId string, err error) {
 	user.Id = uuid.New().String()
 	user.Password = ur.BcryptManager.HashPassword(user.Password)
+	accessRoles := map[string][]string{}
+	fmt.Println(accessRoles)
 
 	bq := ur.Database.
 		Insert(entities.UserTableName).
 		Columns("Id", "Email", "Password",
 			"AccessToken", "RefreshToken",
 			"LastResetSentAt", "LastVerificationSentAt",
-			"Verified").
+			"Verified", "Roles").
 		Values(user.Id, user.Email, user.Password,
 			user.AccessToken, user.RefreshToken,
 			user.LastResetSentAt, user.LastVerificationSentAt,
-			user.Verified).
+			user.Verified, user.Roles).
 		Suffix("RETURNING Id")
 
 	err = bq.QueryRow().Scan(&userId)

@@ -15,6 +15,7 @@ type User struct {
 	LastResetSentAt        string    `json:"LastResetSentAt,omitempty"`
 	LastVerificationSentAt string    `json:"LastVerificationSentAt,omitempty"`
 	Verified               bool      `json:"Verified,omitempty"`
+	Roles                  string    `json:"Roles"`
 	CreatedAt              time.Time `json:"CreatedAt,omitempty"`
 	UpdatedAt              time.Time `json:"UpdatedAt,omitempty"`
 }
