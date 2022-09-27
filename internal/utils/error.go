@@ -5,7 +5,6 @@ import (
 )
 
 var (
-	AccessNotAuthorizated   = errors.New("access not authorized")
 	EmailIsNotVerified      = errors.New("email is not verified")
 	ItemNotExist            = errors.New("item not exist")
 	ItemWithout             = errors.New("without items")
@@ -14,7 +13,7 @@ var (
 	TokenExpired            = errors.New("the token has been expired")
 	TokenIncorrect          = errors.New("the token is incorrect")
 	TokenInvalid            = errors.New("the token is invalid or malformed")
-	TokenWithout            = errors.New("authentication header no contains bearer token")
+	TokenWithout            = errors.New("authorization header no contains bearer token")
 	TokenSignature          = errors.New("the token signature is invalid")
 	TokenClaims             = errors.New("cannot get claims from token")
 	TokenInBlackList        = errors.New("the token has been blacklisted")

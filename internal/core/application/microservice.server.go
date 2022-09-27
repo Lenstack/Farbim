@@ -6,11 +6,8 @@ import (
 )
 
 type MicroserviceServer struct {
-	MiddlewareApplication     MiddlewareApplication
-	UserApplication           UserApplication
-	AuthenticationApplication AuthenticationApplication
 	desc.UnimplementedMicroserviceServer
-	//Grpc Services
+	MiddlewareApplication MiddlewareApplication
 	AuthenticationService services.AuthenticationService
 	UserService           services.UserService
 	ProfileService        services.ProfileService
@@ -19,10 +16,7 @@ type MicroserviceServer struct {
 }
 
 func NewMicroserviceServer(
-	middlewareApplication MiddlewareApplication,
-	userApplication UserApplication,
-	authenticationApplication AuthenticationApplication,
-	//Grpc Services
+	MiddlewareApplication MiddlewareApplication,
 	AuthenticationService services.AuthenticationService,
 	UserService services.UserService,
 	ProfileService services.ProfileService,
@@ -31,10 +25,7 @@ func NewMicroserviceServer(
 
 ) *MicroserviceServer {
 	return &MicroserviceServer{
-		MiddlewareApplication:     middlewareApplication,
-		UserApplication:           userApplication,
-		AuthenticationApplication: authenticationApplication,
-		//Grpc Services
+		MiddlewareApplication: MiddlewareApplication,
 		AuthenticationService: AuthenticationService,
 		UserService:           UserService,
 		ProfileService:        ProfileService,

@@ -4,33 +4,110 @@ option go_package = "/pkg";
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "validation/validation.proto";
 
 service Microservice{
   //Authentication rpc endpoints
-  rpc SignIn(SignInRequest) returns (SignInResponse);
-  rpc SignUp(SignUpRequest) returns (SignUpResponse);
-  rpc Logout(google.protobuf.Empty) returns (LogoutResponse);
-  rpc VerifyAccount(google.protobuf.Empty) returns(VerifyAccountResponse);
-  rpc DisableAccount(google.protobuf.Empty) returns (DisableAccountResponse);
+  rpc SignIn(SignInRequest) returns (SignInResponse){
+    option(google.api.http) = {
+      post:"/v1/authentication/sign_in"
+      body:"*"
+    };
+  };
+
+  rpc SignUp(SignUpRequest) returns (SignUpResponse){
+    option(google.api.http) = {
+      post:"/v1/authentication/sign_up"
+      body:"*"
+    };
+  };
+
+  rpc Logout(google.protobuf.Empty) returns (LogoutResponse){
+    option(google.api.http) = {
+      post:"/v1/authentication/logout"
+      body:"*"
+    };
+  };
+
+  rpc VerifyAccount(VerifyAccountRequest) returns(VerifyAccountResponse){
+    option(google.api.http) = {
+      post:"/v1/activate/{Id}"
+    };
+  };
+
+  rpc DisableAccount(DisableAccountRequest) returns (DisableAccountResponse){
+    option(google.api.http) = {
+      post:"/v1/disable/{Id}"
+    };
+  };
+
   //User rpc endpoints
-  rpc GetUsers(google.protobuf.Empty) returns(GetUsersResponse);
-  rpc GetUser(GetUserRequest) returns(GetUserResponse);
-  rpc UpdateUserPassword(UpdateUserPasswordRequest) returns(UpdateUserPasswordResponse);
-  rpc DeleteUser(google.protobuf.Empty) returns (DeleteUserResponse);
+  rpc GetUsers(google.protobuf.Empty) returns(GetUsersResponse){
+    option(google.api.http) = {
+      get:"/v1/user"
+    };
+  };
+
+  rpc GetUser(GetUserRequest) returns(GetUserResponse){
+    option(google.api.http) = {
+      get:"/v1/user/{Id}"
+    };
+  };
+
+  rpc UpdateUserPassword(UpdateUserPasswordRequest) returns(UpdateUserPasswordResponse){
+    option(google.api.http) = {
+      put:"/v1/user/{Id}"
+      body:"*"
+    };
+  };
+
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse){
+    option(google.api.http) = {
+      delete:"/v1/user/{Id}"
+    };
+  };
+
   //Profile rpc endpoints
-  rpc UpdateProfile(UpdateProfileRequest) returns(UpdateProfileResponse);
+  rpc UpdateProfile(UpdateProfileRequest) returns(UpdateProfileResponse){
+    option(google.api.http) = {
+      put:"/v1/profile/{Id}"
+      body:"*"
+    };
+  };
 
   //Farm rpc endpoints
-  rpc CreateFarm(CreateFarmRequest) returns(CreateFarmResponse);
+  rpc CreateFarm(CreateFarmRequest) returns(CreateFarmResponse){
+    option(google.api.http) = {
+      post:"/v1/farm"
+      body:"*"
+    };
+  };
 
   //Category rpc endpoints
-  rpc CreateCategory(CreateCategoryRequest) returns(CreateCategoryResponse);
-  rpc GetCategories(google.protobuf.Empty) returns(GetCategoriesResponse);
+  rpc CreateCategory(CreateCategoryRequest) returns(CreateCategoryResponse){
+    option(google.api.http) = {
+      post:"/v1/category"
+      body:"*"
+    };
+  };
+
+  rpc GetCategories(google.protobuf.Empty) returns(GetCategoriesResponse){
+    option(google.api.http) = {
+      get:"/v1/category"
+    };
+  };
+
+  rpc GetCategory(GetCategoryRequest) returns(GetCategoryResponse){
+    option(google.api.http) = {
+      get:"/v1/category/{Id}"
+    };
+  };
 }
 
 message SignInRequest{
-  string Email = 1;
-  string Password = 2 ;
+  string Email = 1 [(validate.rules).string.email = true];
+  string Password = 2 [(validate.rules).string = {min_len: 8, max_len: 20}];
 }
 
 message SignInResponse{
@@ -38,8 +115,8 @@ message SignInResponse{
 }
 
 message SignUpRequest{
-  string Email = 1;
-  string Password = 2 ;
+  string Email = 1 [(validate.rules).string.email = true];
+  string Password = 2 [(validate.rules).string = {min_len: 8, max_len: 20}];
 }
 
 message SignUpResponse{
@@ -74,8 +151,16 @@ message GetUserResponse{
   google.protobuf.Timestamp UpdatedAt = 10;
 }
 
+message VerifyAccountRequest{
+  string Id = 1;
+}
+
 message VerifyAccountResponse{
   string Message = 1;
+}
+
+message DisableAccountRequest{
+  string Id = 1;
 }
 
 message DisableAccountResponse{
@@ -83,12 +168,17 @@ message DisableAccountResponse{
 }
 
 message UpdateUserPasswordRequest{
-  string OldPassword = 1;
-  string NewPassword = 2;
+  string Id = 1;
+  string OldPassword = 2;
+  string NewPassword = 3;
 }
 
 message UpdateUserPasswordResponse{
   string Message = 1;
+}
+
+message DeleteUserRequest{
+  string Id = 1;
 }
 
 message DeleteUserResponse{
@@ -96,7 +186,7 @@ message DeleteUserResponse{
 }
 
 message UpdateProfileRequest{
-  string UserId = 1;
+  string Id = 1;
   string Name = 2;
   string Avatar = 3;
 }
@@ -122,6 +212,10 @@ message CreateCategoryRequest{
 
 message CreateCategoryResponse{
   string Message = 1;
+}
+
+message GetCategoryRequest{
+  string Id = 1;
 }
 
 message GetCategoryResponse{

@@ -61,7 +61,7 @@ func (as *AuthenticationService) SignIn(user entities.User) (accessToken string,
 		return "", err
 	}
 
-	accessToken, err = as.TokenManager.GenerateJwtAccessToken(userId)
+	accessToken, err = as.TokenManager.GenerateJwtAccessToken(utils.PayloadClaims{UserId: userId})
 	if err != nil {
 		return "", err
 	}
