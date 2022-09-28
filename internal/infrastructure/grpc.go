@@ -21,10 +21,10 @@ func NewGrpcServer(port string, microservices application.MicroserviceServer) *G
 		log.Fatalf("%s", err)
 	}
 
-	grpcUnaryServerOptions := microservices.MiddlewareApplication.GrpcUnaryInterceptor()
-	//grpcStreamServerOptions := microservices.MiddlewareApplication.GrpcStreamInterceptor()
-	grpcServer := grpc.NewServer(grpcUnaryServerOptions)
-
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(microservices.MiddlewareApplication.GrpcUnaryInterceptor),
+		grpc.StreamInterceptor(microservices.MiddlewareApplication.GrpcStreamInterceptor),
+	)
 	desc.RegisterMicroserviceServer(grpcServer, &microservices)
 	reflection.Register(grpcServer)
 

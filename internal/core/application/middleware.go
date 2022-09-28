@@ -1,7 +1,6 @@
 package application
 
 import (
-	"fmt"
 	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"golang.org/x/net/context"
@@ -9,59 +8,69 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"log"
 	"net/http"
 	"strings"
 )
 
-type MiddlewareApplication struct {
-	jwtManager utils.JwtManager
+type IMiddlewareApplication interface {
+	GrpcUnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)
+	GrpcStreamInterceptor(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error
+	HttpInterceptor() runtime.ServeMuxOption
+	isAuthorized(ctx context.Context, method string) (err error)
+	isAccessibleRoles() map[string][]string
 }
 
-type validatable interface {
-	Validate() error
+type MiddlewareApplication struct {
+	jwtManager utils.JwtManager
 }
 
 func NewMiddlewareApplication(jwtManager utils.JwtManager) *MiddlewareApplication {
 	return &MiddlewareApplication{jwtManager: jwtManager}
 }
 
-func (m *MiddlewareApplication) GrpcUnaryInterceptor() grpc.ServerOption {
-	grpcUnaryServerOptions := grpc.UnaryInterceptor(func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-		if v, ok := req.(validatable); ok {
-			err := v.Validate()
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		err = m.isAuthorized(ctx, info.FullMethod)
-		if err != nil {
-			return nil, err
-		}
-		return handler(ctx, req)
-	})
-	return grpcUnaryServerOptions
+func (ma *MiddlewareApplication) GrpcUnaryInterceptor(
+	ctx context.Context,
+	req interface{},
+	info *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (interface{}, error) {
+	log.Println("--> unary interceptor: ", info.FullMethod)
+	err := ma.isAuthorized(ctx, info.FullMethod)
+	if err != nil {
+		return nil, err
+	}
+	return handler(ctx, req)
 }
 
-func (m *MiddlewareApplication) GrpcStreamInterceptor() grpc.ServerOption {
-	grpcStreamServerOptions := grpc.StreamInterceptor(func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) (err error) {
-		err = m.isAuthorized(stream.Context(), info.FullMethod)
-		if err != nil {
-			return err
-		}
-		return handler(srv, stream)
-	})
-	return grpcStreamServerOptions
+func (ma *MiddlewareApplication) GrpcStreamInterceptor(
+	srv interface{},
+	stream grpc.ServerStream,
+	info *grpc.StreamServerInfo,
+	handler grpc.StreamHandler,
+) error {
+	log.Println("--> stream interceptor: ", info.FullMethod)
+	err := ma.isAuthorized(stream.Context(), info.FullMethod)
+	if err != nil {
+		return err
+	}
+	return handler(srv, stream)
 }
 
-func (m *MiddlewareApplication) HttpInterceptor() runtime.ServeMuxOption {
+func (ma *MiddlewareApplication) HttpInterceptor() runtime.ServeMuxOption {
 	httpServerOptions := runtime.WithMetadata(func(ctx context.Context, req *http.Request) metadata.MD {
+		log.Println("--> http interceptor: ", req.URL, req.Method)
 		return nil
 	})
 	return httpServerOptions
 }
 
-func (m *MiddlewareApplication) isAuthorized(ctx context.Context, method string) (err error) {
+func (ma *MiddlewareApplication) isAuthorized(ctx context.Context, method string) (err error) {
+	accessibleRoles, ok := ma.isAccessibleRoles()[method]
+	if !ok {
+		// everyone can access
+		return nil
+	}
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
@@ -74,15 +83,48 @@ func (m *MiddlewareApplication) isAuthorized(ctx context.Context, method string)
 	}
 
 	headerToken := strings.Join(values, "")
-	accessToken, err := m.jwtManager.ExtractJwtToken(headerToken)
+	accessToken, err := ma.jwtManager.ExtractJwtToken(headerToken)
 	if err != nil {
 		return status.Errorf(codes.Unauthenticated, err.Error())
 	}
 
-	claims, err := m.jwtManager.VerifyJwtToken(accessToken)
+	claims, err := ma.jwtManager.VerifyJwtToken(accessToken)
 	if err != nil {
 		return err
 	}
-	fmt.Println(claims)
+
+	subClaims := claims["sub"].(map[string]interface{})
+	listRoles := subClaims["Roles"].([]interface{})
+
+	for _, accessibleRole := range accessibleRoles {
+		for _, roles := range listRoles {
+			cleanListRoles := strings.Split(roles.(string), ",")
+			for _, role := range cleanListRoles {
+				if accessibleRole == role {
+					return nil
+				}
+			}
+		}
+	}
+
 	return status.Errorf(codes.Unauthenticated, "no permission to access this RPC")
+}
+
+func (ma *MiddlewareApplication) isAccessibleRoles() map[string][]string {
+	const servicePath = "/microservice.Microservice/"
+	return map[string][]string{
+		servicePath + "SignUp":             {},
+		servicePath + "Logout":             {"User"},
+		servicePath + "VerifyAccount":      {"Admin"},
+		servicePath + "DisableAccount":     {"Admin"},
+		servicePath + "GetUsers":           {"Admin", "User"},
+		servicePath + "GetUser":            {"Admin"},
+		servicePath + "UpdateUserPassword": {"User"},
+		servicePath + "DeleteUser":         {"Admin"},
+		servicePath + "UpdateProfile":      {"User"},
+		servicePath + "CreateFarm":         {"User"},
+		servicePath + "CreateCategory":     {"User"},
+		servicePath + "GetCategories":      {"User"},
+		servicePath + "GetCategory":        {"User"},
+	}
 }

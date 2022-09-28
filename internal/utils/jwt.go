@@ -22,8 +22,8 @@ type JwtManager struct {
 }
 
 type PayloadClaims struct {
-	UserId string
-	Roles  string
+	Id    string
+	Roles []string
 }
 
 func NewJwtManager(expirationToken string, expirationRefresh string, secretKey string) *JwtManager {
@@ -32,29 +32,31 @@ func NewJwtManager(expirationToken string, expirationRefresh string, secretKey s
 
 func (jm *JwtManager) GenerateJwtAccessToken(payload PayloadClaims) (accessToken string, err error) {
 	expirationAccessToken, _ := strconv.Atoi(jm.expirationToken)
-	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	claims := jwt.MapClaims{
 		"uuid": uuid.New().String(),
 		"type": "access",
 		"exp":  time.Now().Add(time.Minute * time.Duration(expirationAccessToken)).Unix(),
 		"sub":  payload,
-	}).SignedString([]byte(jm.secretKey))
+	}
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(jm.secretKey))
 }
 
 func (jm *JwtManager) GenerateJwtRefreshToken(payload PayloadClaims) (refreshToken string, err error) {
 	expirationRefreshToken, _ := strconv.Atoi(jm.expirationRefresh)
-	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	claims := jwt.MapClaims{
 		"uuid": uuid.New().String(),
 		"type": "refresh",
 		"exp":  time.Now().Add(time.Hour * 24 * time.Duration(expirationRefreshToken)).Unix(),
 		"sub":  payload,
-	}).SignedString([]byte(jm.secretKey))
+	}
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(jm.secretKey))
 }
 
-func (jm *JwtManager) VerifyJwtToken(accessToken string) (claims jwt.Claims, err error) {
-	parsedToken, err := jwt.NewParser(jwt.WithValidMethods([]string{"HS256"})).
-		Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
-			return []byte(jm.secretKey), nil
-		})
+func (jm *JwtManager) VerifyJwtToken(accessToken string) (claims jwt.MapClaims, err error) {
+	parser := jwt.NewParser(jwt.WithValidMethods([]string{"HS256"}))
+	parsedToken, err := parser.Parse(accessToken, func(token *jwt.Token) (any, error) {
+		return []byte(jm.secretKey), nil
+	})
 	if err != nil {
 		return nil, ErrorManager(err)
 	}
