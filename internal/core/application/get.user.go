@@ -1,31 +1,13 @@
 package application
 
 import (
-	"errors"
 	"github.com/Lenstack/farm_management/pkg"
 	"golang.org/x/net/context"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"strings"
 )
 
-func (ms *MicroserviceServer) GetUser(ctx context.Context, _ *pkg.GetUserRequest) (*pkg.GetUserResponse, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, errors.New("missing metadata")
-	}
-
-	values := md.Get("Id")
-	if len(values) == 0 {
-		return nil, errors.New("missing metadata key Id")
-	}
-
-	userId := strings.ReplaceAll(values[0], " ", "")
-	if userId == "" {
-		return nil, errors.New("the value of metadata key Id this empty")
-	}
-
-	user, err := ms.UserService.ShowBy(userId)
+func (ms *MicroserviceServer) GetUser(_ context.Context, request *pkg.GetUserRequest) (*pkg.GetUserResponse, error) {
+	user, err := ms.UserService.ShowBy(request.Id)
 	if err != nil {
 		return nil, err
 	}

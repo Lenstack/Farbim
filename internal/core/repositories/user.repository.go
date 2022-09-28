@@ -1,11 +1,11 @@
 package repositories
 
 import (
-	"fmt"
 	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	"strings"
 )
 
 type IUserRepository interface {
@@ -15,6 +15,7 @@ type IUserRepository interface {
 	GetUserPasswordById(userId string) (password string, err error)
 	GetUserIdByEmail(email string) (userId string, err error)
 	GetUserVerifiedByEmail(email string) (verified bool, err error)
+	GetUserRolesById(userId string) (roles string, err error)
 	CreateUser(user entities.User) (userId string, err error)
 	CreateProfile(userProfile entities.Profile) (err error)
 	UpdateUser(userId string, newUser entities.User) (user entities.User, err error)
@@ -126,11 +127,25 @@ func (ur *UserRepository) GetUserVerifiedByEmail(email string) (verified bool, e
 	return verified, nil
 }
 
+func (ur *UserRepository) GetUserRolesById(userId string) (roles string, err error) {
+	bq := ur.Database.Select("Roles").
+		From(entities.UserTableName).
+		Where(squirrel.Eq{"id": userId})
+
+	err = bq.QueryRow().Scan(&roles)
+
+	if err != nil {
+		return "", utils.ErrorManager(err)
+	}
+	return roles, nil
+}
+
 func (ur *UserRepository) CreateUser(user entities.User) (userId string, err error) {
 	user.Id = uuid.New().String()
 	user.Password = ur.BcryptManager.HashPassword(user.Password)
-	accessRoles := map[string][]string{}
-	fmt.Println(accessRoles)
+	user.Roles = []string{"User", "Test"}
+
+	listRoles := strings.Join(user.Roles, ",")
 
 	bq := ur.Database.
 		Insert(entities.UserTableName).
@@ -141,7 +156,7 @@ func (ur *UserRepository) CreateUser(user entities.User) (userId string, err err
 		Values(user.Id, user.Email, user.Password,
 			user.AccessToken, user.RefreshToken,
 			user.LastResetSentAt, user.LastVerificationSentAt,
-			user.Verified, user.Roles).
+			user.Verified, listRoles).
 		Suffix("RETURNING Id")
 
 	err = bq.QueryRow().Scan(&userId)

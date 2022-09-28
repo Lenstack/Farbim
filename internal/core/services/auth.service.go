@@ -61,7 +61,12 @@ func (as *AuthenticationService) SignIn(user entities.User) (accessToken string,
 		return "", err
 	}
 
-	accessToken, err = as.TokenManager.GenerateJwtAccessToken(utils.PayloadClaims{UserId: userId})
+	roles, err := as.userRepository.GetUserRolesById(userId)
+	if err != nil {
+		return "", err
+	}
+
+	accessToken, err = as.TokenManager.GenerateJwtAccessToken(utils.PayloadClaims{Id: userId, Roles: []string{roles}})
 	if err != nil {
 		return "", err
 	}
