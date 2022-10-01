@@ -18,14 +18,13 @@ type HttpServer struct {
 
 func NewHttpServer(port string, microservices application.MicroserviceServer) {
 	fmt.Printf("Http Server Is Running In Port: %s\n", port)
-
-	serverMux := runtime.NewServeMux(microservices.MiddlewareApplication.HttpInterceptor())
+	serverMux := runtime.NewServeMux()
 	err := desc.RegisterMicroserviceHandlerServer(context.Background(), serverMux, &microservices)
 	if err != nil {
 		return
 	}
 
-	if err := http.ListenAndServe(":"+port, serverMux); err != nil {
+	if err := http.ListenAndServe(":"+port, microservices.MiddlewareApplication.HttpInterceptor(serverMux)); err != nil {
 		log.Fatalf("%s", err)
 	}
 }

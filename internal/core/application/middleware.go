@@ -1,6 +1,7 @@
 package application
 
 import (
+	"encoding/json"
 	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"golang.org/x/net/context"
@@ -57,12 +58,18 @@ func (ma *MiddlewareApplication) GrpcStreamInterceptor(
 	return handler(srv, stream)
 }
 
-func (ma *MiddlewareApplication) HttpInterceptor() runtime.ServeMuxOption {
-	httpServerOptions := runtime.WithMetadata(func(ctx context.Context, req *http.Request) metadata.MD {
-		log.Println("--> http interceptor: ", req.URL, req.Method)
-		return nil
-	})
-	return httpServerOptions
+func (ma *MiddlewareApplication) HttpInterceptor(serverMux *runtime.ServeMux) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		log.Println("--> http interceptor: ", request.URL, request.Method)
+		err := ma.isAuthorized(context.Background(), request.URL.String())
+		if err != nil {
+			writer.Header().Add("Content-Type", "application-json")
+			writer.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: utils.AccessNotAuthorized.Error()})
+			return
+		}
+		serverMux.ServeHTTP(writer, request)
+	}
 }
 
 func (ma *MiddlewareApplication) isAuthorized(ctx context.Context, method string) (err error) {
@@ -126,5 +133,6 @@ func (ma *MiddlewareApplication) isAccessibleRoles() map[string][]string {
 		servicePath + "CreateCategory":     {"User"},
 		servicePath + "GetCategories":      {"User"},
 		servicePath + "GetCategory":        {"User"},
+		"/v1/user":                         {"Admin"},
 	}
 }
