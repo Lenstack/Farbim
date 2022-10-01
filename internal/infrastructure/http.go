@@ -24,7 +24,7 @@ func NewHttpServer(port string, microservices application.MicroserviceServer) {
 		return
 	}
 
-	if err := http.ListenAndServe(":"+port, microservices.MiddlewareApplication.HttpInterceptor(serverMux)); err != nil {
+	if err := http.ListenAndServe(":"+port, microservices.MiddlewareApplication.AuthorizationHttpInterceptor(serverMux)); err != nil {
 		log.Fatalf("%s", err)
 	}
 }

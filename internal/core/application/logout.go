@@ -2,7 +2,6 @@ package application
 
 import (
 	"errors"
-	"fmt"
 	"github.com/Lenstack/farm_management/pkg"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/metadata"
@@ -28,11 +27,11 @@ func (ms *MicroserviceServer) Logout(ctx context.Context, _ *emptypb.Empty) (*pk
 		return nil, err
 	}
 
-	claims, err := ms.AuthenticationService.TokenManager.VerifyJwtToken(accessToken)
+	_, err = ms.AuthenticationService.TokenManager.VerifyJwtToken(accessToken)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(claims)
+
 	err = ms.AuthenticationService.Logout("userId", accessToken)
 	if err != nil {
 		return nil, err
