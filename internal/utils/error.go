@@ -17,6 +17,7 @@ var (
 	TokenSignature          = errors.New("the token signature is invalid")
 	TokenClaims             = errors.New("cannot get claims from token")
 	TokenInBlackList        = errors.New("the token has been blacklisted")
+	AccessNotAuthorized     = errors.New("no permission to access this Method")
 )
 
 func ErrorManager(err error) error {
