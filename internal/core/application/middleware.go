@@ -3,6 +3,7 @@ package application
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"golang.org/x/net/context"
@@ -33,8 +34,8 @@ func NewMiddlewareApplication(jwtManager utils.JwtManager) *MiddlewareApplicatio
 }
 
 var (
-	GRPC string = "GRPC"
-	HTTP string = "HTTP"
+	GRPC = "GRPC"
+	HTTP = "HTTP"
 )
 
 func (ma *MiddlewareApplication) GrpcUnaryInterceptor(
@@ -44,7 +45,7 @@ func (ma *MiddlewareApplication) GrpcUnaryInterceptor(
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
 	log.Println("--> unary interceptor: ", info.FullMethod)
-	err := ma.isAuthorized(ctx, info.FullMethod, GRPC, "")
+	err := ma.isAuthorized(ctx, info.FullMethod, GRPC, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +59,7 @@ func (ma *MiddlewareApplication) GrpcStreamInterceptor(
 	handler grpc.StreamHandler,
 ) error {
 	log.Println("--> stream interceptor: ", info.FullMethod)
-	err := ma.isAuthorized(stream.Context(), info.FullMethod, GRPC, "")
+	err := ma.isAuthorized(stream.Context(), info.FullMethod, GRPC, nil)
 	if err != nil {
 		return err
 	}
@@ -66,7 +67,7 @@ func (ma *MiddlewareApplication) GrpcStreamInterceptor(
 }
 
 func (ma *MiddlewareApplication) HttpInterceptor() runtime.ServeMuxOption {
-	return runtime.WithMetadata(func(ctx context.Context, req *http.Request) metadata.MD {
+	httpServerOptions := runtime.WithMetadata(func(ctx context.Context, req *http.Request) metadata.MD {
 		log.Println("--> http interceptor: ", req.URL, req.Method)
 
 		md := make(map[string]string)
@@ -76,15 +77,29 @@ func (ma *MiddlewareApplication) HttpInterceptor() runtime.ServeMuxOption {
 		if pattern, ok := runtime.HTTPPathPattern(ctx); ok {
 			md["pattern"] = pattern
 		}
-		return metadata.New(md)
+
+		return nil
 	})
+	return httpServerOptions
+}
+
+func (ma *MiddlewareApplication) HttpErrorInterceptor() runtime.ServeMuxOption {
+	httpErrorServerOptions := runtime.WithErrorHandler(
+		func(ctx context.Context, mux *runtime.ServeMux, marshaler runtime.Marshaler, writer http.ResponseWriter, request *http.Request, err error) {
+			log.Println("--> http-error interceptor: ", request.URL, request.Method)
+
+			writer.Header().Add("Content-Type", "application-json")
+			writer.WriteHeader(http.StatusBadRequest)
+			_ = marshaler.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()})
+		})
+	return httpErrorServerOptions
 }
 
 func (ma *MiddlewareApplication) AuthorizationHttpInterceptor(serverMux *runtime.ServeMux) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		log.Println("--> authorization interceptor: ", request.URL, request.Method)
 
-		err := ma.isAuthorized(request.Context(), request.URL.String(), HTTP, request.Header.Get("Authorization"))
+		err := ma.isAuthorized(nil, request.RequestURI, HTTP, request)
 		if err != nil {
 			writer.Header().Add("Content-Type", "application-json")
 			writer.WriteHeader(http.StatusBadRequest)
@@ -95,10 +110,13 @@ func (ma *MiddlewareApplication) AuthorizationHttpInterceptor(serverMux *runtime
 	}
 }
 
-func (ma *MiddlewareApplication) isAuthorized(ctx context.Context, method string, interceptorType string, authorizationToken string) (err error) {
+func (ma *MiddlewareApplication) isAuthorized(ctx context.Context, method string, interceptorType string, request *http.Request) (err error) {
 	accessibleRoles, ok := ma.isAccessibleRoles()[method]
 	if !ok {
-		// everyone can access
+		return status.Errorf(codes.Unauthenticated, "this method not been registered for access")
+	}
+	// can access without roles
+	if len(accessibleRoles) == 0 {
 		return nil
 	}
 
@@ -123,7 +141,7 @@ func (ma *MiddlewareApplication) isAuthorized(ctx context.Context, method string
 	}
 
 	if interceptorType == HTTP {
-		accessToken, err = ma.jwtManager.ExtractJwtToken(authorizationToken)
+		accessToken, err = ma.jwtManager.ExtractJwtToken(request.Header.Get("Authorization"))
 		if err != nil {
 			return err
 		}
@@ -142,6 +160,7 @@ func (ma *MiddlewareApplication) isAuthorized(ctx context.Context, method string
 			cleanListRoles := strings.Split(roles.(string), ",")
 			for _, role := range cleanListRoles {
 				if accessibleRole == role {
+					fmt.Printf(accessibleRole)
 					return nil
 				}
 			}
@@ -158,19 +177,19 @@ func (ma *MiddlewareApplication) isAuthorized(ctx context.Context, method string
 func (ma *MiddlewareApplication) isAccessibleRoles() map[string][]string {
 	const servicePath = "/microservice.Microservice/"
 	return map[string][]string{
-		servicePath + "SignUp":             {},
-		servicePath + "Logout":             {"User"},
+		servicePath + "SignUp":             {"Admin"},
+		servicePath + "SignIn":             {},
+		servicePath + "Logout":             {"Admin"},
 		servicePath + "VerifyAccount":      {"Admin"},
 		servicePath + "DisableAccount":     {"Admin"},
-		servicePath + "GetUsers":           {"Admin", "User"},
+		servicePath + "GetUsers":           {"Admin"},
 		servicePath + "GetUser":            {"Admin"},
-		servicePath + "UpdateUserPassword": {"User"},
+		servicePath + "UpdateUserPassword": {"Admin"},
 		servicePath + "DeleteUser":         {"Admin"},
-		servicePath + "UpdateProfile":      {"User"},
-		servicePath + "CreateFarm":         {"User"},
-		servicePath + "CreateCategory":     {"User"},
-		servicePath + "GetCategories":      {"User"},
-		servicePath + "GetCategory":        {"User"},
-		"/v1/user":                         {"Admin"},
+		servicePath + "UpdateProfile":      {"Admin"},
+		servicePath + "CreateFarm":         {"Admin"},
+		servicePath + "CreateCategory":     {"Admin"},
+		servicePath + "GetCategories":      {"Admin"},
+		servicePath + "GetCategory":        {"Admin"},
 	}
 }
