@@ -32,7 +32,7 @@ func (ms *MicroserviceServer) Logout(ctx context.Context, _ *emptypb.Empty) (*pk
 		return nil, err
 	}
 
-	err = ms.AuthenticationService.Logout("userId", accessToken)
+	err = ms.AuthenticationService.Logout("", accessToken)
 	if err != nil {
 		return nil, err
 	}
