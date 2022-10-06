@@ -6,8 +6,11 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (ms *MicroserviceServer) SignIn(_ context.Context, req *pkg.SignInRequest) (*pkg.SignInResponse, error) {
-	user := entities.User{Email: req.Email, Password: req.Password}
+func (ms *MicroserviceServer) SignIn(_ context.Context, request *pkg.SignInRequest) (*pkg.SignInResponse, error) {
+	if err := request.Validate(); err != nil {
+		return nil, err
+	}
+	user := entities.User{Email: request.Email, Password: request.Password}
 	token, err := ms.AuthenticationService.SignIn(user)
 	if err != nil {
 		return nil, err

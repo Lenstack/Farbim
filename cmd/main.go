@@ -21,6 +21,7 @@ func main() {
 		JwtExpirationToken       = viper.Get("JWT_EXPIRATION_TOKEN").(string)
 		JwtExpirationRefresh     = viper.Get("JWT_EXPIRATION_REFRESH").(string)
 		JwtSecret                = viper.Get("JWT_SECRET").(string)
+		ApiVersion               = viper.Get("API_VERSION").(string)
 		ApiPort                  = viper.Get("API_PORT").(string)
 		RedisHost                = viper.Get("REDIS_HOST").(string)
 		RedisPort                = viper.Get("REDIS_PORT").(string)
@@ -57,5 +58,5 @@ func main() {
 		infrastructure.NewGrpcServer(GrpcPort, *microservices)
 	}()
 
-	infrastructure.NewHttpServer(ApiPort, *microservices)
+	infrastructure.NewHttpServer(ApiVersion, ApiPort, *microservices)
 }

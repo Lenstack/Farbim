@@ -7,6 +7,9 @@ import (
 )
 
 func (ms *MicroserviceServer) SignUp(_ context.Context, request *pkg.SignUpRequest) (*pkg.SignUpResponse, error) {
+	if err := request.Validate(); err != nil {
+		return nil, err
+	}
 	user := entities.User{Email: request.Email, Password: request.Password}
 	err := ms.AuthenticationService.SignUp(user)
 	if err != nil {

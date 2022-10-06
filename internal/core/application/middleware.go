@@ -3,7 +3,6 @@ package application
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"golang.org/x/net/context"
@@ -20,8 +19,9 @@ type IMiddlewareApplication interface {
 	GrpcUnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)
 	GrpcStreamInterceptor(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error
 	HttpInterceptor() runtime.ServeMuxOption
-	CorsInterceptor(mux *runtime.ServeMux) http.Handler
-	isAuthorized(ctx context.Context, method string) (err error)
+	HttpErrorInterceptor() runtime.ServeMuxOption
+	AuthorizationHttpInterceptor(serverMux *runtime.ServeMux) http.HandlerFunc
+	isAuthorized(ctx context.Context, method string, interceptorType string, request *http.Request) (err error)
 	isAccessibleRoles() map[string][]string
 }
 
@@ -38,12 +38,7 @@ var (
 	HTTP = "HTTP"
 )
 
-func (ma *MiddlewareApplication) GrpcUnaryInterceptor(
-	ctx context.Context,
-	req interface{},
-	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler,
-) (interface{}, error) {
+func (ma *MiddlewareApplication) GrpcUnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	log.Println("--> unary interceptor: ", info.FullMethod)
 	err := ma.isAuthorized(ctx, info.FullMethod, GRPC, nil)
 	if err != nil {
@@ -52,12 +47,7 @@ func (ma *MiddlewareApplication) GrpcUnaryInterceptor(
 	return handler(ctx, req)
 }
 
-func (ma *MiddlewareApplication) GrpcStreamInterceptor(
-	srv interface{},
-	stream grpc.ServerStream,
-	info *grpc.StreamServerInfo,
-	handler grpc.StreamHandler,
-) error {
+func (ma *MiddlewareApplication) GrpcStreamInterceptor(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	log.Println("--> stream interceptor: ", info.FullMethod)
 	err := ma.isAuthorized(stream.Context(), info.FullMethod, GRPC, nil)
 	if err != nil {
@@ -71,15 +61,16 @@ func (ma *MiddlewareApplication) HttpInterceptor() runtime.ServeMuxOption {
 		log.Println("--> http interceptor: ", req.URL, req.Method)
 
 		md := make(map[string]string)
+		md["authorization"] = req.Header.Get("Authorization")
 		if method, ok := runtime.RPCMethod(ctx); ok {
 			md["method"] = method
 		}
 		if pattern, ok := runtime.HTTPPathPattern(ctx); ok {
 			md["pattern"] = pattern
 		}
-
-		return nil
+		return metadata.New(md)
 	})
+
 	return httpServerOptions
 }
 
@@ -88,7 +79,7 @@ func (ma *MiddlewareApplication) HttpErrorInterceptor() runtime.ServeMuxOption {
 		func(ctx context.Context, mux *runtime.ServeMux, marshaler runtime.Marshaler, writer http.ResponseWriter, request *http.Request, err error) {
 			log.Println("--> http-error interceptor: ", request.URL, request.Method)
 
-			writer.Header().Add("Content-Type", "application-json")
+			writer.Header().Add("Content-Type", "application/json")
 			writer.WriteHeader(http.StatusBadRequest)
 			_ = marshaler.NewEncoder(writer).Encode(utils.ResponseError{Code: http.StatusBadRequest, Errors: err.Error()})
 		})
@@ -160,7 +151,6 @@ func (ma *MiddlewareApplication) isAuthorized(ctx context.Context, method string
 			cleanListRoles := strings.Split(roles.(string), ",")
 			for _, role := range cleanListRoles {
 				if accessibleRole == role {
-					fmt.Printf(accessibleRole)
 					return nil
 				}
 			}
@@ -175,21 +165,27 @@ func (ma *MiddlewareApplication) isAuthorized(ctx context.Context, method string
 }
 
 func (ma *MiddlewareApplication) isAccessibleRoles() map[string][]string {
+	const httpPath = "/v1/"
 	const servicePath = "/microservice.Microservice/"
+	const serviceReflectionPath = "/grpc.reflection.v1alpha.ServerReflection/ServerReflectionInfo"
+
 	return map[string][]string{
-		servicePath + "SignUp":             {"Admin"},
-		servicePath + "SignIn":             {},
-		servicePath + "Logout":             {"Admin"},
-		servicePath + "VerifyAccount":      {"Admin"},
-		servicePath + "DisableAccount":     {"Admin"},
-		servicePath + "GetUsers":           {"Admin"},
-		servicePath + "GetUser":            {"Admin"},
-		servicePath + "UpdateUserPassword": {"Admin"},
-		servicePath + "DeleteUser":         {"Admin"},
-		servicePath + "UpdateProfile":      {"Admin"},
-		servicePath + "CreateFarm":         {"Admin"},
-		servicePath + "CreateCategory":     {"Admin"},
-		servicePath + "GetCategories":      {"Admin"},
-		servicePath + "GetCategory":        {"Admin"},
+		serviceReflectionPath:               {},
+		servicePath + "SignUp":              {"Admin"},
+		servicePath + "SignIn":              {},
+		servicePath + "Logout":              {"Admin"},
+		servicePath + "VerifyAccount":       {"Admin"},
+		servicePath + "DisableAccount":      {"Admin"},
+		servicePath + "GetUsers":            {},
+		servicePath + "GetUser":             {"Admin"},
+		servicePath + "UpdateUserPassword":  {"Admin"},
+		servicePath + "DeleteUser":          {"Admin"},
+		servicePath + "UpdateProfile":       {"Admin"},
+		servicePath + "CreateFarm":          {"Admin"},
+		servicePath + "CreateCategory":      {"Admin"},
+		servicePath + "GetCategories":       {"Admin"},
+		servicePath + "GetCategory":         {"Admin"},
+		httpPath + "user":                   {},
+		httpPath + "authentication/sign_up": {},
 	}
 }
