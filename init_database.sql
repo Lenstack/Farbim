@@ -1,19 +1,35 @@
-CREATE TABLE IF NOT EXISTS users
+CREATE TABLE IF NOT EXISTS _permissions
 (
-    Id                     TEXT PRIMARY KEY,
-    Email                  TEXT UNIQUE NOT NULL,
-    Password               TEXT        NOT NULL,
-    AccessToken            TEXT,
-    RefreshToken           TEXT,
-    Verified               BOOLEAN   DEFAULT FALSE,
-    LastResetSentAt        TEXT,
-    LastVerificationSentAt TEXT,
-    Roles                  TEXT,
-    CreatedAt              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt              TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    Id        TEXT PRIMARY KEY,
+    Service   TEXT,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS profiles
+CREATE TABLE IF NOT EXISTS _roles
+(
+    Id            TEXT PRIMARY KEY,
+    Name          TEXT,
+    PermissionsId TEXT,
+    CreatedAt     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS _users
+(
+    Id              TEXT PRIMARY KEY,
+    Email           TEXT UNIQUE NOT NULL,
+    Password        TEXT        NOT NULL,
+    TokenKey        TEXT,
+    Verified        BOOLEAN   DEFAULT FALSE,
+    RolesId         TEXT,
+    Code            TEXT,
+    LastResetSentAt TEXT,
+    CreatedAt       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS _profiles
 (
     Id        TEXT PRIMARY KEY,
     Name      TEXT,
@@ -21,104 +37,27 @@ CREATE TABLE IF NOT EXISTS profiles
     UserId    TEXT UNIQUE NOT NULL,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_profiles_users FOREIGN KEY (UserId) REFERENCES users (Id) ON DELETE CASCADE
+    CONSTRAINT fk_profiles_users FOREIGN KEY (UserId) REFERENCES _users (Id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS roles
+CREATE TABLE IF NOT EXISTS _sessions
+(
+    Id           TEXT PRIMARY KEY,
+    Type         TEXT,
+    Token        TEXT,
+    Blocked      BOOLEAN   DEFAULT FALSE,
+    ClientOrigin TEXT,
+    ExpiredAt    TEXT,
+    UserId       TEXT,
+    CreatedAt    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS _settings
 (
     Id        TEXT PRIMARY KEY,
-    Name      TEXT,
+    Key       TEXT,
+    Value     JSON,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-CREATE TABLE IF NOT EXISTS permissions
-(
-    Id        TEXT PRIMARY KEY,
-    Name      TEXT,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS categories
-(
-    Id        TEXT PRIMARY KEY,
-    Name      TEXT NOT NULL,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS farms
-(
-    Id         TEXT PRIMARY KEY,
-    Name       TEXT        NOT NULL,
-    CategoryId TEXT UNIQUE NOT NULL,
-    UserId     TEXT UNIQUE NOT NULL,
-    CreatedAt  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_farms_users FOREIGN KEY (UserId) REFERENCES users (Id),
-    CONSTRAINT fk_farms_categories FOREIGN KEY (CategoryId) REFERENCES categories (Id)
-);
-
-CREATE TABLE IF NOT EXISTS purchases
-(
-    Id          TEXT PRIMARY KEY,
-    Name        TEXT        NOT NULL,
-    Description TEXT,
-    Quantity    INTEGER,
-    Attachment  TEXT,
-    FarmId      TEXT UNIQUE NOT NULL,
-    CreatedAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_purchases_farms FOREIGN KEY (FarmId) REFERENCES farms (Id)
-);
-
-CREATE TABLE IF NOT EXISTS orders
-(
-    Id        TEXT PRIMARY KEY,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS customers
-(
-    Id        TEXT PRIMARY KEY,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS products
-(
-    Id        TEXT PRIMARY KEY,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS sales
-(
-    Id        TEXT PRIMARY KEY,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS locations
-(
-    Id        TEXT PRIMARY KEY,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS providers
-(
-    Id        TEXT PRIMARY KEY,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS activities
-(
-    Id        TEXT PRIMARY KEY,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
