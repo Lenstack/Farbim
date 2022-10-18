@@ -16,14 +16,14 @@
     "application/json"
   ],
   "paths": {
-    "/v1/activate/{Id}": {
+    "/v1/authentication/logout": {
       "post": {
-        "operationId": "Microservice_VerifyAccount",
+        "operationId": "Microservice_Logout",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/microserviceVerifyAccountResponse"
+              "$ref": "#/definitions/microserviceLogoutResponse"
             }
           },
           "default": {
@@ -35,10 +35,12 @@
         },
         "parameters": [
           {
-            "name": "Id",
-            "in": "path",
+            "name": "body",
+            "in": "body",
             "required": true,
-            "type": "string"
+            "schema": {
+              "$ref": "#/definitions/microserviceLogoutRequest"
+            }
           }
         ],
         "tags": [
@@ -46,14 +48,55 @@
         ]
       }
     },
-    "/v1/authentication/logout": {
+    "/v1/authentication/permission": {
       "post": {
-        "operationId": "Microservice_Logout",
+        "operationId": "Microservice_CreatePermission",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/microserviceLogoutResponse"
+              "$ref": "#/definitions/microserviceCreatePermissionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/microserviceCreatePermissionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Microservice"
+        ]
+      }
+    },
+    "/v1/authentication/refresh_token": {
+      "post": {
+        "operationId": "Microservice_RefreshToken",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/microserviceRefreshTokenResponse"
+                },
+                "error": {
+                  "$ref": "#/definitions/rpcStatus"
+                }
+              },
+              "title": "Stream result of microserviceRefreshTokenResponse"
             }
           },
           "default": {
@@ -79,9 +122,72 @@
         ]
       }
     },
+    "/v1/authentication/reset_password": {
+      "post": {
+        "operationId": "Microservice_ResetPassword",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/microserviceResetPasswordResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/microserviceResetPasswordRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Microservice"
+        ]
+      }
+    },
+    "/v1/authentication/role": {
+      "post": {
+        "operationId": "Microservice_CreateRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/microserviceCreateRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/microserviceCreateRoleRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Microservice"
+        ]
+      }
+    },
     "/v1/authentication/sign_in": {
       "post": {
-        "summary": "Authentication rpc endpoints",
         "operationId": "Microservice_SignIn",
         "responses": {
           "200": {
@@ -144,35 +250,14 @@
         ]
       }
     },
-    "/v1/category": {
-      "get": {
-        "operationId": "Microservice_GetCategories",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/microserviceGetCategoriesResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "tags": [
-          "Microservice"
-        ]
-      },
+    "/v1/authentication/verify_email": {
       "post": {
-        "summary": "Category rpc endpoints",
-        "operationId": "Microservice_CreateCategory",
+        "operationId": "Microservice_VerifyEmail",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/microserviceCreateCategoryResponse"
+              "$ref": "#/definitions/microserviceVerifyEmailResponse"
             }
           },
           "default": {
@@ -188,272 +273,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/microserviceCreateCategoryRequest"
-            }
-          }
-        ],
-        "tags": [
-          "Microservice"
-        ]
-      }
-    },
-    "/v1/category/{Id}": {
-      "get": {
-        "operationId": "Microservice_GetCategory",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/microserviceGetCategoryResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "Microservice"
-        ]
-      }
-    },
-    "/v1/disable/{Id}": {
-      "post": {
-        "operationId": "Microservice_DisableAccount",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/microserviceDisableAccountResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "Microservice"
-        ]
-      }
-    },
-    "/v1/farm": {
-      "post": {
-        "summary": "Farm rpc endpoints",
-        "operationId": "Microservice_CreateFarm",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/microserviceCreateFarmResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/microserviceCreateFarmRequest"
-            }
-          }
-        ],
-        "tags": [
-          "Microservice"
-        ]
-      }
-    },
-    "/v1/profile/{Id}": {
-      "put": {
-        "summary": "Profile rpc endpoints",
-        "operationId": "Microservice_UpdateProfile",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/microserviceUpdateProfileResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "Name": {
-                  "type": "string"
-                },
-                "Avatar": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "tags": [
-          "Microservice"
-        ]
-      }
-    },
-    "/v1/user": {
-      "get": {
-        "summary": "User rpc endpoints",
-        "operationId": "Microservice_GetUsers",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/microserviceGetUsersResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "tags": [
-          "Microservice"
-        ]
-      }
-    },
-    "/v1/user/{Id}": {
-      "get": {
-        "operationId": "Microservice_GetUser",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/microserviceGetUserResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "Microservice"
-        ]
-      },
-      "delete": {
-        "operationId": "Microservice_DeleteUser",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/microserviceDeleteUserResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "Microservice"
-        ]
-      },
-      "put": {
-        "operationId": "Microservice_UpdateUserPassword",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/microserviceUpdateUserPasswordResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "OldPassword": {
-                  "type": "string"
-                },
-                "NewPassword": {
-                  "type": "string"
-                }
-              }
+              "$ref": "#/definitions/microserviceVerifyEmailRequest"
             }
           }
         ],
@@ -464,32 +284,54 @@
     }
   },
   "definitions": {
-    "microserviceCreateCategoryRequest": {
+    "microserviceCreatePermissionRequest": {
       "type": "object",
       "properties": {
-        "Name": {
+        "ServiceName": {
           "type": "string"
         }
       }
     },
-    "microserviceCreateCategoryResponse": {
+    "microserviceCreatePermissionResponse": {
       "type": "object",
       "properties": {
         "Message": {
           "type": "string"
+        },
+        "PermissionId": {
+          "type": "string"
         }
       }
     },
-    "microserviceCreateFarmRequest": {
+    "microserviceCreateRoleRequest": {
       "type": "object",
       "properties": {
-        "Id": {
-          "type": "string"
-        },
         "Name": {
           "type": "string"
         },
-        "CategoryId": {
+        "PermissionsId": {
+          "type": "string"
+        }
+      }
+    },
+    "microserviceCreateRoleResponse": {
+      "type": "object",
+      "properties": {
+        "Message": {
+          "type": "string"
+        },
+        "RoleId": {
+          "type": "string"
+        }
+      }
+    },
+    "microserviceLogoutRequest": {
+      "type": "object"
+    },
+    "microserviceLogoutResponse": {
+      "type": "object",
+      "properties": {
+        "Message": {
           "type": "string"
         },
         "UserId": {
@@ -497,133 +339,23 @@
         }
       }
     },
-    "microserviceCreateFarmResponse": {
+    "microserviceRefreshTokenResponse": {
       "type": "object",
       "properties": {
-        "Message": {
-          "type": "string"
-        }
-      }
-    },
-    "microserviceDeleteUserResponse": {
-      "type": "object",
-      "properties": {
-        "Message": {
-          "type": "string"
-        }
-      }
-    },
-    "microserviceDisableAccountResponse": {
-      "type": "object",
-      "properties": {
-        "Message": {
-          "type": "string"
-        }
-      }
-    },
-    "microserviceGetCategoriesResponse": {
-      "type": "object",
-      "properties": {
-        "Page": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "PerPage": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "Total": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "Categories": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/microserviceGetCategoryResponse"
-          }
-        }
-      }
-    },
-    "microserviceGetCategoryResponse": {
-      "type": "object",
-      "properties": {
-        "Id": {
-          "type": "string"
-        },
-        "Name": {
-          "type": "string"
-        },
-        "CreatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "UpdatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "microserviceGetUserResponse": {
-      "type": "object",
-      "properties": {
-        "Id": {
-          "type": "string"
-        },
-        "Email": {
-          "type": "string"
-        },
-        "Password": {
-          "type": "string"
-        },
-        "AccessToken": {
-          "type": "string"
-        },
         "RefreshToken": {
           "type": "string"
-        },
-        "LastResetSentAt": {
-          "type": "string"
-        },
-        "LastVerificationSentAt": {
-          "type": "string"
-        },
-        "Verified": {
-          "type": "boolean"
-        },
-        "CreatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "UpdatedAt": {
-          "type": "string",
-          "format": "date-time"
         }
       }
     },
-    "microserviceGetUsersResponse": {
+    "microserviceResetPasswordRequest": {
       "type": "object",
       "properties": {
-        "Page": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "PerPage": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "Total": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "Users": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/microserviceGetUserResponse"
-          }
+        "Token": {
+          "type": "string"
         }
       }
     },
-    "microserviceLogoutResponse": {
+    "microserviceResetPasswordResponse": {
       "type": "object",
       "properties": {
         "Message": {
@@ -645,7 +377,7 @@
     "microserviceSignInResponse": {
       "type": "object",
       "properties": {
-        "Token": {
+        "AccessToken": {
           "type": "string"
         }
       }
@@ -666,26 +398,21 @@
       "properties": {
         "Message": {
           "type": "string"
-        }
-      }
-    },
-    "microserviceUpdateProfileResponse": {
-      "type": "object",
-      "properties": {
-        "Message": {
+        },
+        "UserId": {
           "type": "string"
         }
       }
     },
-    "microserviceUpdateUserPasswordResponse": {
+    "microserviceVerifyEmailRequest": {
       "type": "object",
       "properties": {
-        "Message": {
+        "Token": {
           "type": "string"
         }
       }
     },
-    "microserviceVerifyAccountResponse": {
+    "microserviceVerifyEmailResponse": {
       "type": "object",
       "properties": {
         "Message": {

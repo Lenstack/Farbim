@@ -3,6 +3,7 @@ package application
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"golang.org/x/net/context"
@@ -143,19 +144,12 @@ func (ma *MiddlewareApplication) isAuthorized(ctx context.Context, method string
 		return err
 	}
 
-	subClaims := claims["sub"].(map[string]interface{})
-	listRoles := subClaims["Roles"].([]interface{})
-
-	for _, accessibleRole := range accessibleRoles {
-		for _, roles := range listRoles {
-			cleanListRoles := strings.Split(roles.(string), ",")
-			for _, role := range cleanListRoles {
-				if accessibleRole == role {
-					return nil
-				}
-			}
-		}
+	userIdByClaims, err := ma.jwtManager.GetSubClaims(claims)
+	if err != nil {
+		return err
 	}
+
+	fmt.Println(userIdByClaims)
 
 	if interceptorType == HTTP {
 		return errors.New("no permission to access this Method")
@@ -170,22 +164,12 @@ func (ma *MiddlewareApplication) isAccessibleRoles() map[string][]string {
 	const serviceReflectionPath = "/grpc.reflection.v1alpha.ServerReflection/ServerReflectionInfo"
 
 	return map[string][]string{
-		serviceReflectionPath:               {},
-		servicePath + "SignUp":              {"Admin"},
-		servicePath + "SignIn":              {},
-		servicePath + "Logout":              {"Admin"},
-		servicePath + "VerifyAccount":       {"Admin"},
-		servicePath + "DisableAccount":      {"Admin"},
-		servicePath + "GetUsers":            {},
-		servicePath + "GetUser":             {"Admin"},
-		servicePath + "UpdateUserPassword":  {"Admin"},
-		servicePath + "DeleteUser":          {"Admin"},
-		servicePath + "UpdateProfile":       {"Admin"},
-		servicePath + "CreateFarm":          {"Admin"},
-		servicePath + "CreateCategory":      {"Admin"},
-		servicePath + "GetCategories":       {"Admin"},
-		servicePath + "GetCategory":         {"Admin"},
-		httpPath + "user":                   {},
-		httpPath + "authentication/sign_up": {},
+		serviceReflectionPath:            {},
+		servicePath + "SignUp":           {},
+		servicePath + "SignIn":           {},
+		servicePath + "Logout":           {},
+		servicePath + "CreatePermission": {},
+		servicePath + "CreateRole":       {},
+		servicePath + "VerifyEmail":      {},
 	}
 }

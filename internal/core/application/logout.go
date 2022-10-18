@@ -5,11 +5,10 @@ import (
 	"github.com/Lenstack/farm_management/pkg"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"strings"
 )
 
-func (ms *MicroserviceServer) Logout(ctx context.Context, _ *emptypb.Empty) (*pkg.LogoutResponse, error) {
+func (ms *MicroserviceServer) Logout(ctx context.Context, _ *pkg.LogoutRequest) (*pkg.LogoutResponse, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return nil, errors.New("missing metadata")
@@ -22,17 +21,7 @@ func (ms *MicroserviceServer) Logout(ctx context.Context, _ *emptypb.Empty) (*pk
 
 	headerToken := strings.Join(values, "")
 
-	accessToken, err := ms.AuthenticationService.TokenManager.ExtractJwtToken(headerToken)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = ms.AuthenticationService.TokenManager.VerifyJwtToken(accessToken)
-	if err != nil {
-		return nil, err
-	}
-
-	err = ms.AuthenticationService.Logout("", accessToken)
+	_, err := ms.AuthenticationService.Logout(headerToken)
 	if err != nil {
 		return nil, err
 	}

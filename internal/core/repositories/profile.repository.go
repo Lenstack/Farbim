@@ -6,24 +6,23 @@ import (
 )
 
 type IProfileRepository interface {
-	UpdateProfile(userId string, newProfile entities.Profile) (userIdAffected string, err error)
+	CreateProfile(profile entities.Profile) (profileId string, err error)
 }
 
 type ProfileRepository struct {
 	Database squirrel.StatementBuilderType
 }
 
-func (pr *ProfileRepository) UpdateProfile(userId string, newProfile entities.Profile) (userIdAffected string, err error) {
-	userMap := map[string]interface{}{"name": newProfile.Name, "avatar": newProfile.Avatar}
+func (pr *ProfileRepository) CreateProfile(profile entities.Profile) (profileId string, err error) {
 	bq := pr.Database.
-		Update(entities.ProfileTableName).
-		SetMap(userMap).
-		Where(squirrel.Eq{"userid": userId}).
-		Suffix("RETURNING id")
+		Insert(entities.ProfileTableName).
+		Columns("Id", "Name", "UserId", "Avatar").
+		Values(profile.Id, profile.Name, profile.UserId, profile.Avatar).
+		Suffix("RETURNING Id")
 
-	err = bq.QueryRow().Scan(&userIdAffected)
+	err = bq.QueryRow().Scan(&profileId)
 	if err != nil {
 		return "", err
 	}
-	return userIdAffected, nil
+	return profileId, nil
 }

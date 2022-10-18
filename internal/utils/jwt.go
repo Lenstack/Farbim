@@ -1,53 +1,45 @@
 package utils
 
 import (
+	"encoding/json"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/google/uuid"
 	"strconv"
 	"strings"
 	"time"
 )
 
 type IJwtManager interface {
-	GenerateJwtAccessToken(payload interface{}) (accessToken string, err error)
-	GenerateJwtRefreshToken(payload interface{}) (refreshToken string, err error)
-	VerifyJwtToken(accessToken string) (claims string, err error)
+	GenerateJwtAccessToken(userId string) (accessToken string, err error)
+	GenerateJwtRefreshToken(userId string) (refreshToken string, err error)
+	VerifyJwtToken(accessToken string) (claims jwt.MapClaims, err error)
 	ExtractJwtToken(headerToken string) (clearedToken string, err error)
+	GetSubClaims(claims jwt.MapClaims) (userId string, err error)
 }
 
 type JwtManager struct {
-	expirationToken   string
+	expirationAccess  string
 	expirationRefresh string
 	secretKey         string
 }
 
-type PayloadClaims struct {
-	Id    string
-	Roles []string
+func NewJwtManager(expirationAccess string, expirationRefresh string, secretKey string) *JwtManager {
+	return &JwtManager{expirationAccess: expirationAccess, expirationRefresh: expirationRefresh, secretKey: secretKey}
 }
 
-func NewJwtManager(expirationToken string, expirationRefresh string, secretKey string) *JwtManager {
-	return &JwtManager{expirationToken: expirationToken, expirationRefresh: expirationRefresh, secretKey: secretKey}
-}
-
-func (jm *JwtManager) GenerateJwtAccessToken(payload PayloadClaims) (accessToken string, err error) {
-	expirationAccessToken, _ := strconv.Atoi(jm.expirationToken)
+func (jm *JwtManager) GenerateJwtAccessToken(userId string, expiration string) (accessToken string, err error) {
+	expirationAccessToken, _ := strconv.Atoi(expiration)
 	claims := jwt.MapClaims{
-		"uuid": uuid.New().String(),
-		"type": "access",
-		"exp":  time.Now().Add(time.Minute * time.Duration(expirationAccessToken)).Unix(),
-		"sub":  payload,
+		"exp": time.Now().Add(time.Minute * time.Duration(expirationAccessToken)).Unix(),
+		"sub": userId,
 	}
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(jm.secretKey))
 }
 
-func (jm *JwtManager) GenerateJwtRefreshToken(payload PayloadClaims) (refreshToken string, err error) {
-	expirationRefreshToken, _ := strconv.Atoi(jm.expirationRefresh)
+func (jm *JwtManager) GenerateJwtRefreshToken(userId string, expiration string) (refreshToken string, err error) {
+	expirationRefreshToken, _ := strconv.Atoi(expiration)
 	claims := jwt.MapClaims{
-		"uuid": uuid.New().String(),
-		"type": "refresh",
-		"exp":  time.Now().Add(time.Hour * 24 * time.Duration(expirationRefreshToken)).Unix(),
-		"sub":  payload,
+		"exp": time.Now().Add(time.Hour * 24 * time.Duration(expirationRefreshToken)).Unix(),
+		"sub": userId,
 	}
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(jm.secretKey))
 }
@@ -77,4 +69,17 @@ func (jm *JwtManager) ExtractJwtToken(headerToken string) (clearedToken string, 
 		return "", TokenWithout
 	}
 	return spaceToken, nil
+}
+
+func (jm *JwtManager) GetSubClaims(claims jwt.MapClaims) (userId string, err error) {
+	marshalClaims, err := json.Marshal(claims["sub"])
+	if err != nil {
+		return "", err
+	}
+
+	err = json.Unmarshal(marshalClaims, &userId)
+	if err != nil {
+		return "", err
+	}
+	return userId, nil
 }
