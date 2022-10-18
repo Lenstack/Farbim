@@ -1,19 +1,19 @@
 package application
 
 import (
-	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Lenstack/farm_management/pkg"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/peer"
 )
 
-func (ms *MicroserviceServer) SignIn(_ context.Context, request *pkg.SignInRequest) (*pkg.SignInResponse, error) {
+func (ms *MicroserviceServer) SignIn(ctx context.Context, request *pkg.SignInRequest) (*pkg.SignInResponse, error) {
 	if err := request.Validate(); err != nil {
 		return nil, err
 	}
-	user := entities.User{Email: request.Email, Password: request.Password}
-	token, err := ms.AuthenticationService.SignIn(user)
+	p, _ := peer.FromContext(ctx)
+	accessToken, err := ms.AuthenticationService.SignIn(request.Email, request.Password, p.Addr.Network()+p.Addr.String())
 	if err != nil {
 		return nil, err
 	}
-	return &pkg.SignInResponse{Token: token}, nil
+	return &pkg.SignInResponse{AccessToken: accessToken}, nil
 }

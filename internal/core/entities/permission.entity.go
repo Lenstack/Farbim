@@ -2,11 +2,11 @@ package entities
 
 import "time"
 
-const CategoryTableName = "categories"
+const PermissionTableName = "_permissions"
 
-type Category struct {
+type Permission struct {
 	Id        string
-	Name      string
+	Service   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

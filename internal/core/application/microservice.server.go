@@ -9,27 +9,20 @@ type MicroserviceServer struct {
 	desc.UnimplementedMicroserviceServer
 	MiddlewareApplication MiddlewareApplication
 	AuthenticationService services.AuthenticationService
-	UserService           services.UserService
-	ProfileService        services.ProfileService
-	FarmService           services.FarmService
-	CategoryService       services.CategoryService
+	RoleService           services.RoleService
+	PermissionService     services.PermissionService
 }
 
 func NewMicroserviceServer(
 	MiddlewareApplication MiddlewareApplication,
 	AuthenticationService services.AuthenticationService,
-	UserService services.UserService,
-	ProfileService services.ProfileService,
-	FarmService services.FarmService,
-	CategoryService services.CategoryService,
-
+	RoleService services.RoleService,
+	PermissionService services.PermissionService,
 ) *MicroserviceServer {
 	return &MicroserviceServer{
 		MiddlewareApplication: MiddlewareApplication,
 		AuthenticationService: AuthenticationService,
-		UserService:           UserService,
-		ProfileService:        ProfileService,
-		FarmService:           FarmService,
-		CategoryService:       CategoryService,
+		RoleService:           RoleService,
+		PermissionService:     PermissionService,
 	}
 }

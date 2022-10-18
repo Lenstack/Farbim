@@ -18,7 +18,7 @@ func main() {
 		PostgresDatabaseName     = viper.Get("POSTGRES_DATABASE_NAME").(string)
 		PostgresDatabaseUser     = viper.Get("POSTGRES_DATABASE_USER").(string)
 		PostgresDatabasePassword = viper.Get("POSTGRES_DATABASE_PASSWORD").(string)
-		JwtExpirationToken       = viper.Get("JWT_EXPIRATION_TOKEN").(string)
+		JwtExpirationAccess      = viper.Get("JWT_EXPIRATION_ACCESS").(string)
 		JwtExpirationRefresh     = viper.Get("JWT_EXPIRATION_REFRESH").(string)
 		JwtSecret                = viper.Get("JWT_SECRET").(string)
 		ApiVersion               = viper.Get("API_VERSION").(string)
@@ -26,6 +26,8 @@ func main() {
 		RedisHost                = viper.Get("REDIS_HOST").(string)
 		RedisPort                = viper.Get("REDIS_PORT").(string)
 		RedisPassword            = viper.Get("REDIS_PASSWORD").(string)
+		SmtpOriginEmail          = viper.Get("SMTP_ORIGIN_EMAIL").(string)
+		SmtpOriginPassword       = viper.Get("SMTP_ORIGIN_PASSWORD").(string)
 	)
 
 	postgres := infrastructure.NewPostgres(
@@ -33,25 +35,22 @@ func main() {
 		PostgresDatabaseUser, PostgresDatabasePassword,
 	)
 
-	redisManager := infrastructure.NewRedisManager(RedisHost, RedisPort, RedisPassword)
-	tokenManager := utils.NewJwtManager(JwtExpirationToken, JwtExpirationRefresh, JwtSecret)
+	_ = infrastructure.NewRedisManager(RedisHost, RedisPort, RedisPassword)
+	tokenManager := utils.NewJwtManager(JwtExpirationAccess, JwtExpirationRefresh, JwtSecret)
+	emailManager := utils.NewEmailManger(SmtpOriginEmail, SmtpOriginPassword)
 
 	//Register Services
-	userService := services.NewUserService(postgres.Database)
-	authenticationService := services.NewAuthenticationService(postgres.Database, *tokenManager, redisManager.Client)
-	profileService := services.NewProfileService(postgres.Database)
-	farmService := services.NewFarmService(postgres.Database)
-	categoryService := services.NewCategoryService(postgres.Database)
+	authenticationService := services.NewAuthenticationService(postgres.Database, *tokenManager, *emailManager)
+	permissionService := services.NewPermissionService(postgres.Database)
+	roleService := services.NewRoleService(postgres.Database)
 
 	middlewareApplication := application.NewMiddlewareApplication(*tokenManager)
 
 	microservices := application.NewMicroserviceServer(
 		*middlewareApplication,
 		*authenticationService,
-		*userService,
-		*profileService,
-		*farmService,
-		*categoryService,
+		*roleService,
+		*permissionService,
 	)
 
 	go func() {

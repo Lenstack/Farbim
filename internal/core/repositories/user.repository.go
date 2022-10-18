@@ -2,105 +2,49 @@ package repositories
 
 import (
 	"github.com/Lenstack/farm_management/internal/core/entities"
-	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
-	"strings"
 )
 
 type IUserRepository interface {
-	GetUsers() (users []entities.User, err error)
 	GetUserById(userId string) (user entities.User, err error)
-	GetUserPasswordByEmail(email string) (password string, err error)
-	GetUserPasswordById(userId string) (password string, err error)
+	GetUserByEmail(email string) (user entities.User, err error)
 	GetUserIdByEmail(email string) (userId string, err error)
-	GetUserVerifiedByEmail(email string) (verified bool, err error)
-	GetUserRolesById(userId string) (roles string, err error)
+	GetUserPasswordByEmail(email string) (password string, err error)
+	GetUserByTokenKey(TokenKey string) (userId string, err error)
 	CreateUser(user entities.User) (userId string, err error)
-	CreateProfile(userProfile entities.Profile) (err error)
-	UpdateUser(userId string, newUser entities.User) (user entities.User, err error)
-	UpdateUserAccessToken(userId string, accessToken string) (user entities.User, err error)
-	UpdateUserRefreshToken(userId string, refreshToken string) (user entities.User, err error)
-	UpdateUserPassword(userId string, newPassword string) (err error)
-	UpdateUserVerifiedAccountById(userId string) (affected string, err error)
-	UpdateUserDisableAccountById(userId string) (affected string, err error)
-	DestroyUser(userId string) (rowsAffected int64, err error)
+	UpdateVerifiedByUserId(id string, isVerified bool) (userId string, err error)
+	UpdateTokenKeyByUserId(id string) (userId string, err error)
 }
 
 type UserRepository struct {
-	Database      squirrel.StatementBuilderType
-	BcryptManager utils.BcryptManager
-}
-
-func (ur *UserRepository) GetUsers() (users []entities.User, err error) {
-	user := entities.User{}
-	bq := ur.Database.Select("Id", "Email",
-		"AccessToken", "RefreshToken", "LastResetSentAt", "LastVerificationSentAt",
-		"Verified", "CreatedAt", "UpdatedAt").From(entities.UserTableName)
-
-	rows, err := bq.Query()
-	if err != nil {
-		return nil, utils.ErrorManager(err)
-	}
-
-	for rows.Next() {
-		err := rows.Scan(&user.Id, &user.Email,
-			&user.AccessToken, &user.RefreshToken,
-			&user.LastResetSentAt, &user.LastVerificationSentAt,
-			&user.Verified, &user.CreatedAt, &user.UpdatedAt)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, user)
-	}
-
-	if len(users) == 0 {
-		return nil, utils.ItemWithout
-	}
-
-	return users, nil
+	Database squirrel.StatementBuilderType
 }
 
 func (ur *UserRepository) GetUserById(userId string) (user entities.User, err error) {
-	bq := ur.Database.Select("Id", "Email",
-		"AccessToken", "RefreshToken", "LastResetSentAt", "LastVerificationSentAt",
-		"Verified", "CreatedAt", "UpdatedAt").
+	bq := ur.Database.Select("Id", "Email", "Password", "Verified", "RolesId", "Code", "CreatedAt", "UpdatedAt").
 		From(entities.UserTableName).
 		Where(squirrel.Eq{"id": userId})
 
-	err = bq.QueryRow().Scan(&user.Id, &user.Email,
-		&user.AccessToken, &user.RefreshToken,
-		&user.LastResetSentAt, &user.LastVerificationSentAt,
-		&user.Verified, &user.CreatedAt, &user.UpdatedAt)
-
+	err = bq.QueryRow().Scan(&user.Id, &user.Email, &user.Password, &user.Verified,
+		&user.RolesId, &user.Code, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
-		return entities.User{}, utils.ErrorManager(err)
+		return entities.User{}, err
 	}
 	return user, nil
 }
 
-func (ur *UserRepository) GetUserPasswordByEmail(email string) (password string, err error) {
-	bq := ur.Database.Select("password").
+func (ur *UserRepository) GetUserByEmail(email string) (user entities.User, err error) {
+	bq := ur.Database.Select("Id", "Email", "Password", "Verified", "RolesId", "Code", "CreatedAt", "UpdatedAt").
 		From(entities.UserTableName).
 		Where(squirrel.Eq{"email": email})
 
-	err = bq.QueryRow().Scan(&password)
+	err = bq.QueryRow().Scan(&user.Id, &user.Email, &user.Password, &user.Verified,
+		&user.RolesId, &user.Code, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
-		return "", utils.AuthenticationIncorrect
+		return entities.User{}, err
 	}
-	return password, nil
-}
 
-func (ur *UserRepository) GetUserPasswordById(userId string) (password string, err error) {
-	bq := ur.Database.Select("password").
-		From(entities.UserTableName).
-		Where(squirrel.Eq{"id": userId})
-
-	err = bq.QueryRow().Scan(&password)
-	if err != nil {
-		return "", utils.AuthenticationIncorrect
-	}
-	return password, nil
+	return user, nil
 }
 
 func (ur *UserRepository) GetUserIdByEmail(email string) (userId string, err error) {
@@ -110,175 +54,74 @@ func (ur *UserRepository) GetUserIdByEmail(email string) (userId string, err err
 
 	err = bq.QueryRow().Scan(&userId)
 	if err != nil {
-		return "", utils.ErrorManager(err)
+		return "", err
 	}
 	return userId, nil
 }
 
-func (ur *UserRepository) GetUserVerifiedByEmail(email string) (verified bool, err error) {
-	bq := ur.Database.Select("Verified").
+func (ur *UserRepository) GetUserPasswordByEmail(email string) (password string, err error) {
+	bq := ur.Database.Select("Password").
 		From(entities.UserTableName).
 		Where(squirrel.Eq{"email": email})
 
-	err = bq.QueryRow().Scan(&verified)
+	err = bq.QueryRow().Scan(&password)
 	if err != nil {
-		return false, utils.ErrorManager(err)
+		return "", err
 	}
-	return verified, nil
+	return password, nil
 }
 
-func (ur *UserRepository) GetUserRolesById(userId string) (roles string, err error) {
-	bq := ur.Database.Select("Roles").
+func (ur *UserRepository) GetUserByTokenKey(TokenKey string) (userId string, err error) {
+	bq := ur.Database.Select("id").
 		From(entities.UserTableName).
-		Where(squirrel.Eq{"id": userId})
+		Where(squirrel.Eq{"tokenkey": TokenKey})
 
-	err = bq.QueryRow().Scan(&roles)
-
+	err = bq.QueryRow().Scan(&userId)
 	if err != nil {
-		return "", utils.ErrorManager(err)
+		return "", err
 	}
-	return roles, nil
+
+	return userId, nil
 }
 
 func (ur *UserRepository) CreateUser(user entities.User) (userId string, err error) {
-	user.Id = uuid.New().String()
-	user.Password = ur.BcryptManager.HashPassword(user.Password)
-	user.Roles = []string{"User", "Test"}
-
-	listRoles := strings.Join(user.Roles, ",")
-
 	bq := ur.Database.
 		Insert(entities.UserTableName).
-		Columns("Id", "Email", "Password",
-			"AccessToken", "RefreshToken",
-			"LastResetSentAt", "LastVerificationSentAt",
-			"Verified", "Roles").
-		Values(user.Id, user.Email, user.Password,
-			user.AccessToken, user.RefreshToken,
-			user.LastResetSentAt, user.LastVerificationSentAt,
-			user.Verified, listRoles).
+		Columns("Id", "Email", "Password", "TokenKey", "RolesId", "LastResetSentAt").
+		Values(user.Id, user.Email, user.Password, user.TokenKey, user.RolesId, user.LastResetSentAt).
 		Suffix("RETURNING Id")
 
 	err = bq.QueryRow().Scan(&userId)
 	if err != nil {
-		return "", utils.ErrorManager(err)
+		return "", err
 	}
-
 	return userId, nil
 }
 
-func (ur *UserRepository) CreateProfile(userProfile entities.Profile) (userId string, err error) {
-	userProfile.Id = uuid.New().String()
+func (ur *UserRepository) UpdateVerifiedByUserId(id string, isVerified bool) (userId string, err error) {
 	bq := ur.Database.
-		Insert(entities.ProfileTableName).
-		Columns("Id", "Name", "Avatar", "UserId").
-		Values(userProfile.Id, userProfile.Name, userProfile.Avatar, userProfile.UserId).
+		Update(entities.UserTableName).
+		Set("verified", isVerified).
+		Where(squirrel.Eq{"id": id}).
 		Suffix("RETURNING Id")
 
 	err = bq.QueryRow().Scan(&userId)
 	if err != nil {
-		return "", utils.ErrorManager(err)
+		return "", err
 	}
-
 	return userId, nil
 }
 
-func (ur *UserRepository) UpdateUser(userId string, newUser entities.User) (user entities.User, err error) {
-	userMap := map[string]interface{}{"email": newUser.Email, "password": ur.BcryptManager.HashPassword(newUser.Password)}
+func (ur *UserRepository) UpdateTokenKeyByUserId(id string) (userId string, err error) {
 	bq := ur.Database.
 		Update(entities.UserTableName).
-		SetMap(userMap).
-		Where(squirrel.Eq{"id": userId}).
+		Set("tokenkey", nil).
+		Where(squirrel.Eq{"id": id}).
 		Suffix("RETURNING Id")
 
-	err = bq.QueryRow().Scan(&user.Id)
-	if err != nil {
-		return entities.User{}, utils.ErrorManager(err)
-	}
-
-	return user, nil
-}
-
-func (ur *UserRepository) UpdateUserAccessToken(userId string, accessToken string) (user entities.User, err error) {
-	userMap := map[string]interface{}{"accessToken": accessToken}
-	bq := ur.Database.
-		Update(entities.UserTableName).
-		SetMap(userMap).
-		Where(squirrel.Eq{"id": userId}).
-		Suffix("RETURNING Id")
-
-	err = bq.QueryRow().Scan(&user.Id)
-	if err != nil {
-		return entities.User{}, utils.ErrorManager(err)
-	}
-	return user, nil
-}
-
-func (ur *UserRepository) UpdateUserRefreshToken(userId string, refreshToken string) (user entities.User, err error) {
-	userMap := map[string]interface{}{"refreshToken": refreshToken}
-	bq := ur.Database.
-		Update(entities.UserTableName).
-		SetMap(userMap).
-		Where(squirrel.Eq{"id": userId}).
-		Suffix("RETURNING Id")
-
-	err = bq.QueryRow().Scan(&user.Id)
-	if err != nil {
-		return entities.User{}, utils.ErrorManager(err)
-	}
-	return user, nil
-}
-
-func (ur *UserRepository) UpdateUserPassword(userId string, newPassword string) (userIdAffected string, err error) {
-	userMap := map[string]interface{}{"password": newPassword}
-	bq := ur.Database.
-		Update(entities.UserTableName).
-		SetMap(userMap).
-		Where(squirrel.Eq{"id": userId}).
-		Suffix("RETURNING Id")
-
-	err = bq.QueryRow().Scan(&userIdAffected)
+	err = bq.QueryRow().Scan(&userId)
 	if err != nil {
 		return "", err
 	}
-	return userIdAffected, nil
-}
-
-func (ur *UserRepository) UpdateUserVerifiedAccountById(userId string) (affected string, err error) {
-	userMap := map[string]interface{}{"verified": true}
-	bq := ur.Database.
-		Update(entities.UserTableName).
-		SetMap(userMap).
-		Where(squirrel.Eq{"id": userId}).
-		Suffix("RETURNING Id")
-
-	err = bq.QueryRow().Scan(&affected)
-	if err != nil {
-		return "", err
-	}
-	return affected, nil
-}
-
-func (ur *UserRepository) UpdateUserDisableAccountById(userId string) (affected string, err error) {
-	userMap := map[string]interface{}{"verified": false}
-	bq := ur.Database.
-		Update(entities.UserTableName).
-		SetMap(userMap).
-		Where(squirrel.Eq{"id": userId}).
-		Suffix("RETURNING Id")
-
-	err = bq.QueryRow().Scan(&affected)
-	if err != nil {
-		return "", err
-	}
-	return affected, nil
-}
-
-func (ur *UserRepository) DestroyUser(userId string) (rowsAffected int64, err error) {
-	bq := ur.Database.Delete(entities.UserTableName).Where(squirrel.Eq{"id": userId})
-	result, err := bq.Exec()
-	if err != nil {
-		return 0, utils.ErrorManager(err)
-	}
-	return result.RowsAffected()
+	return userId, nil
 }

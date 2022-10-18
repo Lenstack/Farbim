@@ -8,7 +8,7 @@ import "google/api/annotations.proto";
 import "validation/validation.proto";
 
 service Microservice{
-  //Authentication rpc endpoints
+
   rpc SignIn(SignInRequest) returns (SignInResponse){
     option(google.api.http) = {
       post:"/v1/authentication/sign_in"
@@ -23,86 +23,48 @@ service Microservice{
     };
   };
 
-  rpc Logout(google.protobuf.Empty) returns (LogoutResponse){
+  rpc Logout(LogoutRequest) returns (LogoutResponse){
     option(google.api.http) = {
       post:"/v1/authentication/logout"
       body:"*"
     };
   };
 
-  rpc VerifyAccount(VerifyAccountRequest) returns(VerifyAccountResponse){
+  rpc RefreshToken(google.protobuf.Empty) returns (stream RefreshTokenResponse){
     option(google.api.http) = {
-      post:"/v1/activate/{Id}"
-    };
-  };
-
-  rpc DisableAccount(DisableAccountRequest) returns (DisableAccountResponse){
-    option(google.api.http) = {
-      post:"/v1/disable/{Id}"
-    };
-  };
-
-  //User rpc endpoints
-  rpc GetUsers(google.protobuf.Empty) returns(GetUsersResponse){
-    option(google.api.http) = {
-      get:"/v1/user"
-    };
-  };
-
-  rpc GetUser(GetUserRequest) returns(GetUserResponse){
-    option(google.api.http) = {
-      get:"/v1/user/{Id}"
-    };
-  };
-
-  rpc UpdateUserPassword(UpdateUserPasswordRequest) returns(UpdateUserPasswordResponse){
-    option(google.api.http) = {
-      put:"/v1/user/{Id}"
+      post:"/v1/authentication/refresh_token"
       body:"*"
     };
   };
 
-  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse){
+  rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse){
     option(google.api.http) = {
-      delete:"/v1/user/{Id}"
-    };
-  };
-
-  //Profile rpc endpoints
-  rpc UpdateProfile(UpdateProfileRequest) returns(UpdateProfileResponse){
-    option(google.api.http) = {
-      put:"/v1/profile/{Id}"
+      post:"/v1/authentication/verify_email"
       body:"*"
     };
   };
 
-  //Farm rpc endpoints
-  rpc CreateFarm(CreateFarmRequest) returns(CreateFarmResponse){
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse){
     option(google.api.http) = {
-      post:"/v1/farm"
+      post:"/v1/authentication/reset_password"
       body:"*"
     };
   };
 
-  //Category rpc endpoints
-  rpc CreateCategory(CreateCategoryRequest) returns(CreateCategoryResponse){
+  rpc CreatePermission(CreatePermissionRequest) returns (CreatePermissionResponse){
     option(google.api.http) = {
-      post:"/v1/category"
+      post:"/v1/authentication/permission"
       body:"*"
     };
   };
 
-  rpc GetCategories(google.protobuf.Empty) returns(GetCategoriesResponse){
+  rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse){
     option(google.api.http) = {
-      get:"/v1/category"
+      post:"/v1/authentication/role"
+      body:"*"
     };
   };
 
-  rpc GetCategory(GetCategoryRequest) returns(GetCategoryResponse){
-    option(google.api.http) = {
-      get:"/v1/category/{Id}"
-    };
-  };
 }
 
 message SignInRequest{
@@ -111,7 +73,7 @@ message SignInRequest{
 }
 
 message SignInResponse{
-  string Token = 1;
+  string AccessToken = 1;
 }
 
 message SignUpRequest{
@@ -121,114 +83,53 @@ message SignUpRequest{
 
 message SignUpResponse{
   string Message = 1;
+  string UserId = 2;
 }
+
+message LogoutRequest{}
 
 message LogoutResponse{
   string Message = 1;
+  string UserId = 2;
 }
 
-message GetUsersResponse{
-  int32 Page = 1;
-  int32 PerPage = 2;
-  int32 Total = 3;
-  repeated GetUserResponse Users = 4;
+message RefreshTokenRequest{}
+
+message RefreshTokenResponse{
+  string RefreshToken = 1;
 }
 
-message GetUserRequest{
-  string Id = 1;
+message VerifyEmailRequest{
+  string Token = 1;
 }
 
-message GetUserResponse{
-  string Id = 1;
-  string Email = 2;
-  string Password = 3;
-  string AccessToken = 4;
-  string RefreshToken = 5;
-  string LastResetSentAt = 6;
-  string LastVerificationSentAt = 7;
-  bool   Verified = 8;
-  google.protobuf.Timestamp CreatedAt = 9;
-  google.protobuf.Timestamp UpdatedAt = 10;
-}
-
-message VerifyAccountRequest{
-  string Id = 1;
-}
-
-message VerifyAccountResponse{
+message VerifyEmailResponse{
   string Message = 1;
 }
 
-message DisableAccountRequest{
-  string Id = 1;
+message ResetPasswordRequest{
+  string Token = 1;
 }
 
-message DisableAccountResponse{
+message ResetPasswordResponse{
   string Message = 1;
 }
 
-message UpdateUserPasswordRequest{
-  string Id = 1;
-  string OldPassword = 2;
-  string NewPassword = 3;
+message CreatePermissionRequest{
+  string ServiceName = 1;
 }
 
-message UpdateUserPasswordResponse{
+message CreatePermissionResponse{
   string Message = 1;
+  string PermissionId = 2;
 }
 
-message DeleteUserRequest{
-  string Id = 1;
-}
-
-message DeleteUserResponse{
-  string Message = 1;
-}
-
-message UpdateProfileRequest{
-  string Id = 1;
-  string Name = 2;
-  string Avatar = 3;
-}
-
-message UpdateProfileResponse{
-  string Message = 1;
-}
-
-message CreateFarmRequest{
-  string Id = 1;
-  string Name = 2;
-  string CategoryId = 3;
-  string UserId = 4;
-}
-
-message CreateFarmResponse{
-  string Message = 1;
-}
-
-message CreateCategoryRequest{
+message CreateRoleRequest{
   string Name = 1;
+  string PermissionsId = 2;
 }
 
-message CreateCategoryResponse{
+message CreateRoleResponse{
   string Message = 1;
+  string RoleId = 2;
 }
-
-message GetCategoryRequest{
-  string Id = 1;
-}
-
-message GetCategoryResponse{
-  string Id = 1;
-  string Name = 2;
-  google.protobuf.Timestamp CreatedAt = 3;
-  google.protobuf.Timestamp UpdatedAt = 4;
-}
-
-message GetCategoriesResponse{
-  int32 Page = 1;
-  int32 PerPage = 2;
-  int32 Total = 3;
-  repeated GetCategoryResponse Categories = 4;
-}
-

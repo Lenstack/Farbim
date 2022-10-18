@@ -23,25 +23,14 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MicroserviceClient interface {
-	//Authentication rpc endpoints
 	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error)
 	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*SignUpResponse, error)
-	Logout(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LogoutResponse, error)
-	VerifyAccount(ctx context.Context, in *VerifyAccountRequest, opts ...grpc.CallOption) (*VerifyAccountResponse, error)
-	DisableAccount(ctx context.Context, in *DisableAccountRequest, opts ...grpc.CallOption) (*DisableAccountResponse, error)
-	//User rpc endpoints
-	GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUsersResponse, error)
-	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
-	UpdateUserPassword(ctx context.Context, in *UpdateUserPasswordRequest, opts ...grpc.CallOption) (*UpdateUserPasswordResponse, error)
-	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
-	//Profile rpc endpoints
-	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error)
-	//Farm rpc endpoints
-	CreateFarm(ctx context.Context, in *CreateFarmRequest, opts ...grpc.CallOption) (*CreateFarmResponse, error)
-	//Category rpc endpoints
-	CreateCategory(ctx context.Context, in *CreateCategoryRequest, opts ...grpc.CallOption) (*CreateCategoryResponse, error)
-	GetCategories(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCategoriesResponse, error)
-	GetCategory(ctx context.Context, in *GetCategoryRequest, opts ...grpc.CallOption) (*GetCategoryResponse, error)
+	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error)
+	RefreshToken(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (Microservice_RefreshTokenClient, error)
+	VerifyEmail(ctx context.Context, in *VerifyEmailRequest, opts ...grpc.CallOption) (*VerifyEmailResponse, error)
+	ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...grpc.CallOption) (*ResetPasswordResponse, error)
+	CreatePermission(ctx context.Context, in *CreatePermissionRequest, opts ...grpc.CallOption) (*CreatePermissionResponse, error)
+	CreateRole(ctx context.Context, in *CreateRoleRequest, opts ...grpc.CallOption) (*CreateRoleResponse, error)
 }
 
 type microserviceClient struct {
@@ -70,7 +59,7 @@ func (c *microserviceClient) SignUp(ctx context.Context, in *SignUpRequest, opts
 	return out, nil
 }
 
-func (c *microserviceClient) Logout(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LogoutResponse, error) {
+func (c *microserviceClient) Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error) {
 	out := new(LogoutResponse)
 	err := c.cc.Invoke(ctx, "/microservice.Microservice/Logout", in, out, opts...)
 	if err != nil {
@@ -79,99 +68,68 @@ func (c *microserviceClient) Logout(ctx context.Context, in *emptypb.Empty, opts
 	return out, nil
 }
 
-func (c *microserviceClient) VerifyAccount(ctx context.Context, in *VerifyAccountRequest, opts ...grpc.CallOption) (*VerifyAccountResponse, error) {
-	out := new(VerifyAccountResponse)
-	err := c.cc.Invoke(ctx, "/microservice.Microservice/VerifyAccount", in, out, opts...)
+func (c *microserviceClient) RefreshToken(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (Microservice_RefreshTokenClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Microservice_ServiceDesc.Streams[0], "/microservice.Microservice/RefreshToken", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &microserviceRefreshTokenClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Microservice_RefreshTokenClient interface {
+	Recv() (*RefreshTokenResponse, error)
+	grpc.ClientStream
+}
+
+type microserviceRefreshTokenClient struct {
+	grpc.ClientStream
+}
+
+func (x *microserviceRefreshTokenClient) Recv() (*RefreshTokenResponse, error) {
+	m := new(RefreshTokenResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *microserviceClient) VerifyEmail(ctx context.Context, in *VerifyEmailRequest, opts ...grpc.CallOption) (*VerifyEmailResponse, error) {
+	out := new(VerifyEmailResponse)
+	err := c.cc.Invoke(ctx, "/microservice.Microservice/VerifyEmail", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *microserviceClient) DisableAccount(ctx context.Context, in *DisableAccountRequest, opts ...grpc.CallOption) (*DisableAccountResponse, error) {
-	out := new(DisableAccountResponse)
-	err := c.cc.Invoke(ctx, "/microservice.Microservice/DisableAccount", in, out, opts...)
+func (c *microserviceClient) ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...grpc.CallOption) (*ResetPasswordResponse, error) {
+	out := new(ResetPasswordResponse)
+	err := c.cc.Invoke(ctx, "/microservice.Microservice/ResetPassword", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *microserviceClient) GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUsersResponse, error) {
-	out := new(GetUsersResponse)
-	err := c.cc.Invoke(ctx, "/microservice.Microservice/GetUsers", in, out, opts...)
+func (c *microserviceClient) CreatePermission(ctx context.Context, in *CreatePermissionRequest, opts ...grpc.CallOption) (*CreatePermissionResponse, error) {
+	out := new(CreatePermissionResponse)
+	err := c.cc.Invoke(ctx, "/microservice.Microservice/CreatePermission", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *microserviceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
-	out := new(GetUserResponse)
-	err := c.cc.Invoke(ctx, "/microservice.Microservice/GetUser", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *microserviceClient) UpdateUserPassword(ctx context.Context, in *UpdateUserPasswordRequest, opts ...grpc.CallOption) (*UpdateUserPasswordResponse, error) {
-	out := new(UpdateUserPasswordResponse)
-	err := c.cc.Invoke(ctx, "/microservice.Microservice/UpdateUserPassword", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *microserviceClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error) {
-	out := new(DeleteUserResponse)
-	err := c.cc.Invoke(ctx, "/microservice.Microservice/DeleteUser", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *microserviceClient) UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error) {
-	out := new(UpdateProfileResponse)
-	err := c.cc.Invoke(ctx, "/microservice.Microservice/UpdateProfile", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *microserviceClient) CreateFarm(ctx context.Context, in *CreateFarmRequest, opts ...grpc.CallOption) (*CreateFarmResponse, error) {
-	out := new(CreateFarmResponse)
-	err := c.cc.Invoke(ctx, "/microservice.Microservice/CreateFarm", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *microserviceClient) CreateCategory(ctx context.Context, in *CreateCategoryRequest, opts ...grpc.CallOption) (*CreateCategoryResponse, error) {
-	out := new(CreateCategoryResponse)
-	err := c.cc.Invoke(ctx, "/microservice.Microservice/CreateCategory", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *microserviceClient) GetCategories(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCategoriesResponse, error) {
-	out := new(GetCategoriesResponse)
-	err := c.cc.Invoke(ctx, "/microservice.Microservice/GetCategories", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *microserviceClient) GetCategory(ctx context.Context, in *GetCategoryRequest, opts ...grpc.CallOption) (*GetCategoryResponse, error) {
-	out := new(GetCategoryResponse)
-	err := c.cc.Invoke(ctx, "/microservice.Microservice/GetCategory", in, out, opts...)
+func (c *microserviceClient) CreateRole(ctx context.Context, in *CreateRoleRequest, opts ...grpc.CallOption) (*CreateRoleResponse, error) {
+	out := new(CreateRoleResponse)
+	err := c.cc.Invoke(ctx, "/microservice.Microservice/CreateRole", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -182,25 +140,14 @@ func (c *microserviceClient) GetCategory(ctx context.Context, in *GetCategoryReq
 // All implementations must embed UnimplementedMicroserviceServer
 // for forward compatibility
 type MicroserviceServer interface {
-	//Authentication rpc endpoints
 	SignIn(context.Context, *SignInRequest) (*SignInResponse, error)
 	SignUp(context.Context, *SignUpRequest) (*SignUpResponse, error)
-	Logout(context.Context, *emptypb.Empty) (*LogoutResponse, error)
-	VerifyAccount(context.Context, *VerifyAccountRequest) (*VerifyAccountResponse, error)
-	DisableAccount(context.Context, *DisableAccountRequest) (*DisableAccountResponse, error)
-	//User rpc endpoints
-	GetUsers(context.Context, *emptypb.Empty) (*GetUsersResponse, error)
-	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
-	UpdateUserPassword(context.Context, *UpdateUserPasswordRequest) (*UpdateUserPasswordResponse, error)
-	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
-	//Profile rpc endpoints
-	UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error)
-	//Farm rpc endpoints
-	CreateFarm(context.Context, *CreateFarmRequest) (*CreateFarmResponse, error)
-	//Category rpc endpoints
-	CreateCategory(context.Context, *CreateCategoryRequest) (*CreateCategoryResponse, error)
-	GetCategories(context.Context, *emptypb.Empty) (*GetCategoriesResponse, error)
-	GetCategory(context.Context, *GetCategoryRequest) (*GetCategoryResponse, error)
+	Logout(context.Context, *LogoutRequest) (*LogoutResponse, error)
+	RefreshToken(*emptypb.Empty, Microservice_RefreshTokenServer) error
+	VerifyEmail(context.Context, *VerifyEmailRequest) (*VerifyEmailResponse, error)
+	ResetPassword(context.Context, *ResetPasswordRequest) (*ResetPasswordResponse, error)
+	CreatePermission(context.Context, *CreatePermissionRequest) (*CreatePermissionResponse, error)
+	CreateRole(context.Context, *CreateRoleRequest) (*CreateRoleResponse, error)
 	mustEmbedUnimplementedMicroserviceServer()
 }
 
@@ -214,41 +161,23 @@ func (UnimplementedMicroserviceServer) SignIn(context.Context, *SignInRequest) (
 func (UnimplementedMicroserviceServer) SignUp(context.Context, *SignUpRequest) (*SignUpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignUp not implemented")
 }
-func (UnimplementedMicroserviceServer) Logout(context.Context, *emptypb.Empty) (*LogoutResponse, error) {
+func (UnimplementedMicroserviceServer) Logout(context.Context, *LogoutRequest) (*LogoutResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
 }
-func (UnimplementedMicroserviceServer) VerifyAccount(context.Context, *VerifyAccountRequest) (*VerifyAccountResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method VerifyAccount not implemented")
+func (UnimplementedMicroserviceServer) RefreshToken(*emptypb.Empty, Microservice_RefreshTokenServer) error {
+	return status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
 }
-func (UnimplementedMicroserviceServer) DisableAccount(context.Context, *DisableAccountRequest) (*DisableAccountResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DisableAccount not implemented")
+func (UnimplementedMicroserviceServer) VerifyEmail(context.Context, *VerifyEmailRequest) (*VerifyEmailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyEmail not implemented")
 }
-func (UnimplementedMicroserviceServer) GetUsers(context.Context, *emptypb.Empty) (*GetUsersResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
+func (UnimplementedMicroserviceServer) ResetPassword(context.Context, *ResetPasswordRequest) (*ResetPasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResetPassword not implemented")
 }
-func (UnimplementedMicroserviceServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
+func (UnimplementedMicroserviceServer) CreatePermission(context.Context, *CreatePermissionRequest) (*CreatePermissionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePermission not implemented")
 }
-func (UnimplementedMicroserviceServer) UpdateUserPassword(context.Context, *UpdateUserPasswordRequest) (*UpdateUserPasswordResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserPassword not implemented")
-}
-func (UnimplementedMicroserviceServer) DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
-}
-func (UnimplementedMicroserviceServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateProfile not implemented")
-}
-func (UnimplementedMicroserviceServer) CreateFarm(context.Context, *CreateFarmRequest) (*CreateFarmResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateFarm not implemented")
-}
-func (UnimplementedMicroserviceServer) CreateCategory(context.Context, *CreateCategoryRequest) (*CreateCategoryResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateCategory not implemented")
-}
-func (UnimplementedMicroserviceServer) GetCategories(context.Context, *emptypb.Empty) (*GetCategoriesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCategories not implemented")
-}
-func (UnimplementedMicroserviceServer) GetCategory(context.Context, *GetCategoryRequest) (*GetCategoryResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCategory not implemented")
+func (UnimplementedMicroserviceServer) CreateRole(context.Context, *CreateRoleRequest) (*CreateRoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateRole not implemented")
 }
 func (UnimplementedMicroserviceServer) mustEmbedUnimplementedMicroserviceServer() {}
 
@@ -300,7 +229,7 @@ func _Microservice_SignUp_Handler(srv interface{}, ctx context.Context, dec func
 }
 
 func _Microservice_Logout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(LogoutRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -312,205 +241,100 @@ func _Microservice_Logout_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/microservice.Microservice/Logout",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MicroserviceServer).Logout(ctx, req.(*emptypb.Empty))
+		return srv.(MicroserviceServer).Logout(ctx, req.(*LogoutRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Microservice_VerifyAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(VerifyAccountRequest)
+func _Microservice_RefreshToken_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(emptypb.Empty)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(MicroserviceServer).RefreshToken(m, &microserviceRefreshTokenServer{stream})
+}
+
+type Microservice_RefreshTokenServer interface {
+	Send(*RefreshTokenResponse) error
+	grpc.ServerStream
+}
+
+type microserviceRefreshTokenServer struct {
+	grpc.ServerStream
+}
+
+func (x *microserviceRefreshTokenServer) Send(m *RefreshTokenResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _Microservice_VerifyEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyEmailRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MicroserviceServer).VerifyAccount(ctx, in)
+		return srv.(MicroserviceServer).VerifyEmail(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/microservice.Microservice/VerifyAccount",
+		FullMethod: "/microservice.Microservice/VerifyEmail",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MicroserviceServer).VerifyAccount(ctx, req.(*VerifyAccountRequest))
+		return srv.(MicroserviceServer).VerifyEmail(ctx, req.(*VerifyEmailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Microservice_DisableAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DisableAccountRequest)
+func _Microservice_ResetPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResetPasswordRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MicroserviceServer).DisableAccount(ctx, in)
+		return srv.(MicroserviceServer).ResetPassword(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/microservice.Microservice/DisableAccount",
+		FullMethod: "/microservice.Microservice/ResetPassword",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MicroserviceServer).DisableAccount(ctx, req.(*DisableAccountRequest))
+		return srv.(MicroserviceServer).ResetPassword(ctx, req.(*ResetPasswordRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Microservice_GetUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+func _Microservice_CreatePermission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreatePermissionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MicroserviceServer).GetUsers(ctx, in)
+		return srv.(MicroserviceServer).CreatePermission(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/microservice.Microservice/GetUsers",
+		FullMethod: "/microservice.Microservice/CreatePermission",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MicroserviceServer).GetUsers(ctx, req.(*emptypb.Empty))
+		return srv.(MicroserviceServer).CreatePermission(ctx, req.(*CreatePermissionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Microservice_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserRequest)
+func _Microservice_CreateRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRoleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MicroserviceServer).GetUser(ctx, in)
+		return srv.(MicroserviceServer).CreateRole(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/microservice.Microservice/GetUser",
+		FullMethod: "/microservice.Microservice/CreateRole",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MicroserviceServer).GetUser(ctx, req.(*GetUserRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Microservice_UpdateUserPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateUserPasswordRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MicroserviceServer).UpdateUserPassword(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/microservice.Microservice/UpdateUserPassword",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MicroserviceServer).UpdateUserPassword(ctx, req.(*UpdateUserPasswordRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Microservice_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteUserRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MicroserviceServer).DeleteUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/microservice.Microservice/DeleteUser",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MicroserviceServer).DeleteUser(ctx, req.(*DeleteUserRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Microservice_UpdateProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateProfileRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MicroserviceServer).UpdateProfile(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/microservice.Microservice/UpdateProfile",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MicroserviceServer).UpdateProfile(ctx, req.(*UpdateProfileRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Microservice_CreateFarm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateFarmRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MicroserviceServer).CreateFarm(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/microservice.Microservice/CreateFarm",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MicroserviceServer).CreateFarm(ctx, req.(*CreateFarmRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Microservice_CreateCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateCategoryRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MicroserviceServer).CreateCategory(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/microservice.Microservice/CreateCategory",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MicroserviceServer).CreateCategory(ctx, req.(*CreateCategoryRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Microservice_GetCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MicroserviceServer).GetCategories(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/microservice.Microservice/GetCategories",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MicroserviceServer).GetCategories(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Microservice_GetCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCategoryRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MicroserviceServer).GetCategory(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/microservice.Microservice/GetCategory",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MicroserviceServer).GetCategory(ctx, req.(*GetCategoryRequest))
+		return srv.(MicroserviceServer).CreateRole(ctx, req.(*CreateRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -535,50 +359,28 @@ var Microservice_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Microservice_Logout_Handler,
 		},
 		{
-			MethodName: "VerifyAccount",
-			Handler:    _Microservice_VerifyAccount_Handler,
+			MethodName: "VerifyEmail",
+			Handler:    _Microservice_VerifyEmail_Handler,
 		},
 		{
-			MethodName: "DisableAccount",
-			Handler:    _Microservice_DisableAccount_Handler,
+			MethodName: "ResetPassword",
+			Handler:    _Microservice_ResetPassword_Handler,
 		},
 		{
-			MethodName: "GetUsers",
-			Handler:    _Microservice_GetUsers_Handler,
+			MethodName: "CreatePermission",
+			Handler:    _Microservice_CreatePermission_Handler,
 		},
 		{
-			MethodName: "GetUser",
-			Handler:    _Microservice_GetUser_Handler,
-		},
-		{
-			MethodName: "UpdateUserPassword",
-			Handler:    _Microservice_UpdateUserPassword_Handler,
-		},
-		{
-			MethodName: "DeleteUser",
-			Handler:    _Microservice_DeleteUser_Handler,
-		},
-		{
-			MethodName: "UpdateProfile",
-			Handler:    _Microservice_UpdateProfile_Handler,
-		},
-		{
-			MethodName: "CreateFarm",
-			Handler:    _Microservice_CreateFarm_Handler,
-		},
-		{
-			MethodName: "CreateCategory",
-			Handler:    _Microservice_CreateCategory_Handler,
-		},
-		{
-			MethodName: "GetCategories",
-			Handler:    _Microservice_GetCategories_Handler,
-		},
-		{
-			MethodName: "GetCategory",
-			Handler:    _Microservice_GetCategory_Handler,
+			MethodName: "CreateRole",
+			Handler:    _Microservice_CreateRole_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "RefreshToken",
+			Handler:       _Microservice_RefreshToken_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "microservice.proto",
 }
