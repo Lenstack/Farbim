@@ -2,7 +2,6 @@ package application
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/Lenstack/farm_management/internal/core/services"
 	"github.com/Lenstack/farm_management/internal/utils"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -93,7 +92,6 @@ func (ma *MiddlewareApplication) HasPermission(request *http.Request) error {
 		return status.Errorf(codes.Unauthenticated, "this method not been registered for access")
 	}
 	if len(permissions) == 0 {
-		fmt.Println(permissions)
 		return nil
 	}
 
