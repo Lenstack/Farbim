@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"fmt"
 	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Lenstack/farm_management/internal/core/repositories"
@@ -10,6 +9,8 @@ import (
 	"github.com/go-redis/redis/v9"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"strconv"
 	"time"
 )
@@ -50,21 +51,21 @@ func NewAuthenticationService(database squirrel.StatementBuilderType, tokenManag
 func (as *AuthenticationService) SignIn(email string, password string, location string) (accessToken string, err error) {
 	usr, err := as.userRepository.GetUserByEmail(email)
 	if err != nil {
-		return "", errors.New("this account not exist")
+		return "", status.Errorf(codes.NotFound, "this account not exist")
 	}
 
 	if !usr.Verified {
-		return "", errors.New("this account has not been verified")
+		return "", status.Errorf(codes.Unauthenticated, "this account has not been verified")
 	}
 
 	err = as.bcryptManager.CompareHashedPassword(usr.Password, password)
 	if err != nil {
-		return "", errors.New("email or password are wrong")
+		return "", status.Errorf(codes.Internal, "email or password are wrong")
 	}
 
 	accessToken, err = as.tokenManager.GenerateJwtAccessToken(usr.Id, viper.Get("JWT_EXPIRATION_ACCESS").(string))
 	if err != nil {
-		return "", err
+		return "", status.Errorf(codes.Internal, err.Error())
 	}
 
 	expirationAccess, _ := strconv.Atoi(viper.Get("JWT_EXPIRATION_ACCESS").(string))
@@ -77,7 +78,7 @@ func (as *AuthenticationService) SignIn(email string, password string, location 
 		UserId:       usr.Id,
 	})
 	if err != nil {
-		return "", err
+		return "", status.Errorf(codes.Internal, err.Error())
 	}
 
 	return accessToken, err
@@ -86,7 +87,7 @@ func (as *AuthenticationService) SignIn(email string, password string, location 
 func (as *AuthenticationService) SignUp(email string, password string) (userId string, err error) {
 	isUserExist, err := as.userRepository.GetUserIdByEmail(email)
 	if isUserExist != "" {
-		return "", errors.New("this email is already registered")
+		return "", status.Errorf(codes.Internal, "this email is already registered")
 	}
 
 	hashedPassword := as.bcryptManager.HashPassword(password)
@@ -99,7 +100,7 @@ func (as *AuthenticationService) SignUp(email string, password string) (userId s
 	}
 	userId, err = as.userRepository.CreateUser(user)
 	if err != nil {
-		return "", err
+		return "", status.Errorf(codes.Internal, err.Error())
 	}
 
 	profile := entities.Profile{
@@ -130,16 +131,16 @@ func (as *AuthenticationService) Logout(headerToken string) (userId string, err 
 func (as *AuthenticationService) VerifyEmail(headerToken string) (userId string, err error) {
 	id, err := as.userRepository.GetUserByTokenKey(headerToken)
 	if err != nil {
-		return "", errors.New("your verification link may have expired")
+		return "", status.Errorf(codes.Internal, "your verification link may have expired")
 	}
 
 	userId, err = as.userRepository.UpdateVerifiedByUserId(id, true)
 	if err != nil {
-		return "", err
+		return "", status.Errorf(codes.Internal, err.Error())
 	}
 	_, err = as.userRepository.UpdateTokenKeyByUserId(userId)
 	if err != nil {
-		return "", err
+		return "", status.Errorf(codes.Internal, err.Error())
 	}
 	return userId, nil
 }

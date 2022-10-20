@@ -31,6 +31,7 @@ type MicroserviceClient interface {
 	ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...grpc.CallOption) (*ResetPasswordResponse, error)
 	CreatePermission(ctx context.Context, in *CreatePermissionRequest, opts ...grpc.CallOption) (*CreatePermissionResponse, error)
 	CreateRole(ctx context.Context, in *CreateRoleRequest, opts ...grpc.CallOption) (*CreateRoleResponse, error)
+	UpdateUserRoles(ctx context.Context, in *UpdateUserRolesRequest, opts ...grpc.CallOption) (*UpdateUserRolesResponse, error)
 }
 
 type microserviceClient struct {
@@ -136,6 +137,15 @@ func (c *microserviceClient) CreateRole(ctx context.Context, in *CreateRoleReque
 	return out, nil
 }
 
+func (c *microserviceClient) UpdateUserRoles(ctx context.Context, in *UpdateUserRolesRequest, opts ...grpc.CallOption) (*UpdateUserRolesResponse, error) {
+	out := new(UpdateUserRolesResponse)
+	err := c.cc.Invoke(ctx, "/microservice.Microservice/UpdateUserRoles", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MicroserviceServer is the server API for Microservice service.
 // All implementations must embed UnimplementedMicroserviceServer
 // for forward compatibility
@@ -148,6 +158,7 @@ type MicroserviceServer interface {
 	ResetPassword(context.Context, *ResetPasswordRequest) (*ResetPasswordResponse, error)
 	CreatePermission(context.Context, *CreatePermissionRequest) (*CreatePermissionResponse, error)
 	CreateRole(context.Context, *CreateRoleRequest) (*CreateRoleResponse, error)
+	UpdateUserRoles(context.Context, *UpdateUserRolesRequest) (*UpdateUserRolesResponse, error)
 	mustEmbedUnimplementedMicroserviceServer()
 }
 
@@ -178,6 +189,9 @@ func (UnimplementedMicroserviceServer) CreatePermission(context.Context, *Create
 }
 func (UnimplementedMicroserviceServer) CreateRole(context.Context, *CreateRoleRequest) (*CreateRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateRole not implemented")
+}
+func (UnimplementedMicroserviceServer) UpdateUserRoles(context.Context, *UpdateUserRolesRequest) (*UpdateUserRolesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserRoles not implemented")
 }
 func (UnimplementedMicroserviceServer) mustEmbedUnimplementedMicroserviceServer() {}
 
@@ -339,6 +353,24 @@ func _Microservice_CreateRole_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Microservice_UpdateUserRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserRolesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MicroserviceServer).UpdateUserRoles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/microservice.Microservice/UpdateUserRoles",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MicroserviceServer).UpdateUserRoles(ctx, req.(*UpdateUserRolesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Microservice_ServiceDesc is the grpc.ServiceDesc for Microservice service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -373,6 +405,10 @@ var Microservice_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateRole",
 			Handler:    _Microservice_CreateRole_Handler,
+		},
+		{
+			MethodName: "UpdateUserRoles",
+			Handler:    _Microservice_UpdateUserRoles_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

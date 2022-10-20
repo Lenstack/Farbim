@@ -39,8 +39,7 @@ service Microservice{
 
   rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse){
     option(google.api.http) = {
-      post:"/v1/authentication/verify_email"
-      body:"*"
+      post:"/v1/authentication/verify_email/{Token}"
     };
   };
 
@@ -61,6 +60,13 @@ service Microservice{
   rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse){
     option(google.api.http) = {
       post:"/v1/authentication/role"
+      body:"*"
+    };
+  };
+
+  rpc UpdateUserRoles(UpdateUserRolesRequest) returns (UpdateUserRolesResponse){
+    option(google.api.http) = {
+      patch:"/v1/authentication/user/{UserId}/role/{RolesId}"
       body:"*"
     };
   };
@@ -117,19 +123,29 @@ message ResetPasswordResponse{
 
 message CreatePermissionRequest{
   string ServiceName = 1;
+  repeated string RolesName = 2;
 }
 
 message CreatePermissionResponse{
   string Message = 1;
-  string PermissionId = 2;
-}
+  string PermissionId = 2;}
 
 message CreateRoleRequest{
   string Name = 1;
-  string PermissionsId = 2;
+  repeated string PermissionsId = 2;
 }
 
 message CreateRoleResponse{
   string Message = 1;
   string RoleId = 2;
+}
+
+message UpdateUserRolesRequest{
+  string UserId = 1;
+  repeated string RolesId = 2;
+}
+
+message UpdateUserRolesResponse{
+  string Message = 1;
+  string UserId = 2;
 }

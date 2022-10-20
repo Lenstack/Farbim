@@ -1,18 +1,10 @@
 CREATE TABLE IF NOT EXISTS _permissions
 (
     Id        TEXT PRIMARY KEY,
-    Service   TEXT,
+    Service   TEXT UNIQUE NOT NULL,
+    Roles     TEXT[],
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS _roles
-(
-    Id            TEXT PRIMARY KEY,
-    Name          TEXT,
-    PermissionsId TEXT,
-    CreatedAt     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS _users
@@ -22,7 +14,7 @@ CREATE TABLE IF NOT EXISTS _users
     Password        TEXT        NOT NULL,
     TokenKey        TEXT,
     Verified        BOOLEAN   DEFAULT FALSE,
-    RolesId         TEXT,
+    RolesId         TEXT[],
     Code            TEXT,
     LastResetSentAt TEXT,
     CreatedAt       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

@@ -250,7 +250,56 @@
         ]
       }
     },
-    "/v1/authentication/verify_email": {
+    "/v1/authentication/user/{UserId}/role/{RolesId}": {
+      "patch": {
+        "operationId": "Microservice_UpdateUserRoles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/microserviceUpdateUserRolesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "UserId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "RolesId",
+            "in": "path",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "csv",
+            "minItems": 1
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "tags": [
+          "Microservice"
+        ]
+      }
+    },
+    "/v1/authentication/verify_email/{Token}": {
       "post": {
         "operationId": "Microservice_VerifyEmail",
         "responses": {
@@ -269,12 +318,10 @@
         },
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
+            "name": "Token",
+            "in": "path",
             "required": true,
-            "schema": {
-              "$ref": "#/definitions/microserviceVerifyEmailRequest"
-            }
+            "type": "string"
           }
         ],
         "tags": [
@@ -289,6 +336,12 @@
       "properties": {
         "ServiceName": {
           "type": "string"
+        },
+        "RolesName": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -310,7 +363,10 @@
           "type": "string"
         },
         "PermissionsId": {
-          "type": "string"
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -404,10 +460,13 @@
         }
       }
     },
-    "microserviceVerifyEmailRequest": {
+    "microserviceUpdateUserRolesResponse": {
       "type": "object",
       "properties": {
-        "Token": {
+        "Message": {
+          "type": "string"
+        },
+        "UserId": {
           "type": "string"
         }
       }
