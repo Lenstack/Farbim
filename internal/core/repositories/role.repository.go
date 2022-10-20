@@ -3,6 +3,7 @@ package repositories
 import (
 	"github.com/Lenstack/farm_management/internal/core/entities"
 	"github.com/Masterminds/squirrel"
+	"github.com/lib/pq"
 )
 
 type IRoleRepository interface {
@@ -17,7 +18,7 @@ func (rr *RoleRepository) CreateRole(role entities.Role) (roleId string, err err
 	bq := rr.Database.
 		Insert(entities.RoleTableName).
 		Columns("Id", "Name", "PermissionsId").
-		Values(role.Id, role.Name, role.PermissionsId).
+		Values(role.Id, role.Name, pq.Array(role.PermissionsId)).
 		Suffix("RETURNING Id")
 
 	err = bq.QueryRow().Scan(&roleId)

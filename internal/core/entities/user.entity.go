@@ -12,7 +12,7 @@ type User struct {
 	Password        string
 	TokenKey        string
 	Verified        bool
-	RolesId         string
+	RolesId         []string
 	Code            string
 	LastResetSentAt string
 	CreatedAt       time.Time

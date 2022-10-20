@@ -28,14 +28,16 @@ func main() {
 		RedisPassword            = viper.Get("REDIS_PASSWORD").(string)
 		SmtpOriginEmail          = viper.Get("SMTP_ORIGIN_EMAIL").(string)
 		SmtpOriginPassword       = viper.Get("SMTP_ORIGIN_PASSWORD").(string)
+		Environment              = viper.Get("ENVIRONMENT").(string)
 	)
 
+	loggerManager := infrastructure.NewLoggerManager(Environment)
+	infrastructure.NewRedisManager(RedisHost, RedisPort, RedisPassword)
 	postgres := infrastructure.NewPostgres(
 		PostgresHost, PostgresPort, PostgresDatabaseName,
 		PostgresDatabaseUser, PostgresDatabasePassword,
 	)
 
-	_ = infrastructure.NewRedisManager(RedisHost, RedisPort, RedisPassword)
 	tokenManager := utils.NewJwtManager(JwtExpirationAccess, JwtExpirationRefresh, JwtSecret)
 	emailManager := utils.NewEmailManger(SmtpOriginEmail, SmtpOriginPassword)
 
@@ -44,7 +46,7 @@ func main() {
 	permissionService := services.NewPermissionService(postgres.Database)
 	roleService := services.NewRoleService(postgres.Database)
 
-	middlewareApplication := application.NewMiddlewareApplication(*tokenManager)
+	middlewareApplication := application.NewMiddlewareApplication(*tokenManager, loggerManager.Logger, *roleService, *permissionService)
 
 	microservices := application.NewMicroserviceServer(
 		*middlewareApplication,
@@ -54,8 +56,8 @@ func main() {
 	)
 
 	go func() {
-		infrastructure.NewGrpcServer(GrpcPort, *microservices)
+		infrastructure.NewGrpcServer(GrpcPort, loggerManager.Logger, *microservices)
 	}()
 
-	infrastructure.NewHttpServer(ApiVersion, ApiPort, *microservices)
+	infrastructure.NewHttpServer(ApiVersion, ApiPort, loggerManager.Logger, *microservices)
 }

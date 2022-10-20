@@ -8,7 +8,8 @@ import (
 )
 
 type IPermissionService interface {
-	CreatePermission(serviceName string) (permissionId string, err error)
+	GetPermissions() (permissions []entities.Permission, err error)
+	CreatePermission(serviceName string, rolesName []string) (permissionId string, err error)
 }
 
 type PermissionService struct {
@@ -19,6 +20,10 @@ func NewPermissionService(database squirrel.StatementBuilderType) *PermissionSer
 	return &PermissionService{permissionRepository: repositories.PermissionRepository{Database: database}}
 }
 
-func (ps *PermissionService) CreatePermission(serviceName string) (permissionId string, err error) {
-	return ps.permissionRepository.CreatePermission(entities.Permission{Id: uuid.New().String(), Service: serviceName})
+func (ps *PermissionService) GetPermissions() (permissions []entities.Permission, err error) {
+	return ps.permissionRepository.GetPermissions()
+}
+
+func (ps *PermissionService) CreatePermission(serviceName string, rolesName []string) (permissionId string, err error) {
+	return ps.permissionRepository.CreatePermission(entities.Permission{Id: uuid.New().String(), Service: serviceName, Roles: rolesName})
 }

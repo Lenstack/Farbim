@@ -10,7 +10,8 @@ func (ms *MicroserviceServer) CreatePermission(ctx context.Context, request *pkg
 	if err != nil {
 		return nil, err
 	}
-	permissionId, err := ms.PermissionService.CreatePermission(request.ServiceName)
+
+	permissionId, err := ms.PermissionService.CreatePermission(request.ServiceName, request.RolesName)
 	if err != nil {
 		return nil, err
 	}
