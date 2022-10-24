@@ -1,50 +1,38 @@
 import styled from "styled-components";
+import {Link as ReachRouterLink} from "react-router-dom"
 
 export const Wrapper = styled.section`
-  min-height: 100vh;
-  min-width: 100%;
+  height: 100vh;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   background-color: ${props => props.theme.colors.background.primary};
 `
 
 export const Header = styled.header`
-  grid-column: 2/12;
-  display: flex;
-  flex-direction: column;  
+  grid-column: 3/11;
+  margin: 2rem;
 
-  nav {
-    padding-top: 3rem;
-
-    a {
-      margin: 0 0.5rem 0 0.5rem;
-    }
-
-    div a:last-child {
-      background-color: ${props => props.theme.colors.dark};
-      border-radius: 0.3rem;
-      width: 100px;
-      text-align: center;
-      color: ${props => props.theme.colors.white};
-    }
+  nav div a:last-child {
+    background-color: ${props => props.theme.colors.background.secondary};
+    padding: 0.7rem;
+    border-radius: 0.3rem;
   }
 `
 
 export const Content = styled.main`
-  grid-column: 2/12;
-  grid-row: 2/12;
-  padding: 0 2rem 0 2rem;
+  grid-column: 3/11;
+  margin: 2rem;
 `
 
 export const Footer = styled.footer`
-  grid-column: 2/12;
+  grid-column: 3/11;
+  margin: 2rem;
   display: flex;
   justify-content: end;
-  align-items: center;
-  padding: 0 2rem 0 2rem;
+  align-items: end;
 `
 
-export const LinkVersion = styled.a`
+export const LinkVersion = styled(ReachRouterLink)`
   text-decoration: none;
   font-weight: lighter;
   font-size: 12px;

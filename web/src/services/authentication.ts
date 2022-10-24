@@ -7,13 +7,13 @@ const signUpUrl = BaseUrl + "authentication/sign_up"
 const refreshTokenUrl = BaseUrl + "authorization/refresh_token"
 
 export const SignInService = ({email, password}: User) => {
-    return axios.post(signInUrl, {email, password})
+    return axios.post(signInUrl, {"Email": email,"Password": password})
         .then(response => response.data)
         .catch(error => error.response.data)
 }
 
 export const SignUpService = ({email, password}: User) => {
-    return axios.post(signUpUrl, {email, password})
+    return axios.post(signUpUrl, {"Email": email,"Password": password})
         .then(response => response.data)
         .catch(error => error.response.data)
 }

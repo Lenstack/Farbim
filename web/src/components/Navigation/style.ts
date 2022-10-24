@@ -5,16 +5,11 @@ export const Nav = styled.nav`
   display: flex;
   align-items: center;
   justify-content: space-evenly;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-  }
 `
 
 export const Item = styled(ReachRouterLink)`
-  text-decoration: none;
-  font-size: 14px;
-  padding: 1rem;
+  text-decoration: none;  
+  padding-right: 1rem;
   color: ${props => props.theme.fonts.color};
 `
 
