@@ -1,19 +1,7 @@
-import {
-    Button,
-    Error,
-    Form,
-    Group,
-    GroupLink,
-    Header,
-    Title,
-    SubTitle,
-    Input,
-    Link,
-
-} from "@/components";
+import {Form} from "@/components";
 import {ROUTES_PUBLIC} from "@/constants";
 import {SubmitHandler, useForm} from "react-hook-form";
-import {Main} from "./style";
+import {Main, Wrapper} from "./style";
 
 interface IFormSendEmail {
     email: string,
@@ -27,26 +15,24 @@ export const RecoveryPassword = () => {
     }
 
     return (
-        <>
+        <Wrapper>
             <Main>
-                <Form onSubmit={handleSubmit(onSubmit)} method={'POST'}>
-                    <Header>
-                        <Title>Recovery forgotten password</Title>
-                        <SubTitle>Enter the email associated with your account and we’ll send you a recovery
-                            link</SubTitle>
-                    </Header>
-                    <Group>
-                        <Input {...register('email', {required: 'This Field Is Required'})} type={'email'}
-                               id={'email'} placeholder={"Your email."}
-                               autoComplete={"on"}/>
-                        <Error>{errors.email?.message}</Error>
-                    </Group>
-                    <Button type={"submit"}>Send recovery link.</Button>
-                    <GroupLink>
-                        <Link to={ROUTES_PUBLIC.SIGN_IN}>Return to sign in</Link>
-                    </GroupLink>
+                <Form>
+                    <Form.Header>
+                        <Form.Title>Recovery forgotten password</Form.Title>
+                        <Form.SubTitle>Enter the email associated with your account and we’ll send you a recovery
+                            link</Form.SubTitle>
+                    </Form.Header>
+                    <Form.Group>
+                        <Form.Input/>
+                        <Form.Error>{errors.email?.message}</Form.Error>
+                    </Form.Group>
+                    <Form.Submit type={"submit"}>Send recovery link.</Form.Submit>
+                    <Form.Group>
+                        <Form.Link to={ROUTES_PUBLIC.SIGN_IN}>Return to sign in</Form.Link>
+                    </Form.Group>
                 </Form>
             </Main>
-        </>
+        </Wrapper>
     )
 }

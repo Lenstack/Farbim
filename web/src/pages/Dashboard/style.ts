@@ -10,10 +10,9 @@ export const Wrapper = styled.section`
 
 export const Aside = styled.aside`
   grid-column: 1/2;
-  background-color: ${props => props.theme.colors.background.secondary};
-
-  nav {
-    flex-direction: column;
+  background-color: ${props => props.theme.colors.background.third}; 
+  nav{
+    
   }
 `
 

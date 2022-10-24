@@ -1,26 +1,46 @@
-import styled from "styled-components";
-import {Link as ReachRouterLink} from "react-router-dom"
+import {Container, Header, Group, Title, SubTitle, Label, Input, Link, Submit, Error} from "./style"
+import {ReactNode} from "react"
 
-export const Form = styled.form``
+interface IFormProps {
+    children?: ReactNode | ReactNode[]
+}
 
-export const Header = styled.header``
+export const Form = ({children, ...restProps}: IFormProps) => {
+    return (<Container{...restProps}>{children}</Container>)
+}
 
-export const Title = styled.h1``
+Form.Header = ({children, ...restProps}: IFormProps) => {
+    return (<Header{...restProps}>{children}</Header>)
+}
 
-export const SubTitle = styled.h2``
+Form.Group = ({children, ...restProps}: IFormProps) => {
+    return (<Group{...restProps}>{children}</Group>)
+}
 
-export const Group = styled.section``
+Form.Title = ({children, ...restProps}: IFormProps) => {
+    return (<Title{...restProps}>{children}</Title>)
+}
 
-export const GroupLink = styled.section``
+Form.SubTitle = ({children, ...restProps}: IFormProps) => {
+    return (<SubTitle{...restProps}>{children}</SubTitle>)
+}
 
-export const Label = styled.label``
+Form.Label = ({children, ...restProps}: IFormProps) => {
+    return (<Label{...restProps}>{children}</Label>)
+}
 
-export const Input = styled.input``
+Form.Input = ({children, ...restProps}: IFormProps) => {
+    return (<Input{...restProps}>{children}</Input>)
+}
 
-export const Button = styled.button``
+Form.Link = ({children, ...restProps}: any) => {
+    return (<Link{...restProps}>{children}</Link>)
+}
 
-export const TextArea = styled.textarea``
+Form.Submit = ({children, ...restProps}: any) => {
+    return (<Submit{...restProps}>{children}</Submit>)
+}
 
-export const Error = styled.span``
-
-export const Link = styled(ReachRouterLink)``
+Form.Error = ({children, ...restProps}: any) => {
+    return (<Error{...restProps}>{children}</Error>)
+}

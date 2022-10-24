@@ -10,6 +10,7 @@ export const App = () => {
                 <Route path={ROUTES_PUBLIC.SIGN_UP} element={<SignUp/>}/>
                 <Route path={ROUTES_PUBLIC.RECOVERY_PASSWORD} element={<RecoveryPassword/>}/>
                 <Route path={ROUTES_HOME.MAIN} element={<Home/>}>
+                    <Route index element={<HowWorks/>}/>
                     <Route path={ROUTES_HOME.HOW_WORKS} element={<HowWorks/>}/>
                     <Route path={ROUTES_HOME.PRICING} element={<Pricing/>}/>
                     <Route path={ROUTES_HOME.FAQ} element={<Faq/>}/>
