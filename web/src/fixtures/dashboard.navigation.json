@@ -4,22 +4,27 @@
     "label": "Analytics"
   },
   {
+    "id": "1",
     "to": "/farms",
     "label": "Farms"
   },
   {
+    "id": "2",
     "to": "/purchases",
     "label": "Purchases"
   },
   {
+    "id": "3",
     "to": "/sales",
     "label": "Sales"
   },
   {
+    "id": "4",
     "to": "/suppliers",
     "label": "Suppliers"
   },
   {
+    "id": "5",
     "to": "/orders",
     "label": "Orders"
   },
