@@ -1,42 +1,46 @@
 [
   {
+    "id": "1",
     "to": "/analytics",
     "label": "Analytics"
   },
   {
-    "id": "1",
+    "id": "2",
     "to": "/farms",
     "label": "Farms"
   },
   {
-    "id": "2",
+    "id": "3",
     "to": "/purchases",
     "label": "Purchases"
   },
   {
-    "id": "3",
+    "id": "4",
     "to": "/sales",
     "label": "Sales"
   },
   {
-    "id": "4",
+    "id": "5",
     "to": "/suppliers",
     "label": "Suppliers"
   },
   {
-    "id": "5",
+    "id": "6",
     "to": "/orders",
     "label": "Orders"
   },
   {
+    "id": "7",
     "to": "/clients",
     "label": "Clients"
   },
   {
+    "id": "8",
     "to": "/workers",
     "label": "Workers"
   },
   {
+    "id": "9",
     "to": "/settings",
     "label": "Settings"
   }
