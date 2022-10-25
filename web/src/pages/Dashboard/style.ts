@@ -9,13 +9,14 @@ export const Wrapper = styled.section`
 `
 
 export const Aside = styled.aside`
-  grid-column: 1/2;
-  background-color: ${props => props.theme.colors.background.third}; 
-  nav{
-    
-  }
+  grid-area: 1 / 1 / 6 / 2;
+  background-color: ${props => props.theme.colors.background.third};
+
+
+  display: flex;
+
 `
 
 export const Content = styled.section`
-  grid-column: 2/13;
+  grid-area: 1 / 2 / 6 / 13;
 `

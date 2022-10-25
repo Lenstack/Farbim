@@ -5,15 +5,27 @@ export const Wrapper = styled.section`
   height: 100vh;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  grid-gap: 1rem;
   background-color: ${props => props.theme.colors.background.primary};
 `
 
 export const Header = styled.header`
-  grid-column: 3/11;
-  margin: 2rem;
+  grid-column: 4/10;
+  display: grid;
+  align-items: center;
 
-  nav div a:last-child {
+  div {
+    grid-column: 1/2;
+  }
+
+  nav {
+    grid-column: 2/4;
+  }
+  
+  nav div .active:last-child {
     background-color: ${props => props.theme.colors.background.secondary};
+    color: ${props => props.theme.colors.white};
     padding: 0.7rem;
     border-radius: 0.3rem;
   }
@@ -26,7 +38,8 @@ export const Content = styled.main`
 
 export const Footer = styled.footer`
   grid-column: 3/11;
-  margin: 2rem;
+  grid-row: 6/6;
+  margin-bottom: 3rem;
   display: flex;
   justify-content: end;
   align-items: end;

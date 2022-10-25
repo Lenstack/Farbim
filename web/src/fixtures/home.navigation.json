@@ -1,13 +1,16 @@
 [
   {
+    "id": "2",
     "to": "/how_works",
     "label": "How Its Works"
   },
   {
+    "id": "3",
     "to": "/pricing",
     "label": "Pricing"
   },
   {
+    "id": "4",
     "to": "/faq",
     "label": "FAQ"
   }
