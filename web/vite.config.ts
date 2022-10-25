@@ -9,8 +9,8 @@ export default defineConfig({
         react(),
         VitePWA({
             manifest: {
-                name: 'vite-react-ts-100',
-                short_name: 'vite-react-ts-100',
+                name: 'management',
+                short_name: 'mg',
                 start_url: '/',
                 display: 'standalone',
                 background_color: '#ffffff',
