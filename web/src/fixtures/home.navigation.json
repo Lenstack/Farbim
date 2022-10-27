@@ -2,7 +2,7 @@
   {
     "id": "2",
     "to": "/how_works",
-    "label": "How Its Works"
+    "label": "How its works"
   },
   {
     "id": "3",
@@ -12,6 +12,6 @@
   {
     "id": "4",
     "to": "/faq",
-    "label": "FAQ"
+    "label": "Faq"
   }
 ]

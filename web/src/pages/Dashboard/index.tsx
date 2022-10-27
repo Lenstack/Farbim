@@ -1,13 +1,12 @@
 import {Wrapper, Aside, Content} from "./style"
 import {Outlet} from "react-router-dom";
-import {Navigation} from "@/components";
-import DashboardNavigationItems from "@/fixtures/dashboard.navigation.json"
+import {DashboardAsideContainer} from "@/containers";
 
 export const Dashboard = () => {
     return (
         <Wrapper>
             <Aside>
-                <Navigation links={DashboardNavigationItems}/>
+                <DashboardAsideContainer/>
             </Aside>
             <Content>
                 <Outlet/>
