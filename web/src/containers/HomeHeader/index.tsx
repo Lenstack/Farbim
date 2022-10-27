@@ -1,6 +1,6 @@
 import {Nav} from "@/components";
 import {ROUTES_HOME, ROUTES_PUBLIC} from "@/constants";
-import Logo from "@/assets/Logo.png";
+import Logo from "@/assets/Logo.svg";
 import HomeNavigation from "@/fixtures/home.navigation.json";
 
 export const HomeHeaderContainer = () => {

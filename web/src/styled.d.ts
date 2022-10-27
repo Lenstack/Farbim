@@ -14,10 +14,12 @@ declare module 'styled-components' {
             danger: string,
             white: string,
             dark: string,
-            gradiant: string
         },
         fonts: {
             size: string
+            color: string
+        },
+        logo: {
             color: string
         }
     }
