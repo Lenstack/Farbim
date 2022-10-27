@@ -1,3 +1,3 @@
 export {Form} from "./Form"
-export {Navigation} from "./Navigation"
-export {Table, THead, TBody} from "./Table"
+export {Nav} from "./Nav"
+export {Card} from "./Card"

@@ -1,4 +1,4 @@
-import {Nav, Item, Logo, Group} from "./style"
+import {Container, Item, Logo, Group} from "./style"
 
 interface INavProps {
     links: { id: string, to: string, label?: string, logo?: string }[]
@@ -21,9 +21,9 @@ interface ILogoProps {
     alt?: string
 }
 
-export const Navigation = ({links, children, ...restProps}: INavProps) => {
+export const Nav = ({links, children, ...restProps}: INavProps) => {
     return (
-        <Nav>
+        <Container>
             <Group>
                 {
                     links.map((item) =>
@@ -33,19 +33,21 @@ export const Navigation = ({links, children, ...restProps}: INavProps) => {
                     )
                 }
             </Group>
-            {children}
-        </Nav>
+            {
+                children ? <Group>{children}</Group> : null
+            }
+        </Container>
     )
 }
 
-Navigation.Item = ({to, styleClass, children, ...restProps}: IItemProps) => {
+Nav.Item = ({to, styleClass, children, ...restProps}: IItemProps) => {
     return (<Item to={to} className={styleClass} {...restProps}>{children}</Item>)
 }
 
-Navigation.Logo = ({to, path, alt, ...restProps}: ILogoProps) => {
+Nav.Logo = ({to, path, alt, ...restProps}: ILogoProps) => {
     return (<Item to={to} {...restProps} ><Logo src={path} alt={alt}/></Item>)
 }
 
-Navigation.Group = ({children, ...restProps}: IGroupProps) => {
+Nav.Group = ({children, ...restProps}: IGroupProps) => {
     return (<Group {...restProps}>{children}</Group>)
 }

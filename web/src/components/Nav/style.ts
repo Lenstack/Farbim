@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import {Link as ReachRouterLink} from "react-router-dom"
 
-export const Nav = styled.nav`
+export const Container = styled.nav`
   display: flex;  
   justify-content: space-between;
 `
@@ -14,8 +14,8 @@ export const Item = styled(ReachRouterLink)`
 `
 
 export const Logo = styled.img`
-  width: 50px;
-  height: 50px;
+  object-fit: cover;
+  width: 70px; 
 `
 
-export const Group = styled.div``
+export const Group = styled.section``

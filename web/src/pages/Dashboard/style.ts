@@ -11,9 +11,8 @@ export const Wrapper = styled.section`
 export const Aside = styled.aside`
   grid-area: 1 / 1 / 6 / 2;
   background-color: ${props => props.theme.colors.background.third};
-
-
   display: flex;
+  flex-direction: column;
 
 `
 
