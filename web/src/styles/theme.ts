@@ -3,8 +3,8 @@ import {DefaultTheme} from "styled-components";
 const Light: DefaultTheme = {
     colors: {
         background: {
-            primary: "#e8fae5",
-            secondary: "#3e4a3c",
+            primary: "#e4f0f4",
+            secondary: "#464444",
             third: "#fafafa"
         },
         info: "#43c6da",
@@ -13,19 +13,21 @@ const Light: DefaultTheme = {
         danger: "#e65454",
         white: "#FFFFFF",
         dark: "#1B1B1B",
-        gradiant:"linear-gradient(62deg, #FBAB7E 0%, #F7CE68 100%)"
     },
     fonts: {
         size: "0.8rem",
         color: "#2c2c2c"
+    },
+    logo: {
+        color: "invert(25%) sepia(11%) saturate(120%) brightness(88%) contrast(83%)"
     }
 }
 
 const Dark: DefaultTheme = {
     colors: {
         background: {
-            primary: "#202525",
-            secondary: "#589e79",
+            primary: "#1f2323",
+            secondary: "#558D65",
             third: "#2c3333"
         },
         info: "#8AD7E3",
@@ -34,10 +36,13 @@ const Dark: DefaultTheme = {
         danger: "#E38A8A",
         white: "#FFFFFF",
         dark: "#1B1B1B",
-        gradiant:"linear-gradient(62deg, #67a1c1 0%, #65c7a4 100%)"
+
     }, fonts: {
         size: "0.8rem",
         color: "#ffffff"
+    },
+    logo: {
+        color: "invert(100%) sepia(1%) saturate(44%) hue-rotate(111deg) brightness(140%) contrast(66%)"
     }
 }
 
